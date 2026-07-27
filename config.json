@@ -1,0 +1,23 @@
+{
+    "theme": "light",
+    "logo": "/uploads/logo-1785005199765.jpeg",
+    "logoSize": 252,
+    "title": "Jaime Martinez",
+    "subtitle": "Ing. de Sistemas",
+    "radius": 31,
+    "font": "Verdana,sans-serif",
+    "animationSpeed": 0.75,
+    "glass": false,
+    "neumorphism": false,
+    "admin": false,
+    "background": "#212121",
+    "card": "#ffffff",
+    "button": "#292929",
+    "border": "#0d0d0d",
+    "shadow": "#4f4f4f",
+    "iconColor": "#ffffff",
+    "text": "#ffffff",
+    "textSecondary": "#ffffff",
+    "cardImage": "/uploads/fondo-card-1785186368217.png",
+    "titleFont": "VerandahReverie_PERSONAL_USE_ONLY"
+}

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <!--<link rel="shortcut icon" href="/ruta-de-tu-imagen/logo.png" type="image/x-icon">-->
+
+     <link id="favicon" rel="shortcut icon" href="logo.png"  type="image/x-icon">
+
+    <title>Ro&Mi</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="JM Developer.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+
+<!--==========================
+    BOTÓN ADMIN
+===========================-->
+
+<button id="btnAdmin" class="btn-admin">
+
+    <i class="fa-solid fa-user"></i>
+
+</button>
+
+    <!-- Botones superiores -->
+
+    <div  class="top-buttons">
+
+        <button class="admin-only" id="btnBackground">
+            <i class="fa-solid fa-palette"></i>
+        </button>
+
+
+        <button class="admin-only" id="btnTheme">
+        <i class="fa-solid fa-moon"></i>
+        </button>
+
+    </div>
+
+    <!-- Tarjeta -->
+
+    <div class="card">
+
+        <!-- Logo -->
+
+        <div class="logo-container">
+
+            <img
+                id="logo"
+                src="#"
+                alt="logo">
+
+            <button class="edit-logo admin-only">
+
+                <i class="fa-solid fa-camera"></i>
+
+            </button>
+
+        </div>
+
+        <!-- Nombre -->
+
+        <div class="title-box">
+
+            <h1 id="title">
+
+                Ro&Mi
+
+                <button style="color: black;"class="edit-title admin-only">
+
+                    <i class="fa-solid fa-pen"></i>
+
+                </button>
+
+            </h1>
+
+            <h3 id="subtitle">
+
+                Salon, Nail Art y Podología
+
+
+
+            </h3>
+
+        </div>
+
+        <!-- Botones -->
+
+        <div id="linksContainer">
+
+            <!-- Botón -->
+
+            <div class="link-card">
+
+                <div class="left">
+
+                    <i class="fab fa-whatsapp"></i>
+
+                </div>
+
+                <div class="center">
+
+                    <span>WhatsApp Sede Jesús María</span>
+
+                </div>
+
+                <button class="options admin-only">
+
+                    <i class="fa-solid fa-ellipsis-vertical admin-only"></i>
+
+                </button>
+
+            </div>
+
+            <!-- Botón -->
+
+            <div class="link-card">
+
+                <div class="left">
+
+                    <i class="fab fa-facebook-f"></i>
+
+                </div>
+
+                <div class="center">
+
+                    <span>Facebook Sede Jesús María</span>
+
+                </div>
+
+                <button  class="options admin-only">
+
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+
+                </button>
+
+            </div>
+
+            <!-- Botón -->
+
+            <div class="link-card">
+
+                <div class="left">
+
+                    <i class="fa-solid fa-file-pdf"></i>
+
+                </div>
+
+                <div class="center">
+
+                    <span>Información de mis servicios</span>
+
+                    <small>PDF Document</small>
+
+                </div>
+
+                <button class="options admin-only">
+
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--=============================
+            MODAL LOGO
+    ==============================-->
+
+    <div class="modal" id="logoModal">
+
+        <div class="modal-content">
+
+            <h2>Editar Logo</h2>
+
+           <input
+    type="text"
+    id="logoURL"
+    placeholder="URL de la imagen">
+
+<input style="color: white;"
+    type="file"
+    id="logoFile"
+    accept="image/*">
+
+<label for="logoSize">
+    Tamaño del Logo
+</label>
+
+<input
+    type="range"
+    id="logoSize"
+    min="50"
+    max="300"
+    value="150">
+
+<span style="color: white;" id="logoSizeValue">150 px</span>
+
+<div class="buttons">
+
+    <button id="saveLogo">
+        Guardar
+    </button>
+
+<button class="closeModal closeX">
+    <i class="fa-solid fa-xmark"></i>
+</button>
+
+</div>
+
+        </div>
+
+    </div>
+
+    <!--=============================
+            MODAL TITULO
+    ==============================-->
+
+    <div class="modal" id="titleModal">
+
+    <div class="modal-content">
+
+        <h2>Editar Nombre</h2>
+
+        <input
+            type="text"
+            id="newTitle"
+            placeholder="Nombre">
+
+        <input
+            type="text"
+            id="newSubtitle"
+            placeholder="Subtítulo">
+
+        <label>Color del Título</label>
+
+        <input
+            type="color"
+            id="titleColor">
+
+        <label>Color del Subtítulo</label>
+
+        <input
+            type="color"
+            id="subtitleColor">
+
+        <div class="buttons">
+
+            <button id="saveTitle">
+                Guardar
+            </button>
+
+  <button class="closeModal closeX">
+    <i class="fa-solid fa-xmark"></i>
+</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!--=============================
+        MODAL EDITOR DE BOTONES
+=============================-->
+
+<div class="modal" id="linkModal">
+
+    <div class="modal-content link-editor-modal">
+
+        <h2>
+            <i class="fa-solid fa-pen-to-square"></i>
+            Editor de Botones
+        </h2>
+
+        <!-- TEXTO -->
+        <label for="linkTitle">
+            Texto del botón
+        </label>
+
+        <input
+            type="text"
+            id="linkTitle"
+            placeholder="Ejemplo: Contáctame por WhatsApp">
+
+        <!-- URL -->
+        <label for="linkURL">
+            URL
+        </label>
+
+        <input
+            type="url"
+            id="linkURL"
+            placeholder="https://ejemplo.com">
+
+        <!-- ICONO -->
+        <label for="linkIcon">
+            Icono
+        </label>
+
+        <select id="linkIcon">
+
+            <option value="fab fa-whatsapp">
+                WhatsApp
+            </option>
+
+            <option value="fab fa-facebook">
+                Facebook
+            </option>
+
+            <option value="fab fa-instagram">
+                Instagram
+            </option>
+
+            <option value="fab fa-tiktok">
+                TikTok
+            </option>
+
+            <option value="fab fa-youtube">
+                YouTube
+            </option>
+
+            <option value="fab fa-telegram">
+                Telegram
+            </option>
+
+            <option value="fab fa-discord">
+                Discord
+            </option>
+
+            <option value="fa-solid fa-globe">
+                Web
+            </option>
+
+            <option value="fa-solid fa-envelope">
+                Correo
+            </option>
+
+            <option value="fa-solid fa-phone">
+                Teléfono
+            </option>
+
+            <option value="fa-solid fa-file-pdf">
+                PDF
+            </option>
+
+            <option value="fa-solid fa-location-dot">
+                Ubicación
+            </option>
+
+            <option value="fab fa-github">
+                GitHub
+            </option>
+
+            <option value="fab fa-linkedin">
+                LinkedIn
+            </option>
+
+            <option value="fab fa-spotify">
+                Spotify
+            </option>
+
+            <option value="fab fa-pinterest">
+                Pinterest
+            </option>
+
+            <option value="fab fa-x-twitter">
+                X (Twitter)
+            </option>
+
+            <option value="fab fa-threads">
+                Threads
+            </option>
+
+        </select>
+
+        <!-- COLOR DE LA LETRA -->
+        <label for="linkTextColor">
+            Color de la letra
+        </label>
+
+        <input
+            type="color"
+            id="linkTextColor"
+            value="#111111">
+
+        <!-- DESCRIPCIÓN -->
+        <label for="linkDescription">
+            Descripción opcional
+        </label>
+
+<textarea
+id="linkDescription"
+maxlength="30"
+placeholder="Máximo 30 caracteres">
+</textarea>
+
+<small  style="color: white;" id="contadorDescripcion">
+0 / 30
+</small> 
+        <!-- NUEVA PESTAÑA -->
+        <label class="checkbox-label">
+
+            <input
+                type="checkbox"
+                id="linkNewTab">
+
+            Abrir en nueva pestaña
+
+        </label>
+
+        <!-- BOTONES -->
+        <div class="buttons">
+
+            <button
+                id="saveLink"
+                class="btn-save">
+
+                <i class="fa-solid fa-floppy-disk"></i>
+                Guardar
+
+            </button>
+
+            <button
+                id="deleteLink"
+                class="btn-delete">
+
+                <i class="fa-solid fa-trash"></i>
+                Eliminar
+
+            </button>
+
+            <button id="duplicateLink" class="btn-duplicate">
+
+                <i class="fa-solid fa-copy"></i>
+                Duplicar
+
+            </button>
+
+<button class="closeModal closeX">
+    <i class="fa-solid fa-xmark"></i>
+</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <!--=============================
+            MODAL COLORES
+    ==============================-->
+
+    <div class="modal" id="colorModal">
+
+        <div class="modal-content">
+
+            <h2>Colores</h2>
+
+            <label>
+
+                Fondo
+
+            </label>
+
+            <input
+                type="color"
+                id="backgroundColor">
+
+                <label>Imagen de fondo</label>
+
+<input
+type="file"
+id="backgroundImage"
+accept="image/*">
+
+<div class="buttons">
+
+    <button id="removeCardImage" type="button">
+        <i class="fa-solid fa-image"></i>
+        Quitar imagen
+    </button>
+
+</div>
+<!--<div class="buttons">
+    <button id="saveBackgroundImage">
+        Guardar Imagen
+    </button>
+</div>-->
+
+            <label>
+
+                Tarjeta
+
+            </label>
+
+            <input
+                type="color"
+                id="cardColor">
+
+            <label>
+
+                Botones
+
+            </label>
+            <input
+                type="color"
+                id="buttonColor">
+
+            <label>Color de los iconos</label>
+            <input type="color" id="iconColor" value="#ffffff">
+
+            <label>
+
+                Bordes
+
+            </label>
+
+            <input
+                type="color"
+                id="borderColor">
+
+            <label>
+
+                Sombras
+
+            </label>
+
+            <input
+                type="color"
+                id="shadowColor">
+
+           
+
+ <label for="animationSpeed"> Velocidad de las animaciones </label>
+ <input type="range" id="animationSpeed" min="0.1" max="1.5" step="0.05" value="0.35"> 
+ <span style="color: white;" id="animationValue"> 0.35 s </span> 
+                
+                    <div class="buttons">
+
+                     <button class="closeModal closeX">
+                    <i class="fa-solid fa-xmark"></i>
+                     </button>
+
+            </div>
+        </div>
+       
+
+
+    </div>
+
+
+    <!--==========================
+                 FOOTER
+    ===========================-->
+<footer class="creator-footer">
+
+    <img src="sigueme (1).jpeg">
+
+    <a
+        href="https://wa.me/51960722146"
+        target="_blank">
+
+        Creado por Jaime Martínez
+
+    </a>
+
+</footer>
+    
+
+<!--==========================
+    MODAL ADMIN
+===========================-->
+
+<div id="adminModal" class="admin-modal">
+
+    <div class="admin-box">
+
+        <h2>Administrador</h2>
+
+        <input
+            id="adminUser"
+            type="text"
+            placeholder="Nombre">
+
+        <input
+            id="adminPass"
+            type="password"
+            placeholder="Contraseña">
+
+ <div class="admin-buttons">
+
+    <button id="loginAdmin">
+
+        Activar
+
+    </button>
+
+    <button id="logoutAdmin">
+
+        Cerrar sesión
+
+    </button>
+
+</div>
+
+    </div>
+
+</div>
+    <!-- JavaScript -->
+
+    <script src="JM Developer.js"></script>
+
+</body>
+
+</html>

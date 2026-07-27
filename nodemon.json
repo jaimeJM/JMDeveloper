@@ -1,0 +1,11 @@
+{
+  "watch": [
+    "server.js"
+  ],
+  "ignore": [
+    "uploads/**",
+    "config.json",
+    "botones.json"
+  ],
+  "ext": "js"
+}
