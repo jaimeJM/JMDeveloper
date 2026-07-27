@@ -287,9 +287,19 @@ app.use(express.static(__dirname));
 
 
 
+
 app.use("/uploads", express.static("uploads"));
 
 app.use("/fonts", express.static("fonts"));
+
+// =========================
+// Página principal
+// =========================
+app.get("/", (req, res) => {
+
+    res.sendFile(path.join(__dirname, "index.html"));
+
+});
 
 /*=====================================================
         LISTAR TODAS LAS FUENTES
