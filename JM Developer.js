@@ -9,7 +9,17 @@ async function cargarConfiguracion() {
 
     try {
 
-        const respuesta = await fetch("/config");
+        const respuesta = await fetch("/config", {
+            cache: "no-store"
+        });
+
+        if(!respuesta.ok){
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
 
         configuracion = await respuesta.json();
 
@@ -301,29 +311,6 @@ function restaurarColores(){
 
 
 /*====================================================
-        ACTUALIZAR COLOR DEL FOOTER
-====================================================*/
-
-function actualizarColorFooter(color){
-
-    color = color.replace("#","");
-
-    const r = parseInt(color.substring(0,2),16);
-    const g = parseInt(color.substring(2,4),16);
-    const b = parseInt(color.substring(4,6),16);
-
-    const brillo = (r*299 + g*587 + b*114)/1000;
-
-    const colorTexto = brillo > 150 ? "#000000" : "#ffffff";
-
-    document.documentElement.style.setProperty(
-        "--footer-text",
-        colorTexto
-    );
-
-}
-
-/*====================================================
                 PASO 5
             RESTAURAR FUENTE
 ====================================================*/
@@ -567,6 +554,8 @@ addButton.style.transform="scale(1)";
 addButton.onclick = () => {
 
     agregarBoton();
+
+    guardarBotones();
 
     activarBotones();
 
@@ -1783,6 +1772,9 @@ document.getElementById("duplicateLink").onclick = () => {
 
     );
 
+    
+    guardarBotones();
+
     // Activar eventos únicamente para el nuevo botón
 activarBotones();
 
@@ -1944,8 +1936,6 @@ div.style.fontFamily =
 configuracion.font ||
 "'Segoe UI',sans-serif";
 
-guardarBotones();
-
 
 
 // Mantener ocultos los controles si no es administrador
@@ -1958,85 +1948,112 @@ guardarBotones();
             GUARDAR BOTONES
 ====================================================*/
 
-function guardarBotones(){
+let guardandoBotones = false;
+let guardarBotonesPendiente = false;
 
-     if(!document.getElementById("linksContainer"))
+async function guardarBotones(){
+
+    const contenedor =
+        document.getElementById("linksContainer");
+
+    if(!contenedor) return;
+
+    if(guardandoBotones){
+
+        guardarBotonesPendiente = true;
+
         return;
 
-    const datos = [];
+    }
 
+    guardandoBotones = true;
 
-    document
-        .querySelectorAll(".link-card")
-        .forEach(card => {
+    try{
 
+        do{
 
-        datos.push({
+            guardarBotonesPendiente = false;
 
-            texto:
-                card
-                .querySelector(".center span")
-                .innerText,
+            const datos = [];
 
+            contenedor
+                .querySelectorAll(".link-card")
+                .forEach(card => {
 
-            icono:
-                card
-                .querySelector(".left i")
-                .className,
+                    const span =
+                        card.querySelector(".center span");
 
+                    const icon =
+                        card.querySelector(".left i");
 
-            url:
-                card.dataset.url || "",
+                    if(!span || !icon) return;
 
+                    datos.push({
 
-            textColor:
-                card.dataset.textColor ||
-                "#ffffff",
+                        texto:
+                            span.innerText.trim(),
 
+                        icono:
+                            icon.className,
 
-            description:
-                card.dataset.description ||
-                "",
+                        url:
+                            card.dataset.url || "",
 
+                        textColor:
+                            card.dataset.textColor ||
+                            "#ffffff",
 
-            newTab:
-                card.dataset.newTab === "true"
+                        description:
+                            card.dataset.description ||
+                            "",
 
-        });
+                        newTab:
+                            card.dataset.newTab === "true"
 
-    });
+                    });
 
+                });
 
-fetch("/botones", {
+            const respuesta = await fetch("/botones", {
 
-    method: "POST",
+                method: "POST",
 
-    headers: {
+                headers: {
 
-        "Content-Type": "application/json"
+                    "Content-Type": "application/json"
 
-    },
+                },
 
-    body: JSON.stringify(datos)
+                body: JSON.stringify(datos)
 
-})
-.then(res => res.json())
-.then(() => {
+            });
 
-    console.log("Botones guardados");
+            if(!respuesta.ok){
 
-})
-.catch(error => {
+                throw new Error(
+                    `HTTP ${respuesta.status}`
+                );
 
-    console.error(
-        "Error guardando botones:",
-        error
-    );
+            }
 
-});
+            console.log("Botones guardados");
+
+        }while(guardarBotonesPendiente);
+
+    }catch(error){
+
+        console.error(
+            "Error guardando botones:",
+            error
+        );
+
+    }finally{
+
+        guardandoBotones = false;
+
+    }
 
 }
-
 
 /*====================================================
                 PASO 10
@@ -2053,27 +2070,46 @@ async function cargarBotones() {
     try {
 
         const respuesta =
-            await fetch("/botones");
+            await fetch("/botones", {
+                cache: "no-store"
+            });
 
-        const botones =
+        if(!respuesta.ok){
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
+
+        const botonesServidor =
             await respuesta.json();
+
+        if(!Array.isArray(botonesServidor)){
+
+            throw new Error(
+                "La respuesta de /botones no es un arreglo."
+            );
+
+        }
+
+        /*
+            Primero validamos los datos del servidor.
+            Después limpiamos el HTML inicial.
+            Durante esta carga NO se llama guardarBotones().
+        */
 
         contenedor.innerHTML = "";
 
-        botones.forEach(btn => {
+        botonesServidor.forEach(btn => {
 
             agregarBoton(
 
                 btn.texto,
-
                 btn.icono,
-
                 btn.url,
-
                 btn.textColor,
-
                 btn.description,
-
                 btn.newTab
 
             );
@@ -2087,12 +2123,18 @@ async function cargarBotones() {
             error
         );
 
+        /*
+            IMPORTANTE:
+            Si /botones falla, NO se recuperan los botones
+            escritos en index.html. El servidor es la única
+            fuente de verdad para la carga inicial.
+        */
+
+        contenedor.innerHTML = "";
+
     }
 
 }
-
-
-
 
 
 const descripcion=document.getElementById("linkDescription");
@@ -2493,7 +2535,9 @@ async function cargarEstadoAdmin(){
 
 async function inicializarAplicacion() {
 
- /*----------------------------------
+ 
+ try{
+/*----------------------------------
         PASO 0
 ----------------------------------*/
 
@@ -2606,9 +2650,22 @@ if (configuracion.titleFont) {
 
     /*----------------------------------
         PASO 14
-    ----------------------------------*/
+    ----------------------------------*/    await cargarEstadoAdmin();
 
-    await cargarEstadoAdmin();
+ }catch(error){
+
+    console.error(
+        "Error inicializando la aplicación:",
+        error
+    );
+
+ }finally{
+
+    document.body.classList.remove("app-loading");
+
+    document.body.classList.add("app-ready");
+
+ }
 
 }
 
