@@ -698,6 +698,12 @@ app.listen(PORT, () => {
     console.log(`Servidor iniciado en el puerto ${PORT}`);
 });
 
+
+
+app.listen(3000, "192.168.0.3", () => {
+    console.log("Servidor iniciado");
+});
+
 /*
 app.listen(3000,()=>{
     console.log("Servidor iniciado en http://localhost:3000");

@@ -874,7 +874,7 @@ input[type="color"]{
 
     padding:0;
 
-    margin:10px auto 15px auto;
+    margin:0;
 
     border:2px solid var(--border);
 
@@ -1521,9 +1521,9 @@ all var(--animation-speed) ease;
 
 .creator-footer img{
 
-    width:50px;
+    width:30px;
 
-    height:50px;
+    height:30px;
 
     border-radius:50%;
 
@@ -1537,9 +1537,13 @@ all var(--animation-speed) ease;
 
     color:#fff;
 
+    font-size: 10px;
+
     text-decoration:none;
 
     font-weight:bold;
+    
+    font-family:var(--font-family);
 
     text-shadow:0 2px 8px rgba(0,0,0,.8);
 
@@ -1678,7 +1682,7 @@ input[type="range"]::-webkit-slider-thumb:hover{
     transform:scale(1.15);
 
     box-shadow:
-        0 0 0 4px #ff2600e9,
+        0 0 0 4px #182bffe9,
         0 6px 14px rgba(0,0,0,.30);
 
 }
@@ -1715,6 +1719,53 @@ input[type="range"]::-moz-range-thumb{
     cursor:pointer;
 
 }
+
+
+#titleSize{
+
+    width:100%;
+
+    margin-top:12px;
+
+}
+
+#titleSizeValue{
+
+    display:block;
+
+    text-align:center;
+
+    margin-top:8px;
+
+    font-weight:bold;
+
+    color:var(--text);
+
+}
+
+
+#subtitleSize{
+
+    width:100%;
+
+    margin-top:12px;
+
+}
+
+#subtitleSizeValue{
+
+    display:block;
+
+    text-align:center;
+
+    margin-top:8px;
+
+    font-weight:bold;
+
+    color:var(--text);
+
+}
+
 
 /*====================================
       SLIDER - MODO OSCURO
@@ -1949,23 +2000,63 @@ input[type="range"]::-moz-range-thumb{
 =========================================*/
 @media (max-width: 768px) {
 
-    /* Botones superiores */
-    .top-buttons{
-        top: 10px;
-        right: 10px;
-        gap: 8px;
+     .top-buttons{
+
+        position:fixed;
+
+        top:10px;
+
+        left:0;
+
+        right:0;
+
+        width:100%;
+
+        display:block;
+
+        pointer-events:none;
+
+        z-index:9999;
+
     }
 
     .top-buttons button{
-        width: 30px;
-        height: 30px;
-        font-size: 12px;
-        padding: 0;
+
+        position:absolute;
+
+        width:38px;
+
+        height:38px;
+
+        border-radius:50%;
+
+        padding:0;
+
+        pointer-events:auto;
     }
 
     .top-buttons button i{
-        font-size: 16px;
+
+        font-size:18px;
+
     }
+
+    /* Paleta -> izquierda */
+
+    #btnBackground{
+
+        left:10px;
+
+    }
+
+    /* Tema -> derecha */
+
+    #btnTheme{
+
+        right:10px;
+
+    }
+
 
 
       /* Botón flotante */
@@ -2030,6 +2121,116 @@ input[type="range"]::-moz-range-thumb{
 
 }
 
+}
+
+
+/*====================================
+        EDITOR DE COLOR
+====================================*/
+
+.color-editor{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:18px;
+
+}
+
+.color-editor input[type="color"]{
+
+    width:90px;
+
+    height:50px;
+
+    cursor:pointer;
+
+}
+
+.color-editor input[type="text"]{
+
+    width:180px;
+
+    text-align:center;
+
+    font-size:15px;
+
+    padding:8px;
+
+    border-radius:8px;
+
+}
+
+.color-editor select{
+
+    width:120px;
+
+    padding:8px;
+
+    text-align:center;
+
+    border-radius:8px;
+
+}
+
+
+/*====================================================
+        COLOR EDITOR PROFESIONAL
+====================================================*/
+
+.color-row{
+
+     display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:12px;
+
+    width:fit-content;
+
+    margin:0 auto;
+
+
+}
+
+.color-row input[type="color"]{
+
+       width:50px;
+
+    height:50px;
+
+    flex:none;
+
+    margin:0;
+
+
+}
+
+.color-row input[type="text"]{
+
+      width:180px;
+
+    flex:none;
+
+    margin:0;
+
+}
+
+.color-row select{
+
+  
+      width:90px;
+
+    flex:none;
+
+    margin:0;
 }
 
 

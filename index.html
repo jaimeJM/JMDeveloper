@@ -160,29 +160,90 @@ Jaime Martinez1
 
         <div class="modal-content">
 
-            <h2>Editar Nombre</h2>
+            <h2>Editar titulo y subtitulo</h2>
 
             <input
                 type="text"
                 id="newTitle"
+                maxlength="30"
                 placeholder="Nombre">
 
             <input
                 type="text"
                 id="newSubtitle"
+                maxlength="30"
                 placeholder="Subtítulo">
 
-            <label>Color del Título</label>
+                <label>Color del Titulo</label><br>
 
-            <input
-                type="color"
-                id="titleColor">
+<div class="color-editor">
 
-            <label>Color del Subtítulo</label>
+    <div class="color-row">
 
-            <input
-                type="color"
-                id="subtitleColor">
+        <input
+            type="color"
+            id="titleColor">
+
+        <input
+            type="text"
+            id="titleColorText"
+            placeholder="#00D2FF">
+
+        <select id="titleColorFormat">
+
+            <option value="hex">HEX</option>
+            <option value="rgb">RGB</option>
+
+        </select>
+
+    </div>
+
+</div>
+
+                     <label>Tamaño del Título</label>
+
+                <input
+                id="titleSize"
+                type="range"
+                min="20"
+                max="90"
+                value="48">
+
+                <span style="color: white;" id="titleSizeValue">48 px </span>
+
+ <label>Color del Subtitulo</label><br>
+<div class="color-editor">
+
+     <div class="color-row">
+    <input
+        type="color"
+        id="subtitleColor">
+
+    <input
+        type="text"
+        id="subtitleColorText"
+        placeholder="#00D2FF">
+
+    <select id="subtitleColorFormat">
+
+        <option value="hex">HEX</option>
+
+        <option value="rgb">RGB</option>
+
+    </select>
+    </div>
+</div>
+
+                <label>Tamaño del Subtítulo</label>
+
+                <input
+                id="subtitleSize"
+                type="range"
+                min="12"
+                max="60"
+                value="24">
+
+                <span style="color: white;" id="subtitleSizeValue">24 px</span>
 
                 <label>Fuente personalizada del título</label>
 
@@ -235,6 +296,7 @@ Jaime Martinez1
         <input
             type="text"
             id="linkTitle"
+            maxlength="30"
             placeholder="Ejemplo: Contáctame por WhatsApp">
 
         <!-- URL -->
@@ -245,6 +307,7 @@ Jaime Martinez1
         <input
             type="url"
             id="linkURL"
+            
             placeholder="https://ejemplo.com">
 
         <!-- ICONO -->
@@ -493,7 +556,7 @@ accept="image/*">
     ===========================-->
 <footer class="creator-footer">
 
-    <img id="footerLogo" src="sigueme (1).jpeg">
+    <img id="footerLogo" src="/uploads/sigueme (1).jpeg">
 
     <a
         href="https://wa.me/51960722146"
@@ -519,11 +582,13 @@ accept="image/*">
         <input
             id="adminUser"
             type="text"
+            maxlength="30"
             placeholder="Nombre">
 
         <input
             id="adminPass"
             type="password"
+            maxlength="30"
             placeholder="Contraseña">
 
  <div class="admin-buttons">

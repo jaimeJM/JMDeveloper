@@ -104,6 +104,247 @@ function actualizarTamanoLogo(valor){
 
 
 /*====================================================
+            CONVERSIÓN DE COLORES
+====================================================*/
+
+/**
+ * Convierte un color HEX (#RRGGBB) a RGB
+ * Ejemplo:
+ * #00D2FF -> rgb(0, 210, 255)
+ */
+function hexToRgb(hex){
+
+    hex = hex.replace("#","");
+
+    if(hex.length !== 6){
+
+        return "";
+
+    }
+
+    const r = parseInt(hex.substring(0,2),16);
+    const g = parseInt(hex.substring(2,4),16);
+    const b = parseInt(hex.substring(4,6),16);
+
+    return `rgb(${r}, ${g}, ${b})`;
+
+}
+
+/**
+ * Convierte un RGB a HEX
+ * Ejemplo:
+ * rgb(0,210,255) -> #00D2FF
+ */
+function rgbToHex(rgb){
+
+    const numeros = rgb.match(/\d+/g);
+
+    if(!numeros || numeros.length < 3){
+
+        return null;
+
+    }
+
+    const r = Number(numeros[0]);
+    const g = Number(numeros[1]);
+    const b = Number(numeros[2]);
+
+    return "#" +
+
+    [r,g,b]
+
+    .map(valor=>{
+
+        const hex = valor.toString(16);
+
+        return hex.length===1
+
+            ? "0"+hex
+
+            : hex;
+
+    })
+
+    .join("")
+
+    .toUpperCase();
+
+}
+
+/*====================================================
+        ACTUALIZAR TEXTO DEL COLOR
+====================================================*/
+
+function actualizarTextoColor(
+
+    picker,
+    texto,
+    formato
+
+){
+
+    if(formato.value==="hex"){
+
+        texto.value =
+
+        picker.value.toUpperCase();
+
+    }
+
+    else{
+
+        texto.value =
+
+        hexToRgb(
+
+            picker.value
+
+        );
+
+    }
+
+}
+
+
+
+
+
+/*====================================================
+        EDITOR UNIVERSAL DE COLOR
+====================================================*/
+
+function crearEditorColor(
+
+    picker,
+    texto,
+    formato
+
+){
+
+    /*=========================================
+            Cambiar desde el selector
+    =========================================*/
+
+    picker.oninput = ()=>{
+
+        actualizarTextoColor(
+
+            picker,
+            texto,
+            formato
+
+        );
+
+        aplicarColores();
+
+    };
+
+    /*=========================================
+            Cambiar formato
+    =========================================*/
+
+    formato.onchange = ()=>{
+
+        actualizarTextoColor(
+
+            picker,
+            texto,
+            formato
+
+        );
+
+    };
+
+    /*=========================================
+            Escribir manualmente
+    =========================================*/
+
+    texto.oninput = ()=>{
+
+        if(formato.value === "hex"){
+
+            if(/^#[0-9A-F]{6}$/i.test(texto.value)){
+
+                texto.style.border = "";
+
+                picker.value = texto.value.toUpperCase();
+
+                aplicarColores();
+
+            }else{
+
+                texto.style.border = "2px solid red";
+
+            }
+
+        }else{
+
+            const hex = rgbToHex(texto.value);
+
+            if(hex){
+
+                texto.style.border = "";
+
+                picker.value = hex;
+
+                aplicarColores();
+
+            }else{
+
+                texto.style.border = "2px solid red";
+
+            }
+
+        }
+
+    };
+
+    /*=========================================
+            Aplicar con ENTER
+    =========================================*/
+
+    texto.addEventListener("keydown",(e)=>{
+
+        if(e.key === "Enter"){
+
+            e.preventDefault();
+
+            texto.blur();
+
+        }
+
+    });
+
+}
+/*====================================================
+        APLICAR COLORES EN TIEMPO REAL
+====================================================*/
+
+function aplicarColores(){
+
+    configuracion.text = titleColor.value;
+
+    configuracion.textSecondary = subtitleColor.value;
+
+    document.documentElement.style.setProperty(
+
+        "--text",
+
+        configuracion.text
+
+    );
+
+    document.documentElement.style.setProperty(
+
+        "--text-secondary",
+
+        configuracion.textSecondary
+
+    );
+
+}
+
+/*====================================================
                 PASO 3
         RESTAURAR TÍTULO Y SUBTÍTULO
 ====================================================*/
@@ -125,15 +366,71 @@ function restaurarTitulo() {
 
         if(configuracion.titleFont){
 
-    title.style.fontFamily=
+    title.style.fontFamily = configuracion.titleFont;
 
-    configuracion.titleFont;
-
-    subtitle.style.fontFamily=
-
-    configuracion.titleFont;
+    subtitle.style.fontFamily = configuracion.titleFont;
 
 }
+
+/* Restaurar tamaño del nombre */
+
+actualizarTamanoTitulo(
+
+    configuracion.titleSize || 48
+
+);
+
+/* Restaurar tamaño del subtitulo */
+
+actualizarTamanoSubtitulo(
+
+    configuracion.subtitleSize || 24
+
+);
+
+}
+
+/*====================================================
+        TAMAÑO DEL NOMBRE
+=====================================================*/
+
+function actualizarTamanoTitulo(valor){
+
+    title.style.fontSize = valor + "px";
+
+    if(titleSize){
+
+        titleSize.value = valor;
+
+    }
+
+    if(titleSizeValue){
+
+        titleSizeValue.innerHTML = valor + " px";
+
+    }
+
+}
+
+/*====================================================
+        TAMAÑO DEL SUBTÍTULO
+=====================================================*/
+
+function actualizarTamanoSubtitulo(valor){
+
+    subtitle.style.fontSize = valor + "px";
+
+    if(subtitleSize){
+
+        subtitleSize.value = valor;
+
+    }
+
+    if(subtitleSizeValue){
+
+        subtitleSizeValue.innerHTML = valor + " px";
+
+    }
 
 }
 
@@ -309,6 +606,82 @@ function restaurarColores(){
 
 }
 
+/*====================================================
+        ACTUALIZAR CAMPO DE COLOR
+====================================================*/
+
+function actualizarTextoColor(
+
+    picker,
+
+    texto,
+
+    formato
+
+){
+
+    if(formato.value==="hex"){
+
+        texto.value=
+
+        picker.value.toUpperCase();
+
+    }
+
+    else{
+
+        texto.value=
+
+        hexToRgb(picker.value);
+
+    }
+
+}
+
+/*====================================================
+        CONVERSIÓN HEX <-> RGB
+====================================================*/
+
+function hexToRgb(hex){
+
+    hex = hex.replace("#","");
+
+    if(hex.length !== 6) return "";
+
+    const r = parseInt(hex.substring(0,2),16);
+    const g = parseInt(hex.substring(2,4),16);
+    const b = parseInt(hex.substring(4,6),16);
+
+    return `rgb(${r}, ${g}, ${b})`;
+
+}
+
+function rgbToHex(rgb){
+
+    const valores = rgb.match(/\d+/g);
+
+    if(!valores || valores.length < 3) return null;
+
+    const r = Number(valores[0]);
+    const g = Number(valores[1]);
+    const b = Number(valores[2]);
+
+    return "#" +
+
+    [r,g,b]
+
+    .map(x=>{
+
+        const h=x.toString(16);
+
+        return h.length===1?"0"+h:h;
+
+    })
+
+    .join("");
+
+}
+
 
 /*====================================================
                 PASO 5
@@ -471,6 +844,17 @@ const title = document.getElementById("title");
 
 const subtitle = document.getElementById("subtitle");
 
+const titleSize = document.getElementById("titleSize");
+
+const subtitleSize = document.getElementById("subtitleSize");
+
+const subtitleSizeValue = document.getElementById("subtitleSizeValue");
+
+const titleSizeValue = document.getElementById("titleSizeValue");
+
+
+
+
 const logoModal = document.getElementById("logoModal");
 
 const titleModal = document.getElementById("titleModal");
@@ -484,9 +868,192 @@ const titleColor = document.getElementById("titleColor");
 
 const subtitleColor = document.getElementById("subtitleColor");
 
+const titleColorText = document.getElementById("titleColorText");
+
+const subtitleColorText = document.getElementById("subtitleColorText");
+
+const titleColorFormat = document.getElementById("titleColorFormat");
+
+const subtitleColorFormat = document.getElementById("subtitleColorFormat");
+
 const pageTitle = document.querySelector("title");
 
 
+
+/*====================================================
+        INICIALIZAR EDITORES
+====================================================*/
+
+crearEditorColor(
+
+    titleColor,
+    titleColorText,
+    titleColorFormat
+
+);
+
+crearEditorColor(
+
+    subtitleColor,
+    subtitleColorText,
+    subtitleColorFormat
+
+);
+
+
+
+
+/*====================================================
+        COLOR DEL TÍTULO
+====================================================*/
+
+titleColor.oninput=()=>{
+
+    actualizarTextoColor(
+
+        titleColor,
+
+        titleColorText,
+
+        titleColorFormat
+
+    );
+
+};
+
+titleColorFormat.onchange=()=>{
+
+    actualizarTextoColor(
+
+        titleColor,
+
+        titleColorText,
+
+        titleColorFormat
+
+    );
+
+};
+
+titleColorText.onchange=()=>{
+
+    if(
+
+        titleColorFormat.value==="hex"
+
+    ){
+
+        if(/^#[0-9A-F]{6}$/i.test(
+
+            titleColorText.value
+
+        )){
+
+            titleColor.value=
+
+            titleColorText.value;
+
+        }
+
+    }
+
+    else{
+
+        const hex=
+
+        rgbToHex(
+
+            titleColorText.value
+
+        );
+
+        if(hex){
+
+            titleColor.value=
+
+            hex;
+
+        }
+
+    }
+
+};
+
+/*====================================================
+        COLOR DEL SUBTÍTULO
+====================================================*/
+
+subtitleColor.oninput=()=>{
+
+    actualizarTextoColor(
+
+        subtitleColor,
+
+        subtitleColorText,
+
+        subtitleColorFormat
+
+    );
+
+};
+
+subtitleColorFormat.onchange=()=>{
+
+    actualizarTextoColor(
+
+        subtitleColor,
+
+        subtitleColorText,
+
+        subtitleColorFormat
+
+    );
+
+};
+
+subtitleColorText.onchange=()=>{
+
+    if(
+
+        subtitleColorFormat.value==="hex"
+
+    ){
+
+        if(/^#[0-9A-F]{6}$/i.test(
+
+            subtitleColorText.value
+
+        )){
+
+            subtitleColor.value=
+
+            subtitleColorText.value;
+
+        }
+
+    }
+
+    else{
+
+        const hex=
+
+        rgbToHex(
+
+            subtitleColorText.value
+
+        );
+
+        if(hex){
+
+            subtitleColor.value=
+
+            hex;
+
+        }
+
+    }
+
+};
 
 /*==================================================
             BOTÓN AGREGAR ENLACE
@@ -809,6 +1376,8 @@ document.querySelector(".edit-logo").onclick = () => {
 
 }
 
+
+
 document.querySelector(".edit-title").onclick = () => {
 
     document.getElementById("newTitle").value =
@@ -817,13 +1386,35 @@ document.querySelector(".edit-title").onclick = () => {
     document.getElementById("newSubtitle").value =
         subtitle.childNodes[0].textContent.trim();
 
-const estilos = getComputedStyle(document.documentElement);
+    const estilos = getComputedStyle(document.documentElement);
 
-titleColor.value =
-    estilos.getPropertyValue("--text").trim();
+    titleColor.value = estilos.getPropertyValue("--text").trim();
 
-subtitleColor.value =
-    estilos.getPropertyValue("--text-secondary").trim();
+    subtitleColor.value = estilos.getPropertyValue("--text-secondary").trim();
+
+    titleColorText.value = titleColor.value.toUpperCase();
+
+    subtitleColorText.value = subtitleColor.value.toUpperCase();
+
+    titleColorFormat.value = "hex";
+
+    subtitleColorFormat.value = "hex";
+
+    /*=========================================
+            RESTAURAR SLIDERS
+    =========================================*/
+
+    titleSize.value =
+        configuracion.titleSize || 48;
+
+    titleSizeValue.textContent =
+        titleSize.value + " px";
+
+    subtitleSize.value =
+        configuracion.subtitleSize || 24;
+
+    subtitleSizeValue.textContent =
+        subtitleSize.value + " px";
 
     titleModal.style.display = "flex";
 
@@ -1000,6 +1591,19 @@ configuracion.text = titleColor.value;
 
 configuracion.textSecondary = subtitleColor.value;
 
+
+
+
+/*====================================================
+        GUARDAR TAMAÑOS
+====================================================*/
+
+configuracion.titleSize = Number(titleSize.value);
+
+configuracion.subtitleSize = Number(subtitleSize.value);
+
+
+
 /* Aplicar colores */
 
 document.documentElement.style.setProperty(
@@ -1018,13 +1622,64 @@ document.documentElement.style.setProperty(
 
 );
 
+
+/* Aplicar tamaños */
+
+actualizarTamanoTitulo(
+
+    configuracion.titleSize
+
+);
+
+actualizarTamanoSubtitulo(
+
+    configuracion.subtitleSize
+
+);
+
+
+
+
+
+
+
+
+
 /* Guardar configuración */
+
 
 await guardarConfiguracionServidor();
 
     titleModal.style.display="none";
 
 }
+
+
+
+/* guardado se haga al pulsar Guardar. */
+
+
+titleSize.oninput = ()=>{
+
+    const valor = Number(titleSize.value);
+
+    actualizarTamanoTitulo(valor);
+
+    titleSizeValue.textContent = valor + " px";
+
+};
+
+
+subtitleSize.oninput = ()=>{
+
+    const valor = Number(subtitleSize.value);
+
+    actualizarTamanoSubtitulo(valor);
+
+    subtitleSizeValue.textContent = valor + " px";
+
+};
+
 
 
 
