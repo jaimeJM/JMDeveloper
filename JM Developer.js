@@ -89,19 +89,30 @@ function restaurarLogo() {
         TAMAÑOS DEL LOGO
 ==================================================*/
 
-
 function actualizarTamanoLogo(valor){
 
+    // Cambia el tamaño del logo
     logo.style.width = valor + "px";
-
     logo.style.height = valor + "px";
 
+    // Cambia el tamaño del aro de colores
+    const box1 = document.getElementById("box1");
+
+    if(box1){
+
+        box1.style.setProperty(
+            "--logo-size",
+            valor + "px"
+        );
+
+    }
+
+    // Actualiza el slider
     logoSize.value = valor;
 
     logoSizeValue.innerHTML = valor + " px";
 
 }
-
 
 /*====================================================
             CONVERSIÓN DE COLORES
@@ -352,8 +363,7 @@ function aplicarColores(){
 function restaurarTitulo() {
 
     // Restaurar título de la pestaña
-    document.title =
-        configuracion.title || "";
+    document.title = configuracion.title || "";
 
     // Restaurar título principal
     title.childNodes[0].textContent =
@@ -363,30 +373,44 @@ function restaurarTitulo() {
     subtitle.childNodes[0].textContent =
         (configuracion.subtitle || "") + " ";
 
+    // Restaurar descripción en el textarea
+    profileDescription.value =
+        configuracion.description || "";
 
-        if(configuracion.titleFont){
+    // Restaurar descripción en la tarjeta
+    const description = document.getElementById("description");
 
-    title.style.fontFamily = configuracion.titleFont;
+    if (description) {
+        description.textContent =
+            configuracion.description || "";
+    }
 
-    subtitle.style.fontFamily = configuracion.titleFont;
+    // Contador
+    contadorDescripcion.textContent =
+        profileDescription.value.length + " / 220";
 
-}
+    // Restaurar fuente
+    if (configuracion.titleFont) {
 
-/* Restaurar tamaño del nombre */
+        title.style.fontFamily =
+            configuracion.titleFont;
 
-actualizarTamanoTitulo(
+        subtitle.style.fontFamily =
+            configuracion.titleFont;
 
-    configuracion.titleSize || 48
+        description.style.fontFamily =
+            configuracion.titleFont;
+    }
 
-);
+    /* Restaurar tamaño del título */
+    actualizarTamanoTitulo(
+        configuracion.titleSize || 48
+    );
 
-/* Restaurar tamaño del subtitulo */
-
-actualizarTamanoSubtitulo(
-
-    configuracion.subtitleSize || 24
-
-);
+    /* Restaurar tamaño del subtítulo */
+    actualizarTamanoSubtitulo(
+        configuracion.subtitleSize || 24
+    );
 
 }
 
@@ -879,6 +903,22 @@ const subtitleColorFormat = document.getElementById("subtitleColorFormat");
 const pageTitle = document.querySelector("title");
 
 
+/*====================================================
+        CONTROLADOR DE DESCRIPCION
+====================================================*/
+
+const profileDescription =
+    document.getElementById("profileDescription");
+
+const contadorDescripcion =
+    document.getElementById("contadorDescripcion");
+
+profileDescription.addEventListener("input",()=>{
+
+    contadorDescripcion.textContent =
+        `${profileDescription.value.length} / 180`;
+
+});
 
 /*====================================================
         INICIALIZAR EDITORES
@@ -1300,6 +1340,14 @@ logoSize.addEventListener("input", async ()=>{
         configuracion.logoSize
     );
 
+    // Sincroniza el aro de colores con el tamaño del logo
+    document
+        .getElementById("box1")
+        ?.style.setProperty(
+            "--logo-size",
+            configuracion.logoSize + "px"
+        );
+
     await guardarConfiguracionServidor();
 
 });
@@ -1417,6 +1465,13 @@ document.querySelector(".edit-title").onclick = () => {
         subtitleSize.value + " px";
 
     titleModal.style.display = "flex";
+
+
+    profileDescription.value =
+    configuracion.description || "";
+
+contadorDescripcion.textContent =
+    profileDescription.value.length + " / 180";
 
 }
 
@@ -1557,6 +1612,14 @@ document.getElementById("saveTitle").onclick = async () => {
     .value
     .trim();
 
+    const nuevaDescripcion =
+    document.getElementById("profileDescription")
+    .value
+    .trim();
+
+
+
+
     if(nuevoTitulo !== ""){
 
         configuracion.title =
@@ -1572,6 +1635,15 @@ document.getElementById("saveTitle").onclick = async () => {
 
     configuracion.subtitle =
     nuevoSubtitulo;
+
+    configuracion.description =
+    nuevaDescripcion;
+
+    const descripcion = document.getElementById("description");
+
+if(descripcion){
+    descripcion.textContent = nuevaDescripcion;
+}
 
     subtitle.childNodes[0].textContent =
     nuevoSubtitulo + " ";

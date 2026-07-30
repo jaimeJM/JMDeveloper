@@ -1,9 +1,9 @@
 {
     "theme": "light",
     "logo": "/uploads/logo-1785005199765.jpeg",
-    "logoSize": 300,
+    "logoSize": 230,
     "title": "Jaime Martinez",
-    "subtitle": "Ing. de Sistemas",
+    "subtitle": "",
     "radius": 31,
     "font": "Verdana,sans-serif",
     "animationSpeed": 0.75,
@@ -20,6 +20,7 @@
     "textSecondary": "#ffffff",
     "cardImage": "/uploads/fondo-card-1785186368217.png",
     "titleFont": "VerandahReverie_PERSONAL_USE_ONLY",
-    "titleSize": 47,
-    "subtitleSize": 22
+    "titleSize": 59,
+    "subtitleSize": 22,
+    "description": "con experiencia en análisis, diseño y optimización de bases de datos y procesos tecnológicos. Enfoque en la mejora de la eficiencia empresarial mediante el uso de software seguro y sistemas de red."
 }
