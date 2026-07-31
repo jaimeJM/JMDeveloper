@@ -118,7 +118,7 @@ Jaime Martinez1
         
         <div class="modal-content">
 
-            <h2><i class="fa-solid fa-pen-to-square"></i>Editor del logo</h2>
+            <h2><i class="fa-solid fa-pen-to-square"></i> Editor del logo</h2>
 
            <input
     type="text"
@@ -180,7 +180,7 @@ Jaime Martinez1
 <br><br>
             <h2>
                 
-                <i class="fa-solid fa-pen-to-square"></i>Editor del titulo y subtitulo</h2>
+                <i class="fa-solid fa-pen-to-square"></i> Editor del titulo y subtitulo</h2>
 
             <input
                 type="text"
@@ -209,6 +209,33 @@ Jaime Martinez1
                 id="contadorDescripcion">
                 0 / 220
             </small>
+
+            <label style="margin-top:15px;">Formato de la descripción</label>
+
+<div class="description-tools">
+
+    <!-- Alineación -->
+    <button type="button" id="descJustify" title="Justificar">
+        <i class="fa-solid fa-align-justify"></i>
+    </button>
+
+    <button type="button" id="descCenter" title="Centrar">
+        <i class="fa-solid fa-align-center"></i>
+    </button>
+
+    <!-- Color del texto -->
+    <input
+        type="color"
+        id="descriptionTextColor"
+        title="Color del texto">
+
+    <!-- Color del fondo -->
+    <input
+        type="color"
+        id="descriptionBackgroundColor"
+        title="Color del fondo">
+
+</div>
 
 
 
@@ -323,7 +350,7 @@ Jaime Martinez1
 <br><br>
         <h2>
             <i class="fa-solid fa-pen-to-square"></i>
-            Editor del boton
+              Editor del boton
         </h2>
 
         <!-- TEXTO -->
@@ -497,7 +524,7 @@ placeholder="Máximo 30 caracteres">
 
         <div class="modal-content">
 <br><br>
-            <h2><i class="fa-solid fa-pen-to-square"></i>Editor color de fondo y botones</h2>
+            <h2><i class="fa-solid fa-pen-to-square"></i> Editor color de fondo y botones</h2>
 
             <label>
 
@@ -610,43 +637,26 @@ accept="image/*">
 <!--==========================
     MODAL ADMIN
 ===========================-->
-
-<div id="adminModal" class="admin-modal">
-
-    <div class="admin-box">
-
+<div id="adminModal" class="modal">
+    <div class="modal-content">
         <h2>Administrador</h2>
 
-        <input
-            id="adminUser"
-            type="text"
-            maxlength="30"
-            placeholder="Nombre">
+        <input id="adminUser" type="text" maxlength="30" placeholder="Nombre">
 
-        <input
-            id="adminPass"
-            type="password"
-            maxlength="30"
-            placeholder="Contraseña">
+        <input id="adminPass" type="password" maxlength="30" placeholder="Contraseña">
 
- <div class="admin-buttons">
+       <div class="admin-buttons">
 
-    <button id="loginAdmin">
-
-        Activar
-
+    <button id="loginAdmin" title="Activar">
+        <i class="fas fa-check"></i>
     </button>
 
-    <button id="logoutAdmin">
-
-        Cerrar sesión
-
+    <button id="logoutAdmin" title="Cerrar sesión">
+        <i class="fas fa-right-from-bracket"></i>
     </button>
 
 </div>
-
     </div>
-
 </div>
     <!-- JavaScript -->
 

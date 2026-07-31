@@ -1,7 +1,7 @@
 {
     "theme": "light",
     "logo": "/uploads/logo-1785005199765.jpeg",
-    "logoSize": 219,
+    "logoSize": 229,
     "title": "Jaime Martinez",
     "subtitle": "Img. de Sistemas",
     "logoGradient": [
@@ -42,5 +42,8 @@
     "titleFont": "VerandahReverie_PERSONAL_USE_ONLY",
     "titleSize": 46,
     "subtitleSize": 22,
-    "description": "con experiencia en análisis, diseño y optimización de bases de datos y procesos tecnológicos. Enfoque en la mejora de la eficiencia empresarial mediante el uso de software seguro y sistemas de red."
+    "description": "con experiencia en análisis, diseño y optimización de bases de datos y procesos tecnológicos. Enfoque en la mejora de la eficiencia empresarial mediante el uso de software seguro y sistemas de red.",
+    "descriptionAlign": "justify",
+    "descriptionTextColor": "rgb(255, 255, 255)",
+    "descriptionBackgroundColor": "rgb(38, 38, 38)"
 }

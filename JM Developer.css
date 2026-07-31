@@ -120,16 +120,7 @@
 
 }
 
-/* Botón cámara */
-
-.edit-logo{
-
-    background:#111;
-    color:var(--icon-color);
-
-}
-
-/* Botones lápiz */
+/* Botones lapiz */
 
 .edit-title,
 .edit-subtitle{
@@ -333,38 +324,73 @@ body{
 
 .profile-description{
 
-    width:calc(100% - 100px);   /* mismo margen izquierdo y derecho */
-
-    max-width:calc(100% - 100px);
+    width:calc(100% - 90px);
+    max-width:calc(100% - 90px);
 
     margin:12px auto 18px;
 
-    padding:0;
+    padding:20px;
+
+    border-radius:20px;
 
     box-sizing:border-box;
 
     font-size:20px;
-
     line-height:1.6;
 
     color:var(--text-secondary);
 
     text-align:justify;
-
     text-align-last:left;
 
     white-space:normal;
-
     overflow-wrap:break-word;
-
     word-break:break-word;
-
     hyphens:auto;
 
     display:block;
 
+    background:rgba(37,37,37,.65);
 }
 
+/*==========================
+    DESCRIPCIÓN BOTONES
+==========================*/
+
+.description-tools{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    margin:15px 0 20px;
+}
+
+.description-tools button{
+    width:45px;
+    height:45px;
+    border:none;
+    border-radius:12px;
+    background:#111;
+    color:#fff;
+    cursor:pointer;
+    font-size:18px;
+    transition:.25s;
+    box-shadow:0 5px 15px rgba(0,0,0,.30);
+}
+
+.description-tools button:hover{
+    transform:translateY(-2px) scale(1.05);
+}
+
+.description-tools input[type="color"]{
+    width:45px;
+    height:45px;
+    padding:0;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    background:transparent;
+}
 /*==========================
         LOGO
 ==========================*/
@@ -486,35 +512,49 @@ body{
 
 }
 
-
+/* Botón camara */
 
 .edit-logo{
 
+
+    margin-left:150px;
+    
     position:absolute;
 
-    left:50%;
+    bottom:10px;
 
-    transform:translateX(55px);
+    width:38px;
 
-    bottom:0;
-
-    width:45px;
-
-    height:45px;
+    height:38px;
 
     border:none;
 
     border-radius:50%;
 
-    background:#111;
+    color:var(--icon-color);
 
-    color:#fff;
+     display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:#000;
 
     cursor:pointer;
 
-    font-size:18px;
+    font-size:15px;
 
-    box-shadow:0 5px 15px rgba(0,0,0,.3);
+    transition:.30s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.30);
+
+
+}
+
+.edit-logo:hover{
+
+    transform:scale(1.1);
 
 }
 
@@ -2097,126 +2137,114 @@ input[type="range"]::-moz-range-thumb{
     align-items:center;
 
 }
-
 /*====================================
-            MODAL
-=====================================*/
+        MODAL ADMIN MODERNO
+====================================*/
 
 .admin-modal{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(0,0,0,.60);
-
-    display:none;
-
-    justify-content:center;
-
-    align-items:center;
-
-    z-index:9999;
-
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(5px);
+    z-index: 9999999;
 }
 
 .admin-box{
+    width: 520px;
+    max-width: min(95vw,520px);
+    padding: 30px;
+    border-radius: 20px;
 
-    width:340px;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.30);
 
-    background:white;
+    color: #fff;
 
-    border-radius:15px;
-
-    padding:30px;
-
+    animation: show .35s;
 }
 
 .admin-box h2{
-
-    text-align:center;
-
-    margin-bottom:20px;
-
+    text-align: center;
+    margin-bottom: 25px;
+    color: #fff;
 }
 
 .admin-box input{
-
-    width:100%;
-
-    padding:12px;
-
-    margin-bottom:15px;
-
+    width: 100%;
+    margin-top: 15px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 15px;
 }
 
-.admin-box button{
-
-    width:100%;
-
-    padding:12px;
-
-    background:#000;
-
-    color:white;
-
-    border:none;
-
-    cursor:pointer;
-
+.admin-box input:focus{
+    border-color:#47464b;
+    box-shadow:
+        8px 8px 16px rgba(0,0,0,.15),
+        -8px -8px 16px rgba(255,255,255,.7);
 }
 
 
 /*==============================
-      BOTONES DEL MODAL
+      BOTONES DEL MODAL ADMIN
 ==============================*/
-
 .admin-buttons{
-
     display:flex;
-
-    gap:10px;
-
-    margin-top:10px;
-
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    margin-top:25px;
 }
 
 .admin-buttons button{
+    width:55px;
+    height:55px;
+    padding:0;
 
-    flex:1;
-
-    padding:12px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
     border:none;
-
-    border-radius:8px;
-
+    border-radius:50%;
     cursor:pointer;
 
-    font-weight:bold;
+    color:#fff;
+    font-size:22px;
 
+    transition:.30s;
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
+}
+
+.admin-buttons button:hover{
+    transform:translateY(-3px) scale(1.08);
+}
+
+.admin-buttons button i{
+    color:#fff;
+    font-size:22px;
 }
 
 #loginAdmin{
-
-    background:#0d6efd;
-
-    color:white;
-
+    background:#28a745;
 }
 
 #logoutAdmin{
-
     background:#dc3545;
-
-    color:white;
-
 }
 
-.link-card{
+.dark #loginAdmin{
+    background:#23923d;
+}
 
-    font-family:var(--font-family);
-
+.dark #logoutAdmin{
+    background:#c62828;
 }
 
 

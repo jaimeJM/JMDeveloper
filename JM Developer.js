@@ -385,6 +385,34 @@ function restaurarTitulo() {
             configuracion.description || "";
     }
 
+
+    /*====================================================
+    RESTAURAR ESTILO DE LA DESCRIPCIÓN
+====================================================*/
+
+if (description) {
+
+    description.style.textAlign =
+        configuracion.descriptionAlign || "justify";
+
+    description.style.color =
+        configuracion.descriptionTextColor || "#ffffff";
+
+    description.style.backgroundColor =
+        configuracion.descriptionBackgroundColor || "rgba(37,37,37,.65)";
+
+    if (description.style.textAlign === "center") {
+
+        description.style.textAlignLast = "center";
+
+    } else {
+
+        description.style.textAlignLast = "left";
+
+    }
+
+}
+
     // Contador
     contadorDescripcion.textContent =
         profileDescription.value.length + " / 220";
@@ -1578,6 +1606,32 @@ document.querySelector(".edit-title").onclick = () => {
 
     subtitleColor.value = estilos.getPropertyValue("--text-secondary").trim();
 
+    /*====================================================
+    RESTAURAR COLORES DE LA DESCRIPCIÓN EN EL MODAL
+====================================================*/
+
+const description = document.getElementById("description");
+
+const descriptionTextColor =
+    document.getElementById("descriptionTextColor");
+
+const descriptionBackgroundColor =
+    document.getElementById("descriptionBackgroundColor");
+
+if (
+    description &&
+    descriptionTextColor &&
+    descriptionBackgroundColor
+) {
+
+    descriptionTextColor.value =
+        configuracion.descriptionTextColor || "#ffffff";
+
+    descriptionBackgroundColor.value =
+        configuracion.descriptionBackgroundColor || "#252525";
+
+}
+
     titleColorText.value = titleColor.value.toUpperCase();
 
     subtitleColorText.value = subtitleColor.value.toUpperCase();
@@ -1803,10 +1857,24 @@ document.getElementById("saveTitle").onclick = async () => {
     configuracion.description =
     nuevaDescripcion;
 
-    const descripcion = document.getElementById("description");
 
-if(descripcion){
-    descripcion.textContent = nuevaDescripcion;
+    /*====================================================
+        GUARDAR ESTILO DE LA DESCRIPCIÓN
+====================================================*/
+
+const desc = document.getElementById("description");
+
+configuracion.descriptionAlign =
+    desc.style.textAlign || "justify";
+
+configuracion.descriptionTextColor =
+    desc.style.color || "#ffffff";
+
+configuracion.descriptionBackgroundColor =
+    desc.style.backgroundColor || "rgba(37,37,37,.65)";
+
+if(desc){
+    desc.textContent = nuevaDescripcion;
 }
 
     subtitle.childNodes[0].textContent =
@@ -1887,6 +1955,43 @@ actualizarTamanoSubtitulo(
 await guardarConfiguracionServidor();
 
     titleModal.style.display="none";
+
+}
+
+
+/*====================================================
+    HERRAMIENTAS DE LA DESCRIPCIÓN
+====================================================*/
+
+const desc = document.getElementById("description");
+
+if (desc) {
+
+    document.getElementById("descJustify")?.addEventListener("click", () => {
+
+        desc.style.textAlign = "justify";
+        desc.style.textAlignLast = "left";
+
+    });
+
+    document.getElementById("descCenter")?.addEventListener("click", () => {
+
+        desc.style.textAlign = "center";
+        desc.style.textAlignLast = "center";
+
+    });
+
+    document.getElementById("descriptionTextColor")?.addEventListener("input", function () {
+
+        desc.style.color = this.value;
+
+    });
+
+    document.getElementById("descriptionBackgroundColor")?.addEventListener("input", function () {
+
+        desc.style.backgroundColor = this.value;
+
+    });
 
 }
 
@@ -3679,3 +3784,4 @@ window.addEventListener("resize", () => {
     }
 
 });
+
