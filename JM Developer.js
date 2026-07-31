@@ -612,21 +612,143 @@ function restaurarColores(){
 
     }
 
-    /* Color de iconos */
+    /* Gradiente del logo */
 
-    if(configuracion.iconColor){
+if (configuracion.logoGradient && Array.isArray(configuracion.logoGradient)) {
 
-        document.documentElement.style.setProperty(
+    const posiciones = [
+        "0%","3%","7%","17%",
+        "20%","25%","27%","30%",
+        "33%","45%","49%","68%",
+        "72%","79%","82%","87%",
+        "90%","100%"
+    ];
 
-            "--icon-color",
+    const gradient =
+        "linear-gradient(to right in oklch," +
+        configuracion.logoGradient
+            .map((color, i) => `${color} ${posiciones[i]}`)
+            .join(",") +
+        ")";
 
-            configuracion.iconColor
+    document.documentElement.style.setProperty(
+        "--logo-gradient",
+        gradient
+    );
 
-        );
+}
 
-        colorIconos.value=configuracion.iconColor;
+}
 
-    }
+
+
+function crearEditorGradienteLogo(){
+
+    const contenedor=document.getElementById("logoGradientEditor");
+
+    if(!contenedor) return;
+
+    contenedor.innerHTML="";
+
+    const colores=configuracion.logoGradient || [
+
+        "#f63b35",
+        "#f63b35",
+        "#1265f0",
+        "#477dff",
+        "#2caf4f",
+        "#72bb44",
+        "#ffe523",
+        "#ffcc25",
+        "#ea4335",
+        "#ea4335",
+        "#1265f0",
+        "#477dff",
+        "#34a853",
+        "#2caf4f",
+        "#ffe523",
+        "#ffcc25",
+        "#f63b35",
+        "#f63b35"
+
+    ];
+
+    colores.forEach((color,i)=>{
+
+        const item=document.createElement("label");
+
+        item.className="logoColor";
+
+        item.style.background=color;
+
+        item.innerHTML=`
+
+            <input
+                type="color"
+                value="${color}"
+                data-index="${i}">
+
+        `;
+
+        const input=item.querySelector("input");
+
+        input.addEventListener("input",()=>{
+
+            item.style.background=input.value;
+
+            configuracion.logoGradient[i]=input.value;
+
+            actualizarGradienteLogo();
+
+        });
+
+        contenedor.appendChild(item);
+
+    });
+
+}
+
+
+function actualizarGradienteLogo(){
+
+    const posiciones=[
+
+        "0%",
+        "3%",
+        "7%",
+        "17%",
+        "20%",
+        "25%",
+        "27%",
+        "30%",
+        "33%",
+        "45%",
+        "49%",
+        "68%",
+        "72%",
+        "79%",
+        "82%",
+        "87%",
+        "90%",
+        "100%"
+
+    ];
+
+    const gradient="linear-gradient(to right in oklch,"+
+
+        configuracion.logoGradient
+        .map((c,i)=>`${c} ${posiciones[i]}`)
+        .join(",")
+
+        +")";
+
+    document.documentElement.style.setProperty(
+
+        "--logo-gradient",
+
+        gradient
+
+    );
 
 }
 
@@ -916,7 +1038,7 @@ const contadorDescripcion =
 profileDescription.addEventListener("input",()=>{
 
     contadorDescripcion.textContent =
-        `${profileDescription.value.length} / 180`;
+        `${profileDescription.value.length} / 220`;
 
 });
 
@@ -1156,9 +1278,25 @@ addButton.style.transform="scale(1)";
 }
 
 
+/*==================================================
+        LÍMITE DE BOTONES
+==================================================*/
+
+const LIMITE_BOTONES = 10;
+
 /*   botón flotante  */
 
 addButton.onclick = () => {
+
+    const totalBotones =
+        document.querySelectorAll("#linksContainer .link-card").length;
+
+    if (totalBotones >= LIMITE_BOTONES) {
+
+        alert("Solo puedes crear un máximo de " + LIMITE_BOTONES + " botones.");
+
+        return;
+    }
 
     agregarBoton();
 
@@ -1417,13 +1555,13 @@ animationSpeed.addEventListener("input", async ()=>{
 /*====================================================
                 ABRIR MODALES
 ====================================================*/
-
 document.querySelector(".edit-logo").onclick = () => {
+
+    crearEditorGradienteLogo();
 
     logoModal.style.display = "flex";
 
 }
-
 
 
 document.querySelector(".edit-title").onclick = () => {
@@ -1471,7 +1609,7 @@ document.querySelector(".edit-title").onclick = () => {
     configuracion.description || "";
 
 contadorDescripcion.textContent =
-    profileDescription.value.length + " / 180";
+    profileDescription.value.length + " / 220";
 
 }
 
@@ -1514,11 +1652,14 @@ window.onclick=(e)=>{
 
 
 
-
 document.getElementById("saveLogo").onclick = async () => {
 
-    const url =
-        document.getElementById("logoURL")
+    /*==============================
+            URL DEL LOGO
+    ==============================*/
+
+    const url = document
+        .getElementById("logoURL")
         .value
         .trim();
 
@@ -1532,18 +1673,41 @@ document.getElementById("saveLogo").onclick = async () => {
 
     }
 
-    configuracion.logoSize =
-        Number(logoSize.value);
+    /*==============================
+            TAMAÑO
+    ==============================*/
 
-    actualizarTamanoLogo(
-        configuracion.logoSize
-    );
+    configuracion.logoSize = Number(logoSize.value);
+
+    actualizarTamanoLogo(configuracion.logoSize);
+
+    /*==============================
+        GUARDAR COLORES DEL ANILLO
+    ==============================*/
+
+    const colores = [];
+
+    document
+        .querySelectorAll("#logoGradientEditor input[type=color]")
+        .forEach(input => {
+
+            colores.push(input.value);
+
+        });
+
+    configuracion.logoGradient = colores;
+
+    actualizarGradienteLogo();
+
+    /*==============================
+            GUARDAR
+    ==============================*/
 
     await guardarConfiguracionServidor();
 
     logoModal.style.display = "none";
 
-}
+};
 
 /*====================================================
             LOGO DESDE COMPUTADORA
@@ -3377,7 +3541,9 @@ if (configuracion.titleFont) {
 
     /*----------------------------------
         PASO 14
-    ----------------------------------*/    await cargarEstadoAdmin();
+    ----------------------------------*/    
+    
+    await cargarEstadoAdmin();
 
  }catch(error){
 

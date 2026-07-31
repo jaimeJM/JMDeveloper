@@ -40,6 +40,28 @@
 
 :root{
 
+    --logo-gradient:linear-gradient(
+    to right in oklch,
+    #f63b35 0%,
+    #f63b35 3%,
+    #1265f0 7%,
+    #477dff 17%,
+    #2caf4f 20%,
+    #72bb44 25%,
+    #ffe523 27%,
+    #ffcc25 30%,
+    #ea4335 33%,
+    #ea4335 45%,
+    #1265f0 49%,
+    #477dff 68%,
+    #34a853 72%,
+    #2caf4f 79%,
+    #ffe523 82%,
+    #ffcc25 87%,
+    #f63b35 90%,
+    #f63b35 100%
+);
+
     --background:#ffffff;
 
     --button:#000;
@@ -382,6 +404,8 @@ body{
 
 #box1::before{
 
+    
+
     content:"";
 
     position:absolute;
@@ -393,27 +417,7 @@ body{
   
     border-radius:50%;
 
-    background:linear-gradient(
-        to right in oklch,
-        #f63b35 0%,
-        #f63b35 3%,
-        #1265f0 7%,
-        #477dff 17%,
-        #2caf4f 20%,
-        #72bb44 25%,
-        #ffe523 27%,
-        #ffcc25 30%,
-        #ea4335 33%,
-        #ea4335 45%,
-        #1265f0 49%,
-        #477dff 68%,
-        #34a853 72%,
-        #2caf4f 79%,
-        #ffe523 82%,
-        #ffcc25 87%,
-        #f63b35 90%,
-        #f63b35 100%
-    );
+   background:var(--logo-gradient);
 
     animation:logoRotate 3s linear infinite;
 
@@ -2440,3 +2444,128 @@ input[type="range"]::-moz-range-thumb{
 }
 
 
+
+
+
+
+/*====================================================
+        CENTRAR LETRAS DEL ICONO FLOTANTE 
+====================================================*/
+
+
+#linksContainer{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+}
+
+#linksContainer .link-card{
+    width:100%;
+    max-width:500px;
+    min-height:80px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    box-sizing:border-box;
+    padding:12px 20px;
+
+    text-align:center;
+}
+
+#linksContainer .link-card .center{
+    width:100%;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    transform: translateX(-12px);
+    text-align:center;
+}
+
+#linksContainer .link-card .center span{
+    width:100%;
+    display:block;
+    text-align:center;
+    white-space:normal;
+    word-break:break-word;
+}
+
+#linksContainer .link-card .center small{
+    width:100%;
+    display:block;
+    text-align:center;
+}
+
+
+.logoPalette{
+
+    display:grid;
+
+    grid-template-columns:repeat(6,50px);
+
+    justify-content:center;
+
+    gap:14px;
+
+    margin:20px 0;
+
+}
+
+.logoColor{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    border:3px solid white;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.35);
+
+    position:relative;
+
+}
+
+.logoColor:hover{
+
+    transform:scale(1.15);
+
+    box-shadow:0 0 18px rgba(255,255,255,.55);
+
+}
+
+.logoColor input{
+
+    position:absolute;
+
+    inset:0;
+
+    opacity:0;
+
+    cursor:pointer;
+
+}
+
+.logoColor::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-4px;
+
+    border-radius:50%;
+
+    border:2px solid rgba(255,255,255,.15);
+
+}
