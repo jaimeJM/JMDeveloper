@@ -333,9 +333,9 @@ body{
 
 .profile-description{
 
-    width:calc(100% - 120px);   /* mismo margen izquierdo y derecho */
+    width:calc(100% - 100px);   /* mismo margen izquierdo y derecho */
 
-    max-width:calc(100% - 120px);
+    max-width:calc(100% - 100px);
 
     margin:12px auto 18px;
 
@@ -745,7 +745,7 @@ body{
 
     backdrop-filter:blur(5px);
 
-    z-index:999;
+    z-index:9999999;
 
 }
 
@@ -2088,7 +2088,7 @@ input[type="range"]::-moz-range-thumb{
 
     font-size:20px;
 
-    z-index:99999;
+    z-index:9999;
 
     display:flex;
 
@@ -2116,7 +2116,7 @@ input[type="range"]::-moz-range-thumb{
 
     align-items:center;
 
-    z-index:999999;
+    z-index:9999;
 
 }
 
@@ -2525,9 +2525,9 @@ input[type="range"]::-moz-range-thumb{
 
     justify-content:center;
 
-    gap:14px;
+    gap:1px;
 
-    margin:20px 0;
+    margin:1px 0;
 
 }
 
