@@ -183,22 +183,71 @@ function rgbToHex(rgb){
 }
 
 /*====================================================
+        CONVERTIR HEX A OBJETO RGB
+====================================================*/
+
+function hexToRgbObject(hex){
+
+    const rgb = hexToRgb(hex);
+
+    const numeros = rgb.match(/\d+/g);
+
+    return {
+
+        r: Number(numeros[0]),
+
+        g: Number(numeros[1]),
+
+        b: Number(numeros[2])
+
+    };
+
+}
+
+/*====================================================
         ACTUALIZAR TEXTO DEL COLOR
 ====================================================*/
+
 
 function actualizarTextoColor(
 
     picker,
     texto,
-    formato
+    formato,
+    alpha = null,
+    preview = null
 
 ){
+
+    const rgb = hexToRgbObject(
+
+        picker.value
+
+    );
+
+    let transparencia = 1;
+
+    if(alpha){
+
+        transparencia =
+
+            alpha.value / 100;
+
+    }
 
     if(formato.value==="hex"){
 
         texto.value =
 
-        picker.value.toUpperCase();
+            picker.value.toUpperCase();
+
+    }
+
+    else if(transparencia===1){
+
+        texto.value =
+
+            `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
     }
 
@@ -206,11 +255,15 @@ function actualizarTextoColor(
 
         texto.value =
 
-        hexToRgb(
+            `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${transparencia.toFixed(2)})`;
 
-            picker.value
+    }
 
-        );
+    if(preview){
+
+        preview.style.background =
+
+            `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${transparencia})`;
 
     }
 
@@ -221,112 +274,196 @@ function actualizarTextoColor(
 
 
 /*====================================================
-        EDITOR UNIVERSAL DE COLOR
+        EDITOR DE COLOR REUTILIZABLE
 ====================================================*/
 
+/**
+ * Inicializa un editor de color.
+ *
+ * IMPORTANTE:
+ * Esta función NO sabe qué elemento está editando.
+ *
+ * Su única responsabilidad es:
+ *
+ * 1. Leer el selector.
+ * 2. Actualizar HEX/RGB.
+ * 3. Validar entrada manual.
+ * 4. Mantener sincronizados los campos.
+ *
+ * La aplicación del color se delega mediante
+ * la función "alCambiar".
+ */
 function crearEditorColor(
-
     picker,
     texto,
-    formato
-
+    formato,
+    alCambiar = null
 ){
 
+    if(!picker || !texto || !formato){
+
+        console.warn(
+            "crearEditorColor(): faltan elementos del editor."
+        );
+
+        return;
+
+    }
+
+
     /*=========================================
-            Cambiar desde el selector
+        FUNCIÓN INTERNA PARA ACTUALIZAR
+    =========================================*/
+
+    function actualizar(){
+
+        actualizarTextoColor(
+            picker,
+            texto,
+            formato
+        );
+
+        if(typeof alCambiar === "function"){
+
+            alCambiar(
+                picker.value,
+                picker
+            );
+
+        }
+
+    }
+
+
+    /*=========================================
+        CAMBIAR DESDE SELECTOR
     =========================================*/
 
     picker.oninput = ()=>{
 
-        actualizarTextoColor(
-
-            picker,
-            texto,
-            formato
-
-        );
-
-        aplicarColores();
+        actualizar();
 
     };
 
+
     /*=========================================
-            Cambiar formato
+        CAMBIAR FORMATO
     =========================================*/
 
     formato.onchange = ()=>{
 
         actualizarTextoColor(
-
             picker,
             texto,
             formato
-
         );
 
     };
 
+
     /*=========================================
-            Escribir manualmente
+        ESCRIBIR MANUALMENTE
     =========================================*/
 
     texto.oninput = ()=>{
 
+        const valor =
+            texto.value.trim();
+
+
+        /*==============================
+                FORMATO HEX
+        ==============================*/
+
         if(formato.value === "hex"){
 
-            if(/^#[0-9A-F]{6}$/i.test(texto.value)){
+            if(/^#[0-9A-F]{6}$/i.test(valor)){
 
                 texto.style.border = "";
 
-                picker.value = texto.value.toUpperCase();
+                picker.value =
+                    valor.toUpperCase();
 
-                aplicarColores();
+                if(typeof alCambiar === "function"){
 
-            }else{
+                    alCambiar(
+                        picker.value,
+                        picker
+                    );
 
-                texto.style.border = "2px solid red";
+                }
+
+            }
+
+            else{
+
+                texto.style.border =
+                    "2px solid red";
 
             }
 
-        }else{
+            return;
 
-            const hex = rgbToHex(texto.value);
+        }
 
-            if(hex){
 
-                texto.style.border = "";
+        /*==============================
+                FORMATO RGB
+        ==============================*/
 
-                picker.value = hex;
+        const hex =
+            rgbToHex(valor);
 
-                aplicarColores();
 
-            }else{
+        if(hex){
 
-                texto.style.border = "2px solid red";
+            texto.style.border = "";
+
+            picker.value = hex;
+
+            if(typeof alCambiar === "function"){
+
+                alCambiar(
+                    picker.value,
+                    picker
+                );
 
             }
+
+        }
+
+        else{
+
+            texto.style.border =
+                "2px solid red";
 
         }
 
     };
 
+
     /*=========================================
-            Aplicar con ENTER
+            APLICAR CON ENTER
     =========================================*/
 
-    texto.addEventListener("keydown",(e)=>{
+    texto.addEventListener(
+        "keydown",
+        (e)=>{
 
-        if(e.key === "Enter"){
+            if(e.key === "Enter"){
 
-            e.preventDefault();
+                e.preventDefault();
 
-            texto.blur();
+                texto.blur();
+
+            }
 
         }
-
-    });
+    );
 
 }
+
+
 /*====================================================
         APLICAR COLORES EN TIEMPO REAL
 ====================================================*/
@@ -669,6 +806,261 @@ if (configuracion.logoGradient && Array.isArray(configuracion.logoGradient)) {
 }
 
 
+/*====================================================
+        EDITOR UNIVERSAL DE COLOR
+====================================================*/
+
+const colorPickerModal =
+    document.getElementById("colorPickerModal");
+
+const pickerColor =
+    document.getElementById("pickerColor");
+
+const hexColor =
+    document.getElementById("hexColor");
+
+const rgbColor =
+    document.getElementById("rgbColor");
+
+const alphaColor =
+    document.getElementById("alphaColor");
+
+const alphaValue =
+    document.getElementById("alphaValue");
+
+const previewColor =
+    document.getElementById("previewColor");
+
+
+    const saveUniversalColor =
+    document.getElementById("saveUniversalColor");
+
+const cancelUniversalColor =
+    document.getElementById("cancelUniversalColor");
+
+
+
+
+
+
+/*====================================================
+        CONTEXTO DEL EDITOR UNIVERSAL
+====================================================*/
+
+/**
+ * Guarda la información del elemento que
+ * actualmente está siendo editado.
+ */
+const editorColorActivo = {
+
+    picker: null,
+
+    texto: null,
+
+    formato: null,
+
+    propiedad: null,
+
+    variableCSS: null,
+
+    despuesDeAplicar: null
+
+};
+
+
+
+
+
+/*====================================================
+        ABRIR EDITOR UNIVERSAL
+====================================================*/
+
+function abrirEditorColor({
+
+    picker,
+
+    texto = null,
+
+    formato = null,
+
+    propiedad = null,
+
+    variableCSS = null,
+
+    despuesDeAplicar = null
+
+}){
+
+    /*----------------------------------
+        Guardar contexto
+    ----------------------------------*/
+
+    editorColorActivo.picker = picker;
+
+    editorColorActivo.texto = texto;
+
+    editorColorActivo.formato = formato;
+
+    editorColorActivo.propiedad = propiedad;
+
+    editorColorActivo.variableCSS = variableCSS;
+
+    editorColorActivo.despuesDeAplicar = despuesDeAplicar;
+
+
+    /*----------------------------------
+        Compatibilidad
+    ----------------------------------*/
+
+    
+
+
+    /*----------------------------------
+        Inicializar modal
+    ----------------------------------*/
+
+    pickerColor.value = picker.value;
+
+    alphaColor.value = 100;
+
+    const rgb = hexToRgbObject(picker.value);
+
+    previewColor.style.background = picker.value;
+
+    hexColor.value = picker.value.toUpperCase();
+
+    rgbColor.value =
+        `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+    alphaValue.textContent = "100%";
+
+    colorPickerModal.style.display = "flex";
+
+}
+
+
+/*====================================================
+        VINCULAR BOTÓN DE COLOR
+====================================================*/
+
+function vincularEditorUniversal({
+
+    boton,
+
+    picker,
+
+    texto = null,
+
+    formato = null,
+
+    propiedad,
+
+    variableCSS,
+
+    despuesDeAplicar = null
+
+}){
+
+    if(!boton) return;
+
+    boton.onclick = (e)=>{
+
+        e.preventDefault();
+
+        abrirEditorColor({
+
+            picker,
+
+            texto,
+
+            formato,
+
+            propiedad,
+
+            variableCSS,
+
+            despuesDeAplicar
+
+        });
+
+    };
+
+}
+
+
+/*====================================================
+        INICIALIZADOR UNIVERSAL DE COLORES
+====================================================*/
+
+function crearEditorColorUniversal(
+
+    picker,
+
+    texto,
+
+    formato,
+
+    propiedadConfiguracion,
+
+    variableCSS,
+
+    despuesDeAplicar = null
+
+){
+
+    crearEditorColor(
+
+        picker,
+
+        texto,
+
+        formato,
+
+        (valor)=>{
+
+            configuracion[propiedadConfiguracion] = valor;
+
+            if(variableCSS){
+
+                document.documentElement.style.setProperty(
+
+                    variableCSS,
+
+                    valor
+
+                );
+
+            }
+
+            if(typeof despuesDeAplicar === "function"){
+
+                despuesDeAplicar(valor);
+
+            }
+
+        }
+
+    );
+
+    vincularEditorUniversal({
+
+        boton: picker,
+
+        picker,
+
+        texto,
+
+        formato,
+
+        propiedad: propiedadConfiguracion,
+
+        variableCSS,
+
+        despuesDeAplicar
+
+    });
+
+}
 
 function crearEditorGradienteLogo(){
 
@@ -718,23 +1110,159 @@ function crearEditorGradienteLogo(){
 
         `;
 
-        const input=item.querySelector("input");
+const input = item.querySelector("input");
 
-        input.addEventListener("input",()=>{
+/*=========================================
+    CAMBIAR COLOR
+=========================================*/
 
-            item.style.background=input.value;
+input.addEventListener("input",()=>{
 
-            configuracion.logoGradient[i]=input.value;
+    item.style.background = input.value;
 
-            actualizarGradienteLogo();
+    configuracion.logoGradient[i] = input.value;
 
-        });
+    actualizarGradienteLogo();
 
-        contenedor.appendChild(item);
+});
+
+
+/*=========================================
+    ABRIR EDITOR UNIVERSAL
+=========================================*/
+
+input.addEventListener("click",(e)=>{
+
+    e.preventDefault();
+
+    abrirEditorColor({
+
+        picker: input
 
     });
 
+});
+
+contenedor.appendChild(item);
+
+});
+
+
 }
+
+
+
+/*====================================================
+        BOTÓN APLICAR
+====================================================*/
+
+saveUniversalColor.onclick = async ()=>{
+
+    if(!editorColorActivo.picker) return;
+
+    editorColorActivo.picker.value = pickerColor.value;
+
+    editorColorActivo.picker.dispatchEvent(
+        new Event("input")
+    );
+
+    if(editorColorActivo.texto){
+
+        actualizarTextoColor(
+
+            editorColorActivo.picker,
+
+            editorColorActivo.texto,
+
+            editorColorActivo.formato
+
+        );
+
+    }
+
+    if(editorColorActivo.propiedad){
+
+        configuracion[
+            editorColorActivo.propiedad
+        ] = pickerColor.value;
+
+    }
+
+    if(editorColorActivo.variableCSS){
+
+        document.documentElement.style.setProperty(
+
+            editorColorActivo.variableCSS,
+
+            pickerColor.value
+
+        );
+
+    }
+
+    if(typeof editorColorActivo.despuesDeAplicar==="function"){
+
+        editorColorActivo.despuesDeAplicar(
+            pickerColor.value
+        );
+
+    }
+
+    await guardarConfiguracionServidor();
+
+    editorColorActivo.picker = null;
+    editorColorActivo.texto = null;
+    editorColorActivo.formato = null;
+    editorColorActivo.propiedad = null;
+    editorColorActivo.variableCSS = null;
+    editorColorActivo.despuesDeAplicar = null;
+
+    colorPickerModal.style.display="none";
+
+};
+
+
+
+
+
+/*====================================================
+        BOTÓN CANCELAR
+====================================================*/
+
+cancelUniversalColor.onclick = ()=>{
+
+    editorColorActivo.picker = null;
+    editorColorActivo.texto = null;
+    editorColorActivo.formato = null;
+    editorColorActivo.propiedad = null;
+    editorColorActivo.variableCSS = null;
+    editorColorActivo.despuesDeAplicar = null;
+
+    colorPickerModal.style.display = "none";
+
+};
+
+/*====================================================
+        ACTUALIZAR VISTA PREVIA
+====================================================*/
+
+pickerColor.oninput = ()=>{
+
+    const rgb = hexToRgbObject(
+
+        pickerColor.value
+
+    );
+
+    previewColor.style.background = pickerColor.value;
+
+    hexColor.value =
+        pickerColor.value.toUpperCase();
+
+    rgbColor.value =
+        `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+};
 
 
 function actualizarGradienteLogo(){
@@ -780,81 +1308,7 @@ function actualizarGradienteLogo(){
 
 }
 
-/*====================================================
-        ACTUALIZAR CAMPO DE COLOR
-====================================================*/
 
-function actualizarTextoColor(
-
-    picker,
-
-    texto,
-
-    formato
-
-){
-
-    if(formato.value==="hex"){
-
-        texto.value=
-
-        picker.value.toUpperCase();
-
-    }
-
-    else{
-
-        texto.value=
-
-        hexToRgb(picker.value);
-
-    }
-
-}
-
-/*====================================================
-        CONVERSIÓN HEX <-> RGB
-====================================================*/
-
-function hexToRgb(hex){
-
-    hex = hex.replace("#","");
-
-    if(hex.length !== 6) return "";
-
-    const r = parseInt(hex.substring(0,2),16);
-    const g = parseInt(hex.substring(2,4),16);
-    const b = parseInt(hex.substring(4,6),16);
-
-    return `rgb(${r}, ${g}, ${b})`;
-
-}
-
-function rgbToHex(rgb){
-
-    const valores = rgb.match(/\d+/g);
-
-    if(!valores || valores.length < 3) return null;
-
-    const r = Number(valores[0]);
-    const g = Number(valores[1]);
-    const b = Number(valores[2]);
-
-    return "#" +
-
-    [r,g,b]
-
-    .map(x=>{
-
-        const h=x.toString(16);
-
-        return h.length===1?"0"+h:h;
-
-    })
-
-    .join("");
-
-}
 
 
 /*====================================================
@@ -1070,180 +1524,48 @@ profileDescription.addEventListener("input",()=>{
 
 });
 
+
+
+
+
 /*====================================================
-        INICIALIZAR EDITORES
+        TÍTULO
 ====================================================*/
 
-crearEditorColor(
+crearEditorColorUniversal(
 
     titleColor,
+
     titleColorText,
-    titleColorFormat
+
+    titleColorFormat,
+
+    "text",
+
+    "--text"
 
 );
 
-crearEditorColor(
+
+/*====================================================
+        SUBTÍTULO
+====================================================*/
+
+crearEditorColorUniversal(
 
     subtitleColor,
+
     subtitleColorText,
-    subtitleColorFormat
+
+    subtitleColorFormat,
+
+    "textSecondary",
+
+    "--text-secondary"
 
 );
 
 
-
-
-/*====================================================
-        COLOR DEL TÍTULO
-====================================================*/
-
-titleColor.oninput=()=>{
-
-    actualizarTextoColor(
-
-        titleColor,
-
-        titleColorText,
-
-        titleColorFormat
-
-    );
-
-};
-
-titleColorFormat.onchange=()=>{
-
-    actualizarTextoColor(
-
-        titleColor,
-
-        titleColorText,
-
-        titleColorFormat
-
-    );
-
-};
-
-titleColorText.onchange=()=>{
-
-    if(
-
-        titleColorFormat.value==="hex"
-
-    ){
-
-        if(/^#[0-9A-F]{6}$/i.test(
-
-            titleColorText.value
-
-        )){
-
-            titleColor.value=
-
-            titleColorText.value;
-
-        }
-
-    }
-
-    else{
-
-        const hex=
-
-        rgbToHex(
-
-            titleColorText.value
-
-        );
-
-        if(hex){
-
-            titleColor.value=
-
-            hex;
-
-        }
-
-    }
-
-};
-
-/*====================================================
-        COLOR DEL SUBTÍTULO
-====================================================*/
-
-subtitleColor.oninput=()=>{
-
-    actualizarTextoColor(
-
-        subtitleColor,
-
-        subtitleColorText,
-
-        subtitleColorFormat
-
-    );
-
-};
-
-subtitleColorFormat.onchange=()=>{
-
-    actualizarTextoColor(
-
-        subtitleColor,
-
-        subtitleColorText,
-
-        subtitleColorFormat
-
-    );
-
-};
-
-subtitleColorText.onchange=()=>{
-
-    if(
-
-        subtitleColorFormat.value==="hex"
-
-    ){
-
-        if(/^#[0-9A-F]{6}$/i.test(
-
-            subtitleColorText.value
-
-        )){
-
-            subtitleColor.value=
-
-            subtitleColorText.value;
-
-        }
-
-    }
-
-    else{
-
-        const hex=
-
-        rgbToHex(
-
-            subtitleColorText.value
-
-        );
-
-        if(hex){
-
-            subtitleColor.value=
-
-            hex;
-
-        }
-
-    }
-
-};
 
 /*==================================================
             BOTÓN AGREGAR ENLACE
@@ -1630,7 +1952,7 @@ if (
     descriptionBackgroundColor.value =
         configuracion.descriptionBackgroundColor || "#252525";
 
-}
+}   
 
     titleColorText.value = titleColor.value.toUpperCase();
 
@@ -1963,6 +2285,10 @@ await guardarConfiguracionServidor();
     HERRAMIENTAS DE LA DESCRIPCIÓN
 ====================================================*/
 
+
+
+
+
 const desc = document.getElementById("description");
 
 if (desc) {
@@ -2021,23 +2347,140 @@ subtitleSize.oninput = ()=>{
 
 };
 
+/*====================================================
+            COLORES
+====================================================*/
+
+const fondo =
+    document.getElementById("backgroundColor");
+
+const tarjeta =
+    document.getElementById("cardColor");
+
+const botones =
+    document.getElementById("buttonColor");
+
+const borde =
+    document.getElementById("borderColor");
+
+const sombra =
+    document.getElementById("shadowColor");
+
+
+
+/*====================================================
+        FUNCIÓN REUTILIZABLE DE COLORES
+====================================================*/
+
+
+function vincularColorConfiguracion(
+    input,
+    variableCSS,
+    propiedad,
+    despuesDeAplicar = null
+){
+
+    if(!input) return;
+
+    input.oninput = async ()=>{
+
+        const valor = input.value;
+
+        document.documentElement.style.setProperty(
+            variableCSS,
+            valor
+        );
+
+        configuracion[propiedad] = valor;
+
+        if(typeof despuesDeAplicar === "function"){
+
+            despuesDeAplicar(valor);
+
+        }
+
+        await guardarConfiguracionServidor();
+
+    };
+
+}
+
+vincularColorConfiguracion(
+    fondo,
+    "--background",
+    "background",
+    () => actualizarColorFooter(fondo.value)
+);
+
+vincularColorConfiguracion(
+    tarjeta,
+    "--card",
+    "card",
+    () => actualizarColorFooter()
+);
+
+vincularColorConfiguracion(
+    botones,
+    "--button",
+    "button"
+);
+
+vincularColorConfiguracion(
+    borde,
+    "--border",
+    "border"
+);
+
+vincularColorConfiguracion(
+    sombra,
+    "--shadow",
+    "shadow"
+);
 
 
 
 
 /*====================================================
-            COLORES
+        EDITOR UNIVERSAL DE COLORES GENERALES
 ====================================================*/
 
-const fondo=document.getElementById("backgroundColor");
+vincularEditorUniversal({
+    boton: fondo,
+    picker: fondo,
+    propiedad: "background",
+    variableCSS: "--background",
+    despuesDeAplicar: () => actualizarColorFooter()
+});
 
-const tarjeta=document.getElementById("cardColor");
+vincularEditorUniversal({
+    boton: tarjeta,
+    picker: tarjeta,
+    propiedad: "card",
+    variableCSS: "--card",
+    despuesDeAplicar: () => actualizarColorFooter()
+});
 
-const botones=document.getElementById("buttonColor");
+vincularEditorUniversal({
+    boton: botones,
+    picker: botones,
+    propiedad: "button",
+    variableCSS: "--button"
+});
 
-const borde=document.getElementById("borderColor");
+vincularEditorUniversal({
+    boton: borde,
+    picker: borde,
+    propiedad: "border",
+    variableCSS: "--border"
+});
 
-const sombra=document.getElementById("shadowColor");
+vincularEditorUniversal({
+    boton: sombra,
+    picker: sombra,
+    propiedad: "shadow",
+    variableCSS: "--shadow"
+});
+
 
 const fontFile = document.getElementById("fontFile");
 
@@ -3350,11 +3793,7 @@ document
 
 };
 
-/*/document.getElementById("btnAdmin").onclick=()=>{
 
-    adminModal.style.display="flex";
-
-};*/
 
 adminModal.onclick=(e)=>{
 

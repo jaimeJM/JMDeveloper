@@ -658,8 +658,68 @@ accept="image/*">
 </div>
     </div>
 </div>
-    <!-- JavaScript -->
+    <!-- Editor de color  -->
+<div id="colorPickerModal" class="modal">
 
+    <div class="modal-content color-editor">
+
+        <h2>Editor de Color</h2>
+
+        <label>Vista previa</label>
+
+        <div id="previewColor"></div>
+
+        <label>Selector</label>
+
+        <input type="color" id="pickerColor">
+
+        <label>HEX</label>
+
+        <input
+            type="text"
+            id="hexColor"
+            placeholder="#FFFFFF"
+        >
+
+        <label>RGB</label>
+
+        <input
+            type="text"
+            id="rgbColor"
+            placeholder="rgb(255,255,255)"
+        >
+
+        <label>Transparencia</label>
+
+        <input
+            type="range"
+            id="alphaColor"
+            min="0"
+            max="100"
+            value="100"
+        >
+
+        <span id="alphaValue">
+            100%
+        </span>
+
+        <div class="modal-buttons">
+
+            <button id="saveUniversalColor">
+                Aplicar
+            </button>
+
+            <button id="cancelUniversalColor">
+                Cancelar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- JavaScript -->
     <script src="JM Developer.js"></script>
 
 </body>

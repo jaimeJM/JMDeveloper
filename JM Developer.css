@@ -324,8 +324,8 @@ body{
 
 .profile-description{
 
-    width:calc(100% - 90px);
-    max-width:calc(100% - 90px);
+    width:calc(100% - 50px);
+    max-width:calc(100% - 50px);
 
     margin:12px auto 18px;
 
