@@ -194,7 +194,7 @@ Jaime Martinez1
                 maxlength="30"
                 placeholder="Subtítulo">
 
-            <label style="color:white; margin-top:15px; display:block;">
+           <label class="description-label">
                 Descripción 
             </label>
 
@@ -205,8 +205,8 @@ Jaime Martinez1
             </textarea>
 
             <small
-                style="color:white;"
-                id="contadorDescripcion">
+                    id="contadorDescripcion"
+                    class="description-counter">
                 0 / 220
             </small>
 
@@ -631,7 +631,7 @@ accept="image/*">
 
     </a>
 
-</footer>
+</footer> 
     
 
 <!--==========================
@@ -659,6 +659,8 @@ accept="image/*">
     </div>
 </div>
     <!-- Editor de color  -->
+
+   
 <div id="colorPickerModal" class="modal">
 
     <div class="modal-content color-editor">
@@ -709,13 +711,17 @@ accept="image/*">
                 Aplicar
             </button>
 
-            <button id="cancelUniversalColor">
-                Cancelar
-            </button>
+
+
+
 
         </div>
-
+        <button id="closeUniversalColor" class="closeX">
+    <i class="fa-solid fa-xmark"></i>
+</button>
+             
     </div>
+                                     
 
 </div>
 

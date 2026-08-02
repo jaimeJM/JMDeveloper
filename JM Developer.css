@@ -1344,9 +1344,9 @@ input[type="color"]::-moz-color-swatch{
 
     --text-secondary:#dddddd;
 
-     --icon-color:#ffffff;
+    --icon-color:#ffffff;
 
-        --footer-text:#ffffff;
+    --footer-text:#ffffff;
 
 }
 
@@ -1388,35 +1388,20 @@ input[type="color"]::-moz-color-swatch{
     MODO OSCURO - MODALES
 ==========================*/
 
-.dark .modal-content{
 
-    color:#ffffff;
 
-}
-
-.dark .modal-content h2,
-
-.dark .modal-content label,
-
-.dark .modal-content small{
-
-    color:#ffffff;
-
-}
-
-.dark .modal-content input,
-
+.dark .modal-content input:not([type="color"]),
 .dark .modal-content textarea,
-
 .dark .modal-content select{
 
-    color:#ffffff;
-
     background:#2b2b2b;
+
+    color:#ffffff;
 
     border:1px solid #555;
 
 }
+
 
 .dark .modal-content input::placeholder,
 
@@ -1436,15 +1421,15 @@ input[type="color"]::-moz-color-swatch{
 
 .dark .modal-content{
 
-    color:#ffffff;
+    background:var(--card);
+
+    color:var(--text);
+
+    border:1px solid var(--border);
 
 }
 
-.dark .modal-content label{
 
-    color:#ffffff;
-
-}
 
 .dark .modal-content h2{
 
@@ -1452,31 +1437,234 @@ input[type="color"]::-moz-color-swatch{
 
 }
 
-.dark .modal-content input,
 
-.dark .modal-content textarea,
 
-.dark .modal-content select{
+
+.dark #title,
+.dark #subtitle{
+    color:#ffffff !important;
+}
+
+.dark .edit-title,
+.dark .edit-subtitle{
+    color:#ffffff !important;
+}
+
+/*=========================================
+      MODO OSCURO - TODO EL TEXTO BLANCO
+=========================================*/
+
+.dark .title-box h1,
+.dark .title-box h3,
+.dark .center span,
+.dark .center small{
+
+    color:var(--text);
+
+}
+
+
+/*=========================================
+    MODO OSCURO - DESCRIPCIÓN DEL PERFIL
+=========================================*/
+
+
+
+
+.dark .closeX{
+
+    background:#585858;
 
     color:#ffffff;
 
-    background:#2d2d2d;
+}
 
+.dark .closeX:hover{
+
+    background:#b71c1c;
+
+}
+
+/*=========================================
+        EDITOR UNIVERSAL - MODO OSCURO
+=========================================*/
+
+.dark #colorPickerModal .modal-content{
+
+    background:var(--card);
+    color:var(--text);
+    border:1px solid var(--border);
+
+}
+
+.dark #colorPickerModal h2,
+.dark #colorPickerModal label,
+.dark #colorPickerModal span{
+
+    color:var(--text);
+
+}
+
+.dark #colorPickerModal input[type="text"]{
+
+    background:#2b2b2b;
+    color:#ffffff;
     border:1px solid #555;
 
 }
 
-.dark .modal-content input::placeholder,
+.dark #colorPickerModal input[type="text"]::placeholder{
 
-.dark .modal-content textarea::placeholder{
+    color:#aaaaaa;
 
-    color:#bdbdbd;
+}
+
+.dark #previewColor{
+
+    border:2px solid #555;
+
+}
+
+.dark #alphaValue{
+
+    color:#ffffff;
 
 }
 
 
 
 
+/*====================================
+      SLIDER - MODO OSCURO
+=====================================*/
+
+.dark input[type="range"]{
+
+    background:transparent;
+
+}
+
+.dark input[type="range"]::-webkit-slider-runnable-track{
+
+    height:12px;
+
+    border-radius:999px;
+
+    background:#000000;
+
+    border:1px solid #2d2d2d;
+
+}
+
+.dark input[type="range"]::-webkit-slider-thumb{
+
+    -webkit-appearance:none;
+
+    width:22px;
+    height:22px;
+
+    margin-top:-6px;
+
+    border-radius:50%;
+
+    background:#ffffff;
+
+    border:2px solid #000000;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.8);
+
+}
+
+.dark input[type="range"]::-moz-range-track{
+
+    height:12px;
+
+    border-radius:999px;
+
+    background:#000000;
+
+    border:1px solid #2d2d2d;
+
+}
+
+.dark input[type="range"]::-moz-range-thumb{
+
+    width:22px;
+    height:22px;
+
+    border-radius:50%;
+
+    background:#ffffff;
+
+    border:2px solid #000000;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.8);
+
+}
+
+
+/*=========================================
+    MODO OSCURO - DESCRIPCIÓN
+=========================================*/
+
+.dark #profileDescription{
+
+    background:#2b2b2b !important;
+    color:#ffffff !important;
+    border:1px solid #555;
+
+}
+
+.dark #profileDescription::placeholder{
+
+    color:#bdbdbd;
+
+}
+/*=========================================
+    INPUT COLOR - MODO OSCURO
+=========================================*/
+
+.dark input[type="color"]{
+
+    appearance:none;
+-webkit-appearance:none;
+
+    width:42px;
+    height:42px;
+
+    padding:3px;
+
+    background:#2b2b2b;
+
+    border:1px solid #555;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+.dark input[type="color"]::-webkit-color-swatch{
+
+    border:none;
+
+    border-radius:6px;
+
+}
+
+.dark input[type="color"]::-webkit-color-swatch-wrapper{
+
+    padding:0;
+
+}
+
+.dark input[type="color"]::-moz-color-swatch{
+
+    border:none;
+
+    border-radius:6px;
+
+}
 
 
 
@@ -1638,33 +1826,6 @@ all var(--animation-speed) ease;
 
 }
 
-.dark #title,
-.dark #subtitle{
-    color:#ffffff !important;
-}
-
-.dark .edit-title,
-.dark .edit-subtitle{
-    color:#ffffff !important;
-}
-
-/*=========================================
-      MODO OSCURO - TODO EL TEXTO BLANCO
-=========================================*/
-
-.dark .title-box h1,
-.dark .title-box h3,
-.dark .center span,
-.dark .center small,
-.dark .modal-content,
-.dark .modal-content h2,
-.dark .modal-content label,
-.dark .modal-content small,
-.dark .modal-content p{
-    color:#ffffff !important;
-}
-
-
 
 
 
@@ -1718,44 +1879,11 @@ all var(--animation-speed) ease;
 
 
 
-.dark .closeX{
-
-    background:#585858;
-
-    color:#ffffff;
-
+.description-label,
+.description-counter{
+    color: var(--text);
 }
 
-.dark .closeX:hover{
-
-    background:#b71c1c;
-
-}
-
-
-/*
-
-#saveBackgroundImage{
-
-    background:#28a745;
-
-    color:#fff;
-
-    min-width:180px;
-
-    margin:auto;
-
-    display:block;
-
-}
-
-#saveBackgroundImage:hover{
-
-    background:#218838;
-
-}
-
-*/
 /*=================================
             FOOTER
 ==================================*/
@@ -2028,75 +2156,6 @@ input[type="range"]::-moz-range-thumb{
     font-weight:bold;
 
     color:var(--text);
-
-}
-
-
-/*====================================
-      SLIDER - MODO OSCURO
-=====================================*/
-
-.dark input[type="range"]{
-
-    background:transparent;
-
-}
-
-.dark input[type="range"]::-webkit-slider-runnable-track{
-
-    height:12px;
-
-    border-radius:999px;
-
-    background:#000000;
-
-    border:1px solid #2d2d2d;
-
-}
-
-.dark input[type="range"]::-webkit-slider-thumb{
-
-    -webkit-appearance:none;
-
-    width:22px;
-    height:22px;
-
-    margin-top:-6px;
-
-    border-radius:50%;
-
-    background:#ffffff;
-
-    border:2px solid #000000;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.8);
-
-}
-
-.dark input[type="range"]::-moz-range-track{
-
-    height:12px;
-
-    border-radius:999px;
-
-    background:#000000;
-
-    border:1px solid #2d2d2d;
-
-}
-
-.dark input[type="range"]::-moz-range-thumb{
-
-    width:22px;
-    height:22px;
-
-    border-radius:50%;
-
-    background:#ffffff;
-
-    border:2px solid #000000;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.8);
 
 }
 
@@ -2612,3 +2671,5 @@ input[type="range"]::-moz-range-thumb{
     border:2px solid rgba(255,255,255,.15);
 
 }
+
+
