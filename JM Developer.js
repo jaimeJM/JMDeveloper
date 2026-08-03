@@ -1686,6 +1686,11 @@ function hslToRgb(h, s, l){
 
 hueColor.oninput = ()=>{
 
+console.log("editorColorActivo.picker:", editorColorActivo.picker);
+console.log("id:", editorColorActivo.picker?.id);
+console.log("¿title?", editorColorActivo.picker === titleColor);
+console.log("¿link?", editorColorActivo.picker === linkTextColor);
+
     /*-----------------------------------------
         COLOR ACTUAL
     -----------------------------------------*/
@@ -1926,6 +1931,8 @@ function abrirEditorColor({
     ----------------------------------*/
 
 
+
+
 const colorInicial =
     picker.value || "#000000";
 
@@ -2025,6 +2032,18 @@ rgbColor.value =
 
 actualizarVistaPrevia();
 
+/*=========================================
+    SINCRONIZAR CONTROLES
+=========================================*/
+
+pickerColor.dispatchEvent(
+    new Event("input")
+);
+
+hueColor.dispatchEvent(
+    new Event("input")
+);
+
 
 /*=========================================
         ABRIR MODAL
@@ -2062,6 +2081,8 @@ function vincularEditorUniversal({
     boton.onclick = (e)=>{
 
         e.preventDefault();
+
+          console.log("CLICK:", picker.id);
 
         abrirEditorColor({
 
@@ -2335,6 +2356,10 @@ saveUniversalColor.onclick = async ()=>{
     editorColorActivo.picker.value =
         hex;
 
+
+        console.log("Picker destino:", editorColorActivo.picker);
+console.log("¿Es linkTextColor?", editorColorActivo.picker === linkTextColor);
+console.log("HEX:", hex);
 
     /*=========================================
         APLICAR VARIABLE CSS
@@ -2845,6 +2870,7 @@ const btnBackground = document.getElementById("btnBackground");
 
 const titleColor = document.getElementById("titleColor");
 
+
 const subtitleColor = document.getElementById("subtitleColor");
 
 const descriptionTextColor = document.getElementById("descriptionTextColor");
@@ -2864,6 +2890,22 @@ const pageTitle = document.querySelector("title");
 const iconColor = document.getElementById("iconColor");
 
 const linkTextColor = document.getElementById("linkTextColor");
+
+console.log("titleColor:", titleColor);
+console.log("linkTextColor:", linkTextColor);
+
+console.log(
+    "Cantidad linkTextColor:",
+    document.querySelectorAll("#linkTextColor").length
+);
+
+titleColor.addEventListener("click", () => {
+    console.log("CLICK NATIVO titleColor");
+});
+
+linkTextColor.addEventListener("click", () => {
+    console.log("CLICK NATIVO linkTextColor");
+});
 
 
 /*====================================================
@@ -2921,7 +2963,6 @@ crearEditorColorUniversal(
     "--text-secondary"
 
 );
-
 
 /*====================================================
         COLOR DE LETRA DEL BOTÓN
@@ -4212,218 +4253,243 @@ vincularEditorUniversal({
 });
 
 
-/*====================================================
-            EDITOR DE BOTONES
-====================================================*/
+    /*====================================================
+                EDITOR DE BOTONES
+    ====================================================*/
 
-let botonSeleccionado = null;
-
-
-/*====================================================
-        ABRIR MODAL DESDE LOS TRES PUNTOS
-====================================================*/
-
-function activarBotones(){
-
-    document.querySelectorAll(".options").forEach(btn => {
-
-       btn.onmousedown = (e) => {
-
-            e.stopPropagation();
-
-            botonSeleccionado =
-                btn.closest(".link-card");
-
-            const texto =
-                botonSeleccionado.querySelector(".center span");
-
-            const icono =
-                botonSeleccionado.querySelector(".left i");
-
-            const descripcion =
-                botonSeleccionado.querySelector(".center small");
-
-            /* TEXTO */
-
-            document.getElementById("linkTitle").value =
-                texto.innerText;
-
-            /* URL */
-
-            document.getElementById("linkURL").value =
-                botonSeleccionado.dataset.url || "";
-
-            /* ICONO */
-
-            document.getElementById("linkIcon").value =
-                icono.className;
-
-            /* COLOR DE TEXTO */
-
-            linkTextColor.value =
-                botonSeleccionado.dataset.textColor || "#ffffff";
-
-            /* DESCRIPCIÓN */
-
-            document.getElementById("linkDescription").value =
-                botonSeleccionado.dataset.description || "";
-
-            /* NUEVA PESTAÑA */
-
-            document.getElementById("linkNewTab").checked =
-                botonSeleccionado.dataset.newTab === "true";
+    let botonSeleccionado = null;
 
 
+    /*====================================================
+            ABRIR MODAL DESDE LOS TRES PUNTOS
+    ====================================================*/
 
+    function activarBotones(){
 
+        document.querySelectorAll(".options").forEach(btn => {
 
-            /* ABRIR MODAL */
+        btn.onmousedown = (e) => {
 
-            document.getElementById("linkModal")
-                .style.display = "flex";
+                e.stopPropagation();
 
-        };
+                botonSeleccionado =
+                    btn.closest(".link-card");
 
-    });
+                const texto =
+                    botonSeleccionado.querySelector(".center span");
 
-}
+                const icono =
+                    botonSeleccionado.querySelector(".left i");
 
+                const descripcion =
+                    botonSeleccionado.querySelector(".center small");
 
+                /* TEXTO */
 
+                document.getElementById("linkTitle").value =
+                    texto.innerText;
 
-/*====================================================
-        GUARDAR CAMBIOS DEL BOTÓN
-====================================================*/
+                /* URL */
 
-document.getElementById("saveLink").onclick = () => {
+                document.getElementById("linkURL").value =
+                    botonSeleccionado.dataset.url || "";
 
-    if(!botonSeleccionado) return;
+                /* ICONO */
 
+                document.getElementById("linkIcon").value =
+                    icono.className;
 
-    const texto =
-        document.getElementById("linkTitle")
-        .value
-        .trim();
+                /* COLOR DE TEXTO */
 
-
-    const url =
-        document.getElementById("linkURL")
-        .value
-        .trim();
-
-
-    const icono =
-        document.getElementById("linkIcon")
-        .value;
-
+                /* COLOR DE TEXTO */
 
     const colorTexto =
-        document.getElementById("linkTextColor")
-        .value;
+        botonSeleccionado.dataset.textColor || "#ffffff";
+
+    console.log("Color guardado:", colorTexto);
+
+    linkTextColor.value = colorTexto;
+
+    console.log("Valor del input:", linkTextColor.value);
+                /* DESCRIPCIÓN */
+
+                document.getElementById("linkDescription").value =
+                    botonSeleccionado.dataset.description || "";
+
+                /* NUEVA PESTAÑA */
+
+                document.getElementById("linkNewTab").checked =
+                    botonSeleccionado.dataset.newTab === "true";
 
 
-    const descripcion =
-        document.getElementById("linkDescription")
-        .value
-        .trim();
 
 
-    const nuevaPestana =
-        document.getElementById("linkNewTab")
-        .checked;
 
+                /* ABRIR MODAL */
 
-    /* ACTUALIZAR TEXTO */
+                document.getElementById("linkModal")
+                    .style.display = "flex";
 
-    botonSeleccionado
-        .querySelector(".center span")
-        .innerText = texto;
+            };
 
-
-    /* ACTUALIZAR ICONO */
-
-    botonSeleccionado
-        .querySelector(".left i")
-        .className = icono;
-
-
-    /* ACTUALIZAR URL */
-
-    botonSeleccionado.dataset.url = url;
-
-
-    /* ACTUALIZAR COLOR DE LA LETRA */
-
-
-const span = botonSeleccionado.querySelector(".center span");
-
-span.style.color = colorTexto;
-
-const small =
-botonSeleccionado.querySelector(".center small");
-
-if(small){
-
-    small.style.color = colorTexto;
-
-}
-
-botonSeleccionado.dataset.textColor = colorTexto;
-       
-
-
-    /* ACTUALIZAR DESCRIPCIÓN */
-
-    let descripcionElemento =
-        botonSeleccionado.querySelector(".center small");
-
-        botonSeleccionado.dataset.description = descripcion;
-
-
-    if(descripcion !== ""){
-
-        if(!descripcionElemento){
-
-            descripcionElemento =
-                document.createElement("small");
-
-            botonSeleccionado
-                .querySelector(".center")
-                .appendChild(descripcionElemento);
-
-        }
-
-        descripcionElemento.innerText =
-            descripcion;
-
-    }else{
-
-
-            botonSeleccionado.dataset.description = "";
-
-
-        if(descripcionElemento){
-
-            descripcionElemento.remove();
-
-        }
+        });
 
     }
 
 
-    /* ABRIR EN NUEVA PESTAÑA */
-
-    botonSeleccionado.dataset.newTab =
-        nuevaPestana;
 
 
-    guardarBotones();
+    /*====================================================
+            GUARDAR CAMBIOS DEL BOTÓN
+    ====================================================*/
+
+    document.getElementById("saveLink").onclick = () => {
+
+        if(!botonSeleccionado) return;
 
 
-    document.getElementById("linkModal")
-        .style.display = "none";
+        const texto =
+            document.getElementById("linkTitle")
+            .value
+            .trim();
 
-};
+
+        const url =
+            document.getElementById("linkURL")
+            .value
+            .trim();
+
+
+        const icono =
+            document.getElementById("linkIcon")
+            .value;
+
+
+    let colorTexto =
+        document.getElementById("linkTextColor").value;
+
+    /*=========================================
+        SI EL EDITOR UNIVERSAL ESTÁ ACTIVO
+    =========================================*/
+
+    if(
+        editorColorActivo &&
+        editorColorActivo.picker === linkTextColor
+    ){
+
+        colorTexto =
+            obtenerColorFinal();
+
+        linkTextColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(colorTexto)
+            );
+
+    }
+
+
+        const descripcion =
+            document.getElementById("linkDescription")
+            .value
+            .trim();
+
+
+        const nuevaPestana =
+            document.getElementById("linkNewTab")
+            .checked;
+
+
+        /* ACTUALIZAR TEXTO */
+
+        botonSeleccionado
+            .querySelector(".center span")
+            .innerText = texto;
+
+
+        /* ACTUALIZAR ICONO */
+
+        botonSeleccionado
+            .querySelector(".left i")
+            .className = icono;
+
+
+        /* ACTUALIZAR URL */
+
+        botonSeleccionado.dataset.url = url;
+
+
+        /* ACTUALIZAR COLOR DE LA LETRA */
+
+
+    const span = botonSeleccionado.querySelector(".center span");
+
+    span.style.color = colorTexto;
+
+    const small =
+    botonSeleccionado.querySelector(".center small");
+
+    if(small){
+
+        small.style.color = colorTexto;
+
+    }
+
+    botonSeleccionado.dataset.textColor = colorTexto;
+        
+
+
+        /* ACTUALIZAR DESCRIPCIÓN */
+
+        let descripcionElemento =
+            botonSeleccionado.querySelector(".center small");
+
+            botonSeleccionado.dataset.description = descripcion;
+
+
+        if(descripcion !== ""){
+
+            if(!descripcionElemento){
+
+                descripcionElemento =
+                    document.createElement("small");
+
+                botonSeleccionado
+                    .querySelector(".center")
+                    .appendChild(descripcionElemento);
+
+            }
+
+            descripcionElemento.innerText =
+                descripcion;
+
+        }else{
+
+
+                botonSeleccionado.dataset.description = "";
+
+
+            if(descripcionElemento){
+
+                descripcionElemento.remove();
+
+            }
+
+        }
+
+
+        /* ABRIR EN NUEVA PESTAÑA */
+
+        botonSeleccionado.dataset.newTab =
+            nuevaPestana;
+
+
+        guardarBotones();
+
+
+        document.getElementById("linkModal")
+            .style.display = "none";
+
+    };
 
 
 /*====================================================
