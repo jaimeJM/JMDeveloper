@@ -658,22 +658,48 @@ accept="image/*">
 </div>
     </div>
 </div>
-    <!-- Editor de color  -->
 
-   
+
+
+<!--=============================================
+        EDITOR UNIVERSAL DE COLOR
+==============================================-->
+
 <div id="colorPickerModal" class="modal">
 
     <div class="modal-content color-editor">
 
+        <!--=====================================
+                TÍTULO
+        ======================================-->
+
         <h2>Editor de Color</h2>
+
+
+        <!--=====================================
+                VISTA PREVIA
+        ======================================-->
 
         <label>Vista previa</label>
 
         <div id="previewColor"></div>
 
+
+        <!--=====================================
+                SELECTOR
+        ======================================-->
+
         <label>Selector</label>
 
-        <input type="color" id="pickerColor">
+        <input
+            type="color"
+            id="pickerColor"
+        >
+
+
+        <!--=====================================
+                HEX
+        ======================================-->
 
         <label>HEX</label>
 
@@ -683,6 +709,11 @@ accept="image/*">
             placeholder="#FFFFFF"
         >
 
+
+        <!--=====================================
+                RGB
+        ======================================-->
+
         <label>RGB</label>
 
         <input
@@ -690,6 +721,11 @@ accept="image/*">
             id="rgbColor"
             placeholder="rgb(255,255,255)"
         >
+
+
+        <!--=====================================
+                TRANSPARENCIA
+        ======================================-->
 
         <label>Transparencia</label>
 
@@ -705,23 +741,51 @@ accept="image/*">
             100%
         </span>
 
+
+        <!--=====================================
+                COLORES RECIENTES
+        ======================================-->
+
+        <label>Colores recientes</label>
+
+        <div id="universalColorHistory"></div>
+
+
+        <!--=====================================
+                BOTONES
+        ======================================-->
+
         <div class="modal-buttons">
 
-            <button id="saveUniversalColor">
-                Aplicar
+            <button
+                id="saveUniversalColor"
+                type="button"
+                aria-label="Aplicar"
+                title="Aplicar"
+            >
+                ✓
             </button>
 
-
-
-
-
         </div>
-        <button id="closeUniversalColor" class="closeX">
-    <i class="fa-solid fa-xmark"></i>
-</button>
-             
+
+
+        <!--=====================================
+                CERRAR
+        ======================================-->
+
+        <button
+            id="closeUniversalColor"
+            class="closeX"
+            type="button"
+            aria-label="Cerrar"
+            title="Cerrar"
+        >
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
     </div>
-                                     
 
 </div>
 
