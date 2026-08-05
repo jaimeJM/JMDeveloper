@@ -541,11 +541,30 @@ if (description) {
     description.style.textAlign =
         configuracion.descriptionAlign || "justify";
 
+
+
+ if (document.body.classList.contains("dark")) {
+
+    description.style.color = "#ffffff";
+
+} else {
+
     description.style.color =
         configuracion.descriptionTextColor || "#ffffff";
 
+}
+
+
+   if (document.body.classList.contains("dark")) {
+
+    description.style.backgroundColor = "#2b2b2b";
+
+} else {
+
     description.style.backgroundColor =
         configuracion.descriptionBackgroundColor || "rgba(37,37,37,.65)";
+
+}
 
     if (description.style.textAlign === "center") {
 
@@ -1686,10 +1705,7 @@ function hslToRgb(h, s, l){
 
 hueColor.oninput = ()=>{
 
-console.log("editorColorActivo.picker:", editorColorActivo.picker);
-console.log("id:", editorColorActivo.picker?.id);
-console.log("¿title?", editorColorActivo.picker === titleColor);
-console.log("¿link?", editorColorActivo.picker === linkTextColor);
+
 
     /*-----------------------------------------
         COLOR ACTUAL
@@ -2061,46 +2077,36 @@ colorPickerModal.style.display =
 function vincularEditorUniversal({
 
     boton,
-
     picker,
-
     texto = null,
-
     formato = null,
-
     propiedad,
-
     variableCSS,
-
     despuesDeAplicar = null
 
 }){
 
     if(!boton) return;
 
-    boton.onclick = (e)=>{
+    boton.addEventListener("click", function(e){
 
         e.preventDefault();
+        e.stopPropagation();
 
-          console.log("CLICK:", picker.id);
+  
 
         abrirEditorColor({
 
             picker,
-
             texto,
-
             formato,
-
             propiedad,
-
             variableCSS,
-
             despuesDeAplicar
 
         });
 
-    };
+    }, true);
 
 }
 
@@ -2125,6 +2131,8 @@ function crearEditorColorUniversal(
 
 ){
 
+if(texto && formato){
+
     crearEditorColor(
 
         picker,
@@ -2140,11 +2148,8 @@ function crearEditorColorUniversal(
             if(variableCSS){
 
                 document.documentElement.style.setProperty(
-
                     variableCSS,
-
                     valor
-
                 );
 
             }
@@ -2158,6 +2163,8 @@ function crearEditorColorUniversal(
         }
 
     );
+
+}
 
     vincularEditorUniversal({
 
@@ -2357,9 +2364,7 @@ saveUniversalColor.onclick = async ()=>{
         hex;
 
 
-        console.log("Picker destino:", editorColorActivo.picker);
-console.log("¿Es linkTextColor?", editorColorActivo.picker === linkTextColor);
-console.log("HEX:", hex);
+
 
     /*=========================================
         APLICAR VARIABLE CSS
@@ -2443,6 +2448,11 @@ console.log("HEX:", hex);
         GUARDAR SERVIDOR
     =========================================*/
 
+
+    console.log(
+    "descriptionBackgroundColor:",
+    configuracion.descriptionBackgroundColor
+);
     await guardarConfiguracionServidor();
 
 
@@ -2863,6 +2873,8 @@ const logoModal = document.getElementById("logoModal");
 
 const titleModal = document.getElementById("titleModal");
 
+
+
 const colorModal = document.getElementById("colorModal");
 
 const btnBackground = document.getElementById("btnBackground");
@@ -2891,21 +2903,8 @@ const iconColor = document.getElementById("iconColor");
 
 const linkTextColor = document.getElementById("linkTextColor");
 
-console.log("titleColor:", titleColor);
-console.log("linkTextColor:", linkTextColor);
 
-console.log(
-    "Cantidad linkTextColor:",
-    document.querySelectorAll("#linkTextColor").length
-);
 
-titleColor.addEventListener("click", () => {
-    console.log("CLICK NATIVO titleColor");
-});
-
-linkTextColor.addEventListener("click", () => {
-    console.log("CLICK NATIVO linkTextColor");
-});
 
 
 /*====================================================
@@ -2968,15 +2967,19 @@ crearEditorColorUniversal(
         COLOR DE LETRA DEL BOTÓN
 ====================================================*/
 
-vincularEditorUniversal({
+crearEditorColorUniversal(
 
-    boton: linkTextColor,
+    linkTextColor,
 
-    picker: linkTextColor,
+    null,
 
-    propiedad: "linkTextColor",
+    null,
 
-    despuesDeAplicar:(valor)=>{
+    "linkTextColor",
+
+    null,
+
+    (valor)=>{
 
         if(!botonSeleccionado) return;
 
@@ -2984,26 +2987,21 @@ vincularEditorUniversal({
             botonSeleccionado.querySelector(".center span");
 
         if(span){
-
             span.style.color = valor;
-
         }
 
         const small =
             botonSeleccionado.querySelector(".center small");
 
         if(small){
-
             small.style.color = valor;
-
         }
 
         botonSeleccionado.dataset.textColor = valor;
 
     }
 
-});
-
+);
 
 /*====================================================
         DESCRIPCIÓN
@@ -3370,7 +3368,19 @@ animationSpeed.addEventListener("input", async ()=>{
 
 
 
+/*=========================================
+    CERRAR TODOS LOS MODALES
+=========================================*/
 
+function cerrarTodosLosModales() {
+
+    document.querySelectorAll(".modal").forEach(modal => {
+
+        modal.style.display = "none";
+
+    });
+
+}
 
 
 
@@ -3385,7 +3395,9 @@ animationSpeed.addEventListener("input", async ()=>{
 ====================================================*/
 document.querySelector(".edit-logo").onclick = () => {
 
-    crearEditorGradienteLogo();
+ crearEditorGradienteLogo();
+
+    cerrarTodosLosModales();
 
     logoModal.style.display = "flex";
 
@@ -3405,32 +3417,7 @@ document.querySelector(".edit-title").onclick = () => {
 
     subtitleColor.value = estilos.getPropertyValue("--text-secondary").trim();
 
-    /*====================================================
-        RESTAURAR COLORES DE LA DESCRIPCIÓN EN EL MODAL
-    ====================================================*/
-
-    const descriptionTextColor =
-        document.getElementById("descriptionTextColor");
-
-    const descriptionBackgroundColor =
-        document.getElementById("descriptionBackgroundColor");
-
-    if (document.body.classList.contains("dark")) {
-
-        descriptionTextColor.value = "#ffffff";
-        descriptionBackgroundColor.value = "#2b2b2b";
-
-    } else {
-
-        descriptionTextColor.value = convertirRgbAHex(
-            configuracion.descriptionTextColor || "#000000"
-        );
-
-        descriptionBackgroundColor.value = convertirRgbAHex(
-            configuracion.descriptionBackgroundColor || "#ffffff"
-        );
-
-    }
+    
 
 
 
@@ -3459,6 +3446,9 @@ document.querySelector(".edit-title").onclick = () => {
     subtitleSizeValue.textContent =
         subtitleSize.value + " px";
 
+        /* ABRIR MODAL */
+
+        cerrarTodosLosModales();
     titleModal.style.display = "flex";
 
 
@@ -3473,6 +3463,8 @@ contadorDescripcion.textContent =
 
 
 btnBackground.onclick = () => {
+
+      cerrarTodosLosModales();
 
     colorModal.style.display = "flex";
 
@@ -3661,7 +3653,7 @@ document.getElementById("saveTitle").onclick = async () => {
     nuevaDescripcion;
 
 
-    /*====================================================
+/*====================================================
         GUARDAR ESTILO DE LA DESCRIPCIÓN
 ====================================================*/
 
@@ -3670,15 +3662,26 @@ const desc = document.getElementById("description");
 configuracion.descriptionAlign =
     desc.style.textAlign || "justify";
 
+/* Guardar colores desde los inputs del modal */
+
 configuracion.descriptionTextColor =
-    desc.style.color || "#ffffff";
+    document.getElementById("descriptionTextColor").value;
 
 configuracion.descriptionBackgroundColor =
-    desc.style.backgroundColor || "rgba(37,37,37,.65)";
+    document.getElementById("descriptionBackgroundColor").value;
 
-if(desc){
-    desc.textContent = nuevaDescripcion;
-}
+/* Aplicarlos inmediatamente */
+
+desc.style.color =
+    configuracion.descriptionTextColor;
+
+desc.style.backgroundColor =
+    configuracion.descriptionBackgroundColor;
+
+/* Guardar texto */
+
+desc.textContent =
+    nuevaDescripcion;
 
     subtitle.childNodes[0].textContent =
     nuevoSubtitulo + " ";
@@ -4327,8 +4330,10 @@ vincularEditorUniversal({
 
                 /* ABRIR MODAL */
 
-                document.getElementById("linkModal")
-                    .style.display = "flex";
+cerrarTodosLosModales();
+
+document.getElementById("linkModal")
+    .style.display = "flex";
 
             };
 
@@ -4966,6 +4971,20 @@ function cambiarTema(){
     const backgroundColor = document.getElementById("descriptionBackgroundColor");
     const descripcion = document.getElementById("profileDescription");
 
+if(esModoOscuro){
+
+    configuracion.descriptionTextColor = "#ffffff";
+    configuracion.descriptionBackgroundColor = "#2b2b2b";
+
+}else{
+
+    configuracion.descriptionTextColor = "#000000";
+    configuracion.descriptionBackgroundColor = "#ffffff";
+
+}
+
+
+
     if(esModoOscuro){
 
         textColor.value = "#ffffff";
@@ -5507,6 +5526,9 @@ window.addEventListener(
 );
 
 let guardandoConfiguracion = false;
+
+
+
 
 async function guardarConfiguracionServidor(){
 
