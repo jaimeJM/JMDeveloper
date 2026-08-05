@@ -165,15 +165,22 @@ function eliminarLogoAnterior(ruta){
 
     if(!ruta.startsWith("/uploads/")) return;
 
-    const archivo = path.join(__dirname,ruta);
+    const archivo = path.join(__dirname, ruta);
 
-    if(fs.existsSync(archivo)){
+    fs.unlink(archivo, (err)=>{
 
-        fs.unlinkSync(archivo);
+        if(err){
 
-        console.log("Logo eliminado:",archivo);
+            if(err.code !== "ENOENT"){
+                console.error("Error eliminando logo:", err);
+            }
 
-    }
+            return;
+        }
+
+        console.log("Logo eliminado:", archivo);
+
+    });
 
 }
 

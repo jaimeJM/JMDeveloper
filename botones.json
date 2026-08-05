@@ -3,7 +3,7 @@
         "texto": "WhatsApp",
         "icono": "fab fa-whatsapp",
         "url": "https://api.whatsapp.com/send?phone=51960722146&text=Hola%2C%20%20Preciso%20de%20tu%20asistencia%20t%C3%A9cnica%20Ing.%20Jaime%20Martinez",
-        "textColor": "#392ca0",
+        "textColor": "#ffffff",
         "description": "",
         "newTab": false
     },

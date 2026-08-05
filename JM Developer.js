@@ -531,8 +531,7 @@ function restaurarTitulo() {
             configuracion.description || "";
     }
 
-
-    /*====================================================
+/*====================================================
     RESTAURAR ESTILO DE LA DESCRIPCIÓN
 ====================================================*/
 
@@ -2449,10 +2448,7 @@ saveUniversalColor.onclick = async ()=>{
     =========================================*/
 
 
-    console.log(
-    "descriptionBackgroundColor:",
-    configuracion.descriptionBackgroundColor
-);
+
     await guardarConfiguracionServidor();
 
 
@@ -3449,6 +3445,26 @@ document.querySelector(".edit-title").onclick = () => {
         /* ABRIR MODAL */
 
         cerrarTodosLosModales();
+
+/*=========================================
+    RESTAURAR COLORES DE LA DESCRIPCIÓN
+=========================================*/
+
+descriptionTextColor.value =
+    configuracion.descriptionTextColor || "#ffffff";
+
+descriptionBackgroundColor.value =
+    configuracion.descriptionBackgroundColor || "#2b2b2b";
+
+/* Aplicar también al textarea del modal */
+
+profileDescription.style.color =
+    descriptionTextColor.value;
+
+profileDescription.style.backgroundColor =
+    descriptionBackgroundColor.value;
+
+
     titleModal.style.display = "flex";
 
 
@@ -3678,6 +3694,13 @@ desc.style.color =
 desc.style.backgroundColor =
     configuracion.descriptionBackgroundColor;
 
+
+    profileDescription.style.color =
+    configuracion.descriptionTextColor;
+
+profileDescription.style.backgroundColor =
+    configuracion.descriptionBackgroundColor;
+
 /* Guardar texto */
 
 desc.textContent =
@@ -3756,7 +3779,9 @@ actualizarTamanoSubtitulo(
 
 
 /* Guardar configuración */
-
+console.log("ANTES DE GUARDAR");
+console.log(configuracion.descriptionTextColor);
+console.log(configuracion.descriptionBackgroundColor);
 
 await guardarConfiguracionServidor();
 
@@ -4969,40 +4994,34 @@ function cambiarTema(){
 
     const textColor = document.getElementById("descriptionTextColor");
     const backgroundColor = document.getElementById("descriptionBackgroundColor");
-    const descripcion = document.getElementById("profileDescription");
+    const descripcion = document.getElementById("description");
+
+
+
 
 if(esModoOscuro){
 
-    configuracion.descriptionTextColor = "#ffffff";
-    configuracion.descriptionBackgroundColor = "#2b2b2b";
+    textColor.value = "#ffffff";
+    backgroundColor.value = "#2b2b2b";
+
+    descripcion.style.color = "#ffffff";
+    descripcion.style.backgroundColor = "#2b2b2b";
 
 }else{
 
-    configuracion.descriptionTextColor = "#000000";
-    configuracion.descriptionBackgroundColor = "#ffffff";
+    textColor.value =
+        configuracion.descriptionTextColor;
+
+    backgroundColor.value =
+        configuracion.descriptionBackgroundColor;
+
+    descripcion.style.color =
+        configuracion.descriptionTextColor;
+
+    descripcion.style.backgroundColor =
+        configuracion.descriptionBackgroundColor;
 
 }
-
-
-
-    if(esModoOscuro){
-
-        textColor.value = "#ffffff";
-        backgroundColor.value = "#2b2b2b";
-
-        descripcion.style.color = "#ffffff";
-        descripcion.style.background = "#2b2b2b";
-
-    }else{
-
-        textColor.value = "#000000";
-        backgroundColor.value = "#ffffff";
-
-        descripcion.style.color = "#000000";
-        descripcion.style.background = "#ffffff";
-
-    }
-
     guardarConfiguracionServidor();
 
 }
@@ -5405,6 +5424,11 @@ restaurarTema();
 
     restaurarTitulo();
 
+    console.log(
+    "Después de restaurarTitulo:",
+    description.style.backgroundColor
+);
+
 if (configuracion.titleFont) {
 
     const existe = [...fuenteTitulo.options].some(
@@ -5421,6 +5445,8 @@ if (configuracion.titleFont) {
 
     }
 
+    
+
 }
 
 
@@ -5430,7 +5456,21 @@ if (configuracion.titleFont) {
         PASO 4
     ----------------------------------*/
 
+const d = document.getElementById("description");
+
+console.log(
+    "Antes restaurarColores:",
+    d.style.backgroundColor
+);
+
+
     restaurarColores();
+
+
+    console.log(
+    "Después restaurarColores:",
+    d.style.backgroundColor
+);
 
     /*----------------------------------
         PASO 5
@@ -5520,6 +5560,13 @@ window.addEventListener(
     async ()=>{
 
         await inicializarAplicacion();
+        setTimeout(() => {
+
+    const d = document.getElementById("description");
+
+    console.log("1 segundo después:", d.style.backgroundColor);
+
+}, 1000);
 
     }
 
