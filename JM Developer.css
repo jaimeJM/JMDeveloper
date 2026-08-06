@@ -2644,7 +2644,7 @@ input[type="range"]::-moz-range-thumb{
 
     align-items:center;
 
-    gap:12px;
+    gap:1px;
 
     width:fit-content;
 
@@ -2668,7 +2668,7 @@ input[type="range"]::-moz-range-thumb{
 
 .color-row input[type="text"]{
 
-      width:80px;
+      width:100px;
 
     flex:none;
 

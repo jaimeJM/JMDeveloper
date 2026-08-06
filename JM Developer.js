@@ -479,9 +479,11 @@ function crearEditorColor(
 
 function aplicarColores(){
 
-    configuracion.text = titleColor.value;
+    configuracion.text =
+        titleColor.dataset.colorFinal || titleColor.value;
 
-    configuracion.textSecondary = subtitleColor.value;
+    configuracion.textSecondary =
+        subtitleColor.dataset.colorFinal || subtitleColor.value;
 
     document.documentElement.style.setProperty(
 
@@ -662,41 +664,57 @@ function actualizarTamanoSubtitulo(valor){
 
 function restaurarColores(){
 
-    /* Fondo */
+   /* Fondo */
 
-    if(configuracion.background){
+if(configuracion.background){
 
-        document.documentElement.style.setProperty(
+    document.documentElement.style.setProperty(
 
-            "--background",
+        "--background",
 
-            configuracion.background
+        configuracion.background
 
+    );
+
+    fondo.dataset.colorFinal =
+        configuracion.background;
+
+    fondo.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.background
+            )
         );
 
-        fondo.value=configuracion.background;
+    actualizarColorFooter();
 
-       actualizarColorFooter();
-
-    }
+}
 
     /* Tarjeta */
 
-    if(configuracion.card){
+if(configuracion.card){
 
-        document.documentElement.style.setProperty(
+    document.documentElement.style.setProperty(
 
-            "--card",
+        "--card",
 
-            configuracion.card
+        configuracion.card
 
+    );
+
+    tarjeta.dataset.colorFinal =
+        configuracion.card;
+
+    tarjeta.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.card
+            )
         );
 
-        tarjeta.value=configuracion.card;
+    actualizarColorFooter();
 
-        actualizarColorFooter();
-
-    }
+}
 
 
 
@@ -726,84 +744,123 @@ function restaurarColores(){
 
     /* Botón */
 
-    if(configuracion.button){
+if(configuracion.button){
 
-        document.documentElement.style.setProperty(
+    document.documentElement.style.setProperty(
 
-            "--button",
+        "--button",
 
-            configuracion.button
+        configuracion.button
 
+    );
+
+    botones.dataset.colorFinal =
+        configuracion.button;
+
+    botones.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.button
+            )
         );
 
-        botones.value=configuracion.button;
+}
 
-    }
+   /* Borde */
 
-    /* Borde */
+if(configuracion.border){
 
-    if(configuracion.border){
+    document.documentElement.style.setProperty(
 
-        document.documentElement.style.setProperty(
+        "--border",
 
-            "--border",
+        configuracion.border
 
-            configuracion.border
+    );
 
+    borde.dataset.colorFinal =
+        configuracion.border;
+
+    borde.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.border
+            )
         );
 
-        borde.value=configuracion.border;
+}
 
-    }
+ /* Sombra */
 
-    /* Sombra */
+if(configuracion.shadow){
 
-    if(configuracion.shadow){
+    document.documentElement.style.setProperty(
 
-        document.documentElement.style.setProperty(
+        "--shadow",
 
-            "--shadow",
+        configuracion.shadow
 
-            configuracion.shadow
+    );
 
+    sombra.dataset.colorFinal =
+        configuracion.shadow;
+
+    sombra.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.shadow
+            )
         );
 
-        sombra.value=configuracion.shadow;
-
-    }
+}
 
     /* Color del título */
 
-    if(configuracion.text){
+if(configuracion.text){
 
-        document.documentElement.style.setProperty(
+    document.documentElement.style.setProperty(
 
-            "--text",
+        "--text",
 
-            configuracion.text
+        configuracion.text
 
+    );
+
+    titleColor.dataset.colorFinal =
+        configuracion.text;
+
+    titleColor.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.text
+            )
         );
 
-        titleColor.value=configuracion.text;
-
-    }
+}
 
     /* Color del subtítulo */
 
-    if(configuracion.textSecondary){
+if(configuracion.textSecondary){
 
-        document.documentElement.style.setProperty(
+    document.documentElement.style.setProperty(
 
-            "--text-secondary",
+        "--text-secondary",
 
-            configuracion.textSecondary
+        configuracion.textSecondary
 
+    );
+
+    subtitleColor.dataset.colorFinal =
+        configuracion.textSecondary;
+
+    subtitleColor.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(
+                configuracion.textSecondary
+            )
         );
 
-        subtitleColor.value=configuracion.textSecondary;
-
-    }
-
+}
     /* Gradiente del logo */
 
 if (configuracion.logoGradient && Array.isArray(configuracion.logoGradient)) {
@@ -1888,7 +1945,9 @@ const editorColorActivo = {
 
     colorOriginal: "#000000",
 
-    alphaOriginal: 100
+    alphaOriginal: 100,
+
+    
 
 };
 
@@ -1947,9 +2006,10 @@ function abrirEditorColor({
 
 
 
-
 const colorInicial =
-    picker.value || "#000000";
+    picker.dataset.colorFinal ||
+    picker.value ||
+    "#000000";
 
 
 /*=========================================
@@ -2320,6 +2380,7 @@ function cerrarEditorUniversal(){
 
 }
 
+
 /*====================================================
         BOTÓN APLICAR
 ====================================================*/
@@ -2340,6 +2401,8 @@ saveUniversalColor.onclick = async ()=>{
     const colorFinal =
         obtenerColorFinal();
 
+        editorColorActivo.colorFinal = colorFinal;
+
 
     /*=========================================
         OBTENER RGB PARA EL PICKER
@@ -2356,12 +2419,18 @@ saveUniversalColor.onclick = async ()=>{
 
 
     /*=========================================
-        ACTUALIZAR PICKER ORIGINAL
-    =========================================*/
+    ACTUALIZAR PICKER ORIGINAL
+=========================================*/
 
-    editorColorActivo.picker.value =
-        hex;
+editorColorActivo.picker.value = hex;
 
+/* Guardar también el color completo (HEX o RGBA) */
+
+editorColorActivo.picker.dataset.colorFinal =
+    colorFinal;
+
+    console.log("COLOR FINAL:", colorFinal);
+console.log("DATASET:", editorColorActivo.picker.dataset.colorFinal);
 
 
 
@@ -2394,72 +2463,52 @@ saveUniversalColor.onclick = async ()=>{
 
     }
 
+/*=========================================
+    ACTUALIZAR TEXTO EXTERNO
+=========================================*/
 
-    /*=========================================
-        ACTUALIZAR TEXTO EXTERNO
-    =========================================*/
+if(editorColorActivo.texto){
 
-    if(editorColorActivo.texto){
+    editorColorActivo.texto.value =
+        editorColorActivo.colorFinal;
 
-        actualizarTextoColor(
+}
 
-            editorColorActivo.picker,
+/*=========================================
+    EJECUTAR ACCIONES ADICIONALES
+=========================================*/
 
-            editorColorActivo.texto,
+if(
+    typeof editorColorActivo.despuesDeAplicar === "function"
+){
 
-            editorColorActivo.formato,
-
-            alphaColor,
-
-            previewColor
-
-        );
-
-    }
-
-
-    /*=========================================
-        EJECUTAR ACCIONES ADICIONALES
-    =========================================*/
-
-    if(
-        typeof editorColorActivo.despuesDeAplicar
-        === "function"
-    ){
-
-        editorColorActivo.despuesDeAplicar(
-            colorFinal
-        );
-
-    }
-
-
-    /*=========================================
-        HISTORIAL
-    =========================================*/
-
-    guardarColorEnHistorial(
+    editorColorActivo.despuesDeAplicar(
         colorFinal
     );
 
+}
 
-    /*=========================================
-        GUARDAR SERVIDOR
-    =========================================*/
+/*=========================================
+    HISTORIAL
+=========================================*/
 
+guardarColorEnHistorial(
+    colorFinal
+);
 
+/*=========================================
+    GUARDAR SERVIDOR
+=========================================*/
 
-    await guardarConfiguracionServidor();
+await guardarConfiguracionServidor();
+hayCambiosSinGuardar = false;
+/*=========================================
+    CERRAR
+=========================================*/
 
-
-    /*=========================================
-        CERRAR
-    =========================================*/
-
-    cerrarEditorUniversal();
+cerrarEditorUniversal();
 
 };
-
 
 
 
@@ -2925,21 +2974,19 @@ profileDescription.addEventListener("input",()=>{
 /*====================================================
         TÍTULO
 ====================================================*/
-
 crearEditorColorUniversal(
 
     titleColor,
 
-    titleColorText,
+    null,
 
-    titleColorFormat,
+    null,
 
     "text",
 
     "--text"
 
 );
-
 
 /*====================================================
         SUBTÍTULO
@@ -2949,9 +2996,9 @@ crearEditorColorUniversal(
 
     subtitleColor,
 
-    subtitleColorText,
+    null,
 
-    subtitleColorFormat,
+    null,
 
     "textSecondary",
 
@@ -3189,7 +3236,7 @@ radius.oninput = async ()=>{
     Number(radius.value);
 
     await guardarConfiguracionServidor();
-
+hayCambiosSinGuardar = false;
 }
 
 
@@ -3272,6 +3319,7 @@ fuentes.onchange = async () => {
     configuracion.font = fuentes.value;
 
     await guardarConfiguracionServidor();
+    hayCambiosSinGuardar = false;
 };
 
 /*==================================================
@@ -3287,7 +3335,7 @@ fuenteTitulo.onchange = async () => {
     configuracion.titleFont = fuenteTitulo.value;
 
     await guardarConfiguracionServidor();
-
+hayCambiosSinGuardar = false;
 }
 
 
@@ -3309,7 +3357,7 @@ logoSize.addEventListener("input", async ()=>{
         );
 
     await guardarConfiguracionServidor();
-
+hayCambiosSinGuardar = false;
 });
 
 /*================================================== 
@@ -3342,7 +3390,7 @@ animationSpeed.addEventListener("input", async ()=>{
     value;
 
     await guardarConfiguracionServidor();
-
+hayCambiosSinGuardar = false;
 });
 
 
@@ -3383,136 +3431,242 @@ function cerrarTodosLosModales() {
 
 
 
+/*====================================================
+        CONTROL DE CAMBIOS EN MODALES
+====================================================*/
+
+let hayCambiosSinGuardar = false;
+
+    /*====================================================
+                    ABRIR MODALES
+    ====================================================*/
+
+    /*=========================================
+                EDITAR LOGO
+    =========================================*/
+    document.querySelector(".edit-logo").onclick = () => {
+
+        crearEditorGradienteLogo();
+
+        cerrarTodosLosModales();
+
+        logoModal.style.display = "flex";
+
+    };
+
+
+    /*=========================================
+            EDITAR TÍTULO Y SUBTÍTULO
+    =========================================*/
+    document.querySelector(".edit-title").onclick = () => {
+
+
+
+        
+        /*-----------------------------------------
+            RESTAURAR TEXTO
+        -----------------------------------------*/
+
+        document.getElementById("newTitle").value =
+            title.childNodes[0].textContent.trim();
+
+        document.getElementById("newSubtitle").value =
+            subtitle.childNodes[0].textContent.trim();
+
+
+        /*-----------------------------------------
+            RESTAURAR COLOR DEL TÍTULO
+        -----------------------------------------*/
+
+        const colorTitulo =
+            configuracion.text || "#ffffff";
+
+        titleColor.dataset.colorFinal =
+            colorTitulo;
+
+        titleColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(
+                    colorTitulo
+                )
+            );
+
+
+        /*-----------------------------------------
+            RESTAURAR COLOR DEL SUBTÍTULO
+        -----------------------------------------*/
+
+        const colorSubtitulo =
+            configuracion.textSecondary || "#ffffff";
+
+        subtitleColor.dataset.colorFinal =
+            colorSubtitulo;
+
+        subtitleColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(
+                    colorSubtitulo
+                )
+            );
+
+
+        /*-----------------------------------------
+            RESTAURAR TAMAÑOS
+        -----------------------------------------*/
+
+        titleSize.value =
+            configuracion.titleSize || 48;
+
+        titleSizeValue.textContent =
+            titleSize.value + " px";
+
+        subtitleSize.value =
+            configuracion.subtitleSize || 24;
+
+        subtitleSizeValue.textContent =
+            subtitleSize.value + " px";
+
+
+        /*-----------------------------------------
+            RESTAURAR COLORES DESCRIPCIÓN
+        -----------------------------------------*/
+
+        const colorTextoDescripcion =
+            configuracion.descriptionTextColor || "#ffffff";
+
+        descriptionTextColor.dataset.colorFinal =
+            colorTextoDescripcion;
+
+        descriptionTextColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(
+                    colorTextoDescripcion
+                )
+            );
+
+
+        const colorFondoDescripcion =
+            configuracion.descriptionBackgroundColor || "#2b2b2b";
+
+        descriptionBackgroundColor.dataset.colorFinal =
+            colorFondoDescripcion;
+
+        descriptionBackgroundColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(
+                    colorFondoDescripcion
+                )
+            );
+
+
+        /*-----------------------------------------
+            APLICAR AL TEXTAREA
+        -----------------------------------------*/
+
+        profileDescription.style.color =
+            colorTextoDescripcion;
+
+        profileDescription.style.backgroundColor =
+            colorFondoDescripcion;
+
+
+        /*-----------------------------------------
+            ABRIR MODAL
+        -----------------------------------------*/
+
+        cerrarTodosLosModales();
+
+        titleModal.style.display = "flex";
+
+    };
+
+
+    
+/*=========================================
+    EDITOR COLOR DE FONDO Y BOTONES
+=========================================*/
+document.getElementById("btnBackground").onclick = () => {
+
+    cerrarTodosLosModales();
+
+    colorModal.style.display = "flex";
+
+};
 
 
 
 /*====================================================
-                ABRIR MODALES
+    DETECTAR CAMBIOS EN LOS MODALES
 ====================================================*/
-document.querySelector(".edit-logo").onclick = () => {
 
- crearEditorGradienteLogo();
+document.querySelectorAll(".modal input, .modal textarea, .modal select").forEach(control => {
 
-    cerrarTodosLosModales();
+    control.addEventListener("input", () => {
 
-    logoModal.style.display = "flex";
+        hayCambiosSinGuardar = true;
 
-}
+    });
 
-document.querySelector(".edit-title").onclick = () => {
+});
 
-    document.getElementById("newTitle").value =
-        title.childNodes[0].textContent.trim();
-
-    document.getElementById("newSubtitle").value =
-        subtitle.childNodes[0].textContent.trim();
-
-    const estilos = getComputedStyle(document.documentElement);
-
-    titleColor.value = estilos.getPropertyValue("--text").trim();
-
-    subtitleColor.value = estilos.getPropertyValue("--text-secondary").trim();
-
-    
-
-
-
-
-    titleColorText.value = titleColor.value.toUpperCase();
-
-    subtitleColorText.value = subtitleColor.value.toUpperCase();
-
-    titleColorFormat.value = "hex";
-
-    subtitleColorFormat.value = "hex";
-
-    /*=========================================
-            RESTAURAR SLIDERS
-    =========================================*/
-
-    titleSize.value =
-        configuracion.titleSize || 48;
-
-    titleSizeValue.textContent =
-        titleSize.value + " px";
-
-    subtitleSize.value =
-        configuracion.subtitleSize || 24;
-
-    subtitleSizeValue.textContent =
-        subtitleSize.value + " px";
-
-        /* ABRIR MODAL */
-
-        cerrarTodosLosModales();
-
-/*=========================================
-    RESTAURAR COLORES DE LA DESCRIPCIÓN
-=========================================*/
-
-descriptionTextColor.value =
-    configuracion.descriptionTextColor || "#ffffff";
-
-descriptionBackgroundColor.value =
-    configuracion.descriptionBackgroundColor || "#2b2b2b";
-
-/* Aplicar también al textarea del modal */
-
-profileDescription.style.color =
-    descriptionTextColor.value;
-
-profileDescription.style.backgroundColor =
-    descriptionBackgroundColor.value;
-
-
-    titleModal.style.display = "flex";
-
-
-    profileDescription.value =
-    configuracion.description || "";
-
-contadorDescripcion.textContent =
-    profileDescription.value.length + " / 220";
-
-}
-
-
-
-btnBackground.onclick = () => {
-
-      cerrarTodosLosModales();
-
-    colorModal.style.display = "flex";
-
-}
 
 /*====================================================
             CERRAR MODALES
 ====================================================*/
 
-document.querySelectorAll(".closeModal").forEach(btn=>{
+document.querySelectorAll(".closeModal").forEach(btn => {
 
-    btn.onclick=()=>{
+    btn.onclick = () => {
 
-        document.querySelectorAll(".modal").forEach(modal=>{
+        if (hayCambiosSinGuardar) {
 
-            modal.style.display="none";
+            const salir = confirm(
+
+                "Has realizado modificaciones.\n\n" +
+                "Si cierras esta ventana sin guardar, perderás todos los cambios.\n\n" +
+                "¿Deseas cerrar de todas formas?"
+
+            );
+
+            if (!salir) return;
+
+        }
+
+        document.querySelectorAll(".modal").forEach(modal => {
+
+            modal.style.display = "none";
 
         });
 
-    }
+        hayCambiosSinGuardar = false;
+
+    };
 
 });
 
-window.onclick=(e)=>{
+window.onclick = (e) => {
 
-    if(e.target.classList.contains("modal")){
+    if (!e.target.classList.contains("modal")) return;
 
-        e.target.style.display="none";
+    if (hayCambiosSinGuardar) {
+
+        const salir = confirm(
+
+            "Has realizado modificaciones.\n\n" +
+            "Si cierras esta ventana sin guardar, perderás todos los cambios.\n\n" +
+            "¿Deseas continuar?"
+
+        );
+
+        if (!salir) return;
 
     }
 
-}
+    e.target.style.display = "none";
+
+    hayCambiosSinGuardar = false;
+
+};
 
 
 
@@ -3570,6 +3724,7 @@ document.getElementById("saveLogo").onclick = async () => {
 
     await guardarConfiguracionServidor();
 
+    hayCambiosSinGuardar = false;
     logoModal.style.display = "none";
 
 };
@@ -3613,6 +3768,7 @@ document.getElementById("logoFile").addEventListener("change", async (e) => {
         favicon.href = resultado.logo;
 
         await guardarConfiguracionServidor();
+        hayCambiosSinGuardar = false;
 
     } catch (error) {
 
@@ -3681,10 +3837,12 @@ configuracion.descriptionAlign =
 /* Guardar colores desde los inputs del modal */
 
 configuracion.descriptionTextColor =
-    document.getElementById("descriptionTextColor").value;
+    descriptionTextColor.dataset.colorFinal ||
+    descriptionTextColor.value;
 
 configuracion.descriptionBackgroundColor =
-    document.getElementById("descriptionBackgroundColor").value;
+    descriptionBackgroundColor.dataset.colorFinal ||
+    descriptionBackgroundColor.value;
 
 /* Aplicarlos inmediatamente */
 
@@ -3720,9 +3878,11 @@ title.style.fontFamily = fuenteTitulo.value;
 
 subtitle.style.fontFamily = fuenteTitulo.value;
 
-configuracion.text = titleColor.value;
+configuracion.text =
+    titleColor.dataset.colorFinal || titleColor.value;
 
-configuracion.textSecondary = subtitleColor.value;
+configuracion.textSecondary =
+    subtitleColor.dataset.colorFinal || subtitleColor.value;
 
 
 
@@ -3785,9 +3945,12 @@ console.log(configuracion.descriptionBackgroundColor);
 
 await guardarConfiguracionServidor();
 
+
+hayCambiosSinGuardar = false;
+
     titleModal.style.display="none";
 
-}
+};
 
 
 /*====================================================
@@ -4174,6 +4337,8 @@ const resultado = await respuesta.json();
 
         await guardarConfiguracionServidor();
 
+        hayCambiosSinGuardar = false;
+
         document.querySelector(".card").style.backgroundImage = `
             linear-gradient(
                 to bottom,
@@ -4226,6 +4391,7 @@ document.getElementById("removeCardImage").onclick = async () => {
         configuracion.cardImage = "";
 
         await guardarConfiguracionServidor();
+        hayCambiosSinGuardar = false;
 
         document.querySelector(".card").style.backgroundImage = `
         linear-gradient(
@@ -4332,13 +4498,26 @@ vincularEditorUniversal({
                 /* COLOR DE TEXTO */
 
     const colorTexto =
-        botonSeleccionado.dataset.textColor || "#ffffff";
+    botonSeleccionado.dataset.textColor || "#ffffff";
 
-    console.log("Color guardado:", colorTexto);
+console.log("Color guardado:", colorTexto);
 
-    linkTextColor.value = colorTexto;
+/* Guardar el color real */
 
-    console.log("Valor del input:", linkTextColor.value);
+linkTextColor.dataset.colorFinal =
+    colorTexto;
+
+/* El input solo recibe HEX */
+
+linkTextColor.value =
+    rgbObjetoAHex(
+        obtenerRGBDesdeColor(
+            colorTexto
+        )
+    );
+
+console.log("Valor del input:", linkTextColor.value);
+
                 /* DESCRIPCIÓN */
 
                 document.getElementById("linkDescription").value =
@@ -4395,27 +4574,15 @@ document.getElementById("linkModal")
             .value;
 
 
-    let colorTexto =
-        document.getElementById("linkTextColor").value;
+   let colorTexto =
+    linkTextColor.dataset.colorFinal ||
+    linkTextColor.value;
 
     /*=========================================
         SI EL EDITOR UNIVERSAL ESTÁ ACTIVO
     =========================================*/
 
-    if(
-        editorColorActivo &&
-        editorColorActivo.picker === linkTextColor
-    ){
 
-        colorTexto =
-            obtenerColorFinal();
-
-        linkTextColor.value =
-            rgbObjetoAHex(
-                obtenerRGBDesdeColor(colorTexto)
-            );
-
-    }
 
 
         const descripcion =
@@ -5065,6 +5232,7 @@ async function activarGlass() {
         card.classList.contains("glass");
 
     await guardarConfiguracionServidor();
+    hayCambiosSinGuardar = false;
 
 }
 
@@ -5086,6 +5254,7 @@ async function activarNeumorphism() {
         card.classList.contains("neumorphism");
 
     await guardarConfiguracionServidor();
+    hayCambiosSinGuardar = false;
 
 }
 
