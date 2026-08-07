@@ -2429,8 +2429,7 @@ editorColorActivo.picker.value = hex;
 editorColorActivo.picker.dataset.colorFinal =
     colorFinal;
 
-    console.log("COLOR FINAL:", colorFinal);
-console.log("DATASET:", editorColorActivo.picker.dataset.colorFinal);
+
 
 
 
@@ -2501,7 +2500,10 @@ guardarColorEnHistorial(
 =========================================*/
 
 await guardarConfiguracionServidor();
-hayCambiosSinGuardar = false;
+
+
+
+
 /*=========================================
     CERRAR
 =========================================*/
@@ -3236,7 +3238,9 @@ radius.oninput = async ()=>{
     Number(radius.value);
 
     await guardarConfiguracionServidor();
-hayCambiosSinGuardar = false;
+
+
+
 }
 
 
@@ -3319,7 +3323,8 @@ fuentes.onchange = async () => {
     configuracion.font = fuentes.value;
 
     await guardarConfiguracionServidor();
-    hayCambiosSinGuardar = false;
+
+
 };
 
 /*==================================================
@@ -3335,7 +3340,10 @@ fuenteTitulo.onchange = async () => {
     configuracion.titleFont = fuenteTitulo.value;
 
     await guardarConfiguracionServidor();
-hayCambiosSinGuardar = false;
+
+
+
+
 }
 
 
@@ -3357,7 +3365,9 @@ logoSize.addEventListener("input", async ()=>{
         );
 
     await guardarConfiguracionServidor();
-hayCambiosSinGuardar = false;
+
+
+
 });
 
 /*================================================== 
@@ -3390,7 +3400,10 @@ animationSpeed.addEventListener("input", async ()=>{
     value;
 
     await guardarConfiguracionServidor();
-hayCambiosSinGuardar = false;
+
+
+
+
 });
 
 
@@ -3428,14 +3441,90 @@ function cerrarTodosLosModales() {
 
 
 
-
-
-
 /*====================================================
         CONTROL DE CAMBIOS EN MODALES
 ====================================================*/
 
-let hayCambiosSinGuardar = false;
+let modalActivo = null;
+
+let estadoInicialModal = "";
+
+/*-----------------------------------------
+Guardar estado inicial del modal
+-----------------------------------------*/
+
+function guardarEstadoModal(modal){
+
+    modalActivo = modal;
+
+    estadoInicialModal = JSON.stringify(
+
+        Array.from(
+
+            modal.querySelectorAll(
+
+                "input, textarea, select"
+
+            )
+
+        ).map(control=>{
+
+            if(control.type==="checkbox"){
+
+                return control.checked;
+
+            }
+
+            return control.value;
+
+        })
+
+    );
+
+}
+
+/*-----------------------------------------
+Comprobar cambios
+-----------------------------------------*/
+
+function modalTieneCambios(){
+
+    if(!modalActivo){
+
+        return false;
+
+    }
+
+    const estadoActual = JSON.stringify(
+
+        Array.from(
+
+            modalActivo.querySelectorAll(
+
+                "input, textarea, select"
+
+            )
+
+        ).map(control=>{
+
+            if(control.type==="checkbox"){
+
+                return control.checked;
+
+            }
+
+            return control.value;
+
+        })
+
+    );
+
+    return estadoActual !== estadoInicialModal;
+
+}
+
+
+
 
     /*====================================================
                     ABRIR MODALES
@@ -3444,15 +3533,19 @@ let hayCambiosSinGuardar = false;
     /*=========================================
                 EDITAR LOGO
     =========================================*/
-    document.querySelector(".edit-logo").onclick = () => {
+  document.querySelector(".edit-logo").onclick = () => {
 
-        crearEditorGradienteLogo();
+    crearEditorGradienteLogo();
 
-        cerrarTodosLosModales();
+    cerrarTodosLosModales();
 
-        logoModal.style.display = "flex";
+    logoModal.style.display = "flex";
 
-    };
+    
+
+    guardarEstadoModal(logoModal);
+
+};
 
 
     /*=========================================
@@ -3461,7 +3554,7 @@ let hayCambiosSinGuardar = false;
     document.querySelector(".edit-title").onclick = () => {
 
 
-
+   
         
         /*-----------------------------------------
             RESTAURAR TEXTO
@@ -3574,9 +3667,13 @@ let hayCambiosSinGuardar = false;
             ABRIR MODAL
         -----------------------------------------*/
 
+
         cerrarTodosLosModales();
 
         titleModal.style.display = "flex";
+
+        guardarEstadoModal(titleModal);
+
 
     };
 
@@ -3591,83 +3688,84 @@ document.getElementById("btnBackground").onclick = () => {
 
     colorModal.style.display = "flex";
 
+   guardarEstadoModal(colorModal);
+
 };
 
 
 
-/*====================================================
-    DETECTAR CAMBIOS EN LOS MODALES
-====================================================*/
 
-document.querySelectorAll(".modal input, .modal textarea, .modal select").forEach(control => {
-
-    control.addEventListener("input", () => {
-
-        hayCambiosSinGuardar = true;
-
-    });
-
-});
 
 
 /*====================================================
             CERRAR MODALES
 ====================================================*/
 
-document.querySelectorAll(".closeModal").forEach(btn => {
+document.querySelectorAll(".closeModal").forEach(btn=>{
 
-    btn.onclick = () => {
+    btn.onclick=()=>{
 
-        if (hayCambiosSinGuardar) {
+        if(modalTieneCambios()){
 
             const salir = confirm(
 
                 "Has realizado modificaciones.\n\n" +
-                "Si cierras esta ventana sin guardar, perderás todos los cambios.\n\n" +
+
+                "Si cierras ahora perderás todos los cambios que no has guardado.\n\n" +
+
                 "¿Deseas cerrar de todas formas?"
 
             );
 
-            if (!salir) return;
+            if(!salir){
+
+                return;
+
+            }
 
         }
 
-        document.querySelectorAll(".modal").forEach(modal => {
+        document.querySelectorAll(".modal").forEach(modal=>{
 
-            modal.style.display = "none";
+            modal.style.display="none";
 
         });
 
-        hayCambiosSinGuardar = false;
+        modalActivo = null;
 
-    };
+    }
 
 });
 
-window.onclick = (e) => {
+window.onclick=(e)=>{
 
-    if (!e.target.classList.contains("modal")) return;
+    if(!e.target.classList.contains("modal")) return;
 
-    if (hayCambiosSinGuardar) {
+    if(modalTieneCambios()){
 
         const salir = confirm(
 
             "Has realizado modificaciones.\n\n" +
-            "Si cierras esta ventana sin guardar, perderás todos los cambios.\n\n" +
-            "¿Deseas continuar?"
+
+            "Si cierras ahora perderás todos los cambios que no has guardado.\n\n" +
+
+            "¿Deseas cerrar de todas formas?"
 
         );
 
-        if (!salir) return;
+        if(!salir){
+
+            return;
+
+        }
 
     }
 
-    e.target.style.display = "none";
+    e.target.style.display="none";
 
-    hayCambiosSinGuardar = false;
+    modalActivo = null;
 
-};
-
+}
 
 
 
@@ -3724,8 +3822,14 @@ document.getElementById("saveLogo").onclick = async () => {
 
     await guardarConfiguracionServidor();
 
-    hayCambiosSinGuardar = false;
-    logoModal.style.display = "none";
+
+/* El nuevo estado ya es el estado guardado */
+guardarEstadoModal(logoModal);
+
+logoModal.style.display = "none";
+
+modalActivo = null;
+
 
 };
 
@@ -3768,7 +3872,9 @@ document.getElementById("logoFile").addEventListener("change", async (e) => {
         favicon.href = resultado.logo;
 
         await guardarConfiguracionServidor();
-        hayCambiosSinGuardar = false;
+
+
+
 
     } catch (error) {
 
@@ -3939,16 +4045,16 @@ actualizarTamanoSubtitulo(
 
 
 /* Guardar configuración */
-console.log("ANTES DE GUARDAR");
-console.log(configuracion.descriptionTextColor);
-console.log(configuracion.descriptionBackgroundColor);
+
 
 await guardarConfiguracionServidor();
 
+guardarEstadoModal(titleModal);
 
-hayCambiosSinGuardar = false;
+titleModal.style.display = "none";
 
-    titleModal.style.display="none";
+modalActivo = null;
+
 
 };
 
@@ -4271,7 +4377,7 @@ fontFile.addEventListener("change", async (e) => {
 
         subtitle.style.fontFamily = resultado.font;
 
-        console.log("Fuente instalada:", resultado.font);
+
 
     }
 
@@ -4337,7 +4443,9 @@ const resultado = await respuesta.json();
 
         await guardarConfiguracionServidor();
 
-        hayCambiosSinGuardar = false;
+
+
+   
 
         document.querySelector(".card").style.backgroundImage = `
             linear-gradient(
@@ -4391,7 +4499,9 @@ document.getElementById("removeCardImage").onclick = async () => {
         configuracion.cardImage = "";
 
         await guardarConfiguracionServidor();
-        hayCambiosSinGuardar = false;
+
+
+
 
         document.querySelector(".card").style.backgroundImage = `
         linear-gradient(
@@ -4500,7 +4610,7 @@ vincularEditorUniversal({
     const colorTexto =
     botonSeleccionado.dataset.textColor || "#ffffff";
 
-console.log("Color guardado:", colorTexto);
+
 
 /* Guardar el color real */
 
@@ -4516,7 +4626,7 @@ linkTextColor.value =
         )
     );
 
-console.log("Valor del input:", linkTextColor.value);
+
 
                 /* DESCRIPCIÓN */
 
@@ -5033,7 +5143,7 @@ async function guardarBotones(){
 
             }
 
-            console.log("Botones guardados");
+      
 
         }while(guardarBotonesPendiente);
 
@@ -5232,7 +5342,10 @@ async function activarGlass() {
         card.classList.contains("glass");
 
     await guardarConfiguracionServidor();
-    hayCambiosSinGuardar = false;
+
+
+
+
 
 }
 
@@ -5254,7 +5367,10 @@ async function activarNeumorphism() {
         card.classList.contains("neumorphism");
 
     await guardarConfiguracionServidor();
-    hayCambiosSinGuardar = false;
+
+
+
+   
 
 }
 
@@ -5593,10 +5709,7 @@ restaurarTema();
 
     restaurarTitulo();
 
-    console.log(
-    "Después de restaurarTitulo:",
-    description.style.backgroundColor
-);
+
 
 if (configuracion.titleFont) {
 
@@ -5625,21 +5738,11 @@ if (configuracion.titleFont) {
         PASO 4
     ----------------------------------*/
 
-const d = document.getElementById("description");
-
-console.log(
-    "Antes restaurarColores:",
-    d.style.backgroundColor
-);
-
 
     restaurarColores();
 
 
-    console.log(
-    "Después restaurarColores:",
-    d.style.backgroundColor
-);
+
 
     /*----------------------------------
         PASO 5
@@ -5733,7 +5836,7 @@ window.addEventListener(
 
     const d = document.getElementById("description");
 
-    console.log("1 segundo después:", d.style.backgroundColor);
+
 
 }, 1000);
 
