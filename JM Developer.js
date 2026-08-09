@@ -2381,11 +2381,16 @@ function cerrarEditorUniversal(){
 }
 
 
-/*====================================================
-        BOTÓN APLICAR
-====================================================*/
+/*====================================================*
+* BOTÓN APLICAR
+*====================================================*/
 
-saveUniversalColor.onclick = async ()=>{
+saveUniversalColor.onclick = () => {
+
+
+    /*=========================================
+        COMPROBAR EDITOR ACTIVO
+    =========================================*/
 
     if(!editorColorActivo.picker){
 
@@ -2401,7 +2406,9 @@ saveUniversalColor.onclick = async ()=>{
     const colorFinal =
         obtenerColorFinal();
 
-        editorColorActivo.colorFinal = colorFinal;
+
+    editorColorActivo.colorFinal =
+        colorFinal;
 
 
     /*=========================================
@@ -2419,25 +2426,29 @@ saveUniversalColor.onclick = async ()=>{
 
 
     /*=========================================
-    ACTUALIZAR PICKER ORIGINAL
-=========================================*/
+        ACTUALIZAR PICKER ORIGINAL
+    =========================================*/
 
-editorColorActivo.picker.value = hex;
-
-/* Guardar también el color completo (HEX o RGBA) */
-
-editorColorActivo.picker.dataset.colorFinal =
-    colorFinal;
+    editorColorActivo.picker.value =
+        hex;
 
 
+    /*=========================================
+        GUARDAR COLOR COMPLETO
+        HEX / RGB / RGBA
+    =========================================*/
 
+    editorColorActivo.picker.dataset.colorFinal =
+        colorFinal;
 
 
     /*=========================================
         APLICAR VARIABLE CSS
     =========================================*/
 
-    if(editorColorActivo.variableCSS){
+    if(
+        editorColorActivo.variableCSS
+    ){
 
         document.documentElement.style.setProperty(
 
@@ -2451,10 +2462,12 @@ editorColorActivo.picker.dataset.colorFinal =
 
 
     /*=========================================
-        GUARDAR CONFIGURACIÓN
+        ACTUALIZAR CONFIGURACIÓN TEMPORAL
     =========================================*/
 
-    if(editorColorActivo.propiedad){
+    if(
+        editorColorActivo.propiedad
+    ){
 
         configuracion[
             editorColorActivo.propiedad
@@ -2462,56 +2475,72 @@ editorColorActivo.picker.dataset.colorFinal =
 
     }
 
-/*=========================================
-    ACTUALIZAR TEXTO EXTERNO
-=========================================*/
 
-if(editorColorActivo.texto){
+    /*=========================================
+        ACTUALIZAR TEXTO EXTERNO
+    =========================================*/
 
-    editorColorActivo.texto.value =
-        editorColorActivo.colorFinal;
+    if(
+        editorColorActivo.texto
+    ){
 
-}
+        editorColorActivo.texto.value =
+            colorFinal;
 
-/*=========================================
-    EJECUTAR ACCIONES ADICIONALES
-=========================================*/
+    }
 
-if(
-    typeof editorColorActivo.despuesDeAplicar === "function"
-){
 
-    editorColorActivo.despuesDeAplicar(
+    /*=========================================
+        EJECUTAR ACCIONES ADICIONALES
+    =========================================*/
+
+    if(
+
+        typeof
+        editorColorActivo.despuesDeAplicar
+        === "function"
+
+    ){
+
+        editorColorActivo.despuesDeAplicar(
+
+            colorFinal
+
+        );
+
+    }
+
+
+    /*=========================================
+        HISTORIAL
+    =========================================*/
+
+    guardarColorEnHistorial(
         colorFinal
     );
 
-}
 
-/*=========================================
-    HISTORIAL
-=========================================*/
+    /*=========================================
+        IMPORTANTE
+        NO GUARDAR EN SERVIDOR AQUÍ
+    =========================================*/
 
-guardarColorEnHistorial(
-    colorFinal
-);
+    /*
+        El color solamente se aplica
+        temporalmente.
 
-/*=========================================
-    GUARDAR SERVIDOR
-=========================================*/
-
-await guardarConfiguracionServidor();
+        El modal principal será quien
+        haga el guardado definitivo.
+    */
 
 
+    /*=========================================
+        CERRAR EDITOR UNIVERSAL
+    =========================================*/
 
-
-/*=========================================
-    CERRAR
-=========================================*/
-
-cerrarEditorUniversal();
+    cerrarEditorUniversal();
 
 };
-
 
 
 /*====================================================
@@ -2839,6 +2868,42 @@ function restaurarVelocidadAnimaciones() {
     );
 
 }
+
+
+
+/*====================================================
+        GUARDAR EDITOR DE COLORES GENERALES
+====================================================*/
+
+document.getElementById(
+    "saveGeneralColors"
+).onclick = async () => {
+
+
+    /*=========================================
+        GUARDAR CONFIGURACIÓN
+    =========================================*/
+
+    await guardarConfiguracionServidor();
+
+
+    /*=========================================
+        LIMPIAR ESTADO
+    =========================================*/
+
+    modalActivo = null;
+
+    estadoInicialModal = null;
+
+
+    /*=========================================
+        CERRAR MODAL
+    =========================================*/
+
+    colorModal.style.display =
+        "none";
+
+};
 
 
 /*====================================================
@@ -3237,7 +3302,7 @@ radius.oninput = async ()=>{
     configuracion.radius =
     Number(radius.value);
 
-    await guardarConfiguracionServidor();
+   
 
 
 
@@ -3303,7 +3368,7 @@ document.querySelector("#colorModal .modal-content")
 
 /*  FUENTES DE LOS BOTONES DE CARD  */
 
-fuentes.onchange = async () => {
+fuentes.onchange = () => {
 
     document.querySelectorAll(".link-card").forEach(card => {
 
@@ -3322,10 +3387,59 @@ fuentes.onchange = async () => {
 
     configuracion.font = fuentes.value;
 
-    await guardarConfiguracionServidor();
-
+   
 
 };
+
+
+/*==================================================*
+*COLOCAR BOTÓN GUARDAR AL FINAL DEL MODAL*
+*==================================================*/
+
+const modalColores =
+    document.querySelector(
+        "#colorModal .modal-content"
+    );
+
+const botonGuardarColores =
+    document.getElementById(
+        "saveGeneralColors"
+    );
+
+
+if (
+    modalColores &&
+    botonGuardarColores
+) {
+
+    /*
+        El contenedor actual del botón
+        también se mueve al final.
+    */
+
+    const contenedorGuardar =
+        botonGuardarColores.closest(
+            ".buttons"
+        );
+
+
+    if (contenedorGuardar) {
+
+        modalColores.appendChild(
+            contenedorGuardar
+        );
+
+    } else {
+
+        modalColores.appendChild(
+            botonGuardarColores
+        );
+
+    }
+
+}
+
+
 
 /*==================================================
     CAMBIAR SOLO EL TÍTULO
@@ -3381,7 +3495,7 @@ document.getElementById("animationSpeed");
 const animationValue =
 document.getElementById("animationValue");
 
-animationSpeed.addEventListener("input", async ()=>{
+animationSpeed.addEventListener("input", ()=>{
 
     const value = parseFloat(animationSpeed.value);
 
@@ -3399,7 +3513,7 @@ animationSpeed.addEventListener("input", async ()=>{
     configuracion.animationSpeed =
     value;
 
-    await guardarConfiguracionServidor();
+   
 
 
 
@@ -3442,87 +3556,339 @@ function cerrarTodosLosModales() {
 
 
 /*====================================================
-        CONTROL DE CAMBIOS EN MODALES
+        SISTEMA DEFINITIVO DE CAMBIOS EN MODALES
 ====================================================*/
 
 let modalActivo = null;
 
-let estadoInicialModal = "";
+let estadoInicialModal = null;
 
-/*-----------------------------------------
-Guardar estado inicial del modal
------------------------------------------*/
 
-function guardarEstadoModal(modal){
+/*====================================================
+        OBTENER ESTADO DE LOS CONTROLES
+====================================================*/
 
-    modalActivo = modal;
+function obtenerControlesModal(modal){
 
-    estadoInicialModal = JSON.stringify(
+    if(!modal){
 
-        Array.from(
+        return [];
 
-            modal.querySelectorAll(
+    }
 
-                "input, textarea, select"
+    return Array.from(
 
-            )
+        modal.querySelectorAll(
+            "input, textarea, select"
+        )
 
-        ).map(control=>{
+    ).map(control => {
 
-            if(control.type==="checkbox"){
+        return {
 
-                return control.checked;
+            id:
+                control.id || "",
 
-            }
+            type:
+                control.type || "",
 
-            return control.value;
+            value:
+                control.value || "",
 
-        })
+            checked:
+                control.checked || false,
 
-    );
+            colorFinal:
+                control.dataset.colorFinal || ""
+
+        };
+
+    });
 
 }
 
-/*-----------------------------------------
-Comprobar cambios
------------------------------------------*/
+
+/*====================================================
+        GUARDAR ESTADO INICIAL
+====================================================*/
+
+function guardarEstadoModal(modal){
+
+    if(!modal){
+
+        return;
+
+    }
+
+
+    modalActivo = modal;
+
+
+    estadoInicialModal = {
+
+        configuracion:
+            JSON.stringify(configuracion),
+
+        controles:
+            JSON.stringify(
+                obtenerControlesModal(modal)
+            ),
+
+        botonHTML:
+            null
+
+    };
+
+
+    /*-----------------------------------------
+        GUARDAR HTML ORIGINAL DEL BOTÓN
+    -----------------------------------------*/
+
+    if(
+
+        modal.id === "linkModal" &&
+
+        botonSeleccionado
+
+    ){
+
+        estadoInicialModal.botonHTML =
+            botonSeleccionado.outerHTML;
+
+    }
+
+}
+
+
+/*====================================================
+        COMPROBAR CAMBIOS
+====================================================*/
 
 function modalTieneCambios(){
 
-    if(!modalActivo){
+    if(
+
+        !modalActivo ||
+
+        !estadoInicialModal
+
+    ){
 
         return false;
 
     }
 
-    const estadoActual = JSON.stringify(
 
-        Array.from(
+    const estadoActual = {
 
-            modalActivo.querySelectorAll(
+        configuracion:
+            JSON.stringify(configuracion),
 
-                "input, textarea, select"
+        controles:
+            JSON.stringify(
+                obtenerControlesModal(modalActivo)
+            ),
 
-            )
+        botonHTML:
+            null
 
-        ).map(control=>{
+    };
 
-            if(control.type==="checkbox"){
 
-                return control.checked;
+    if(
 
-            }
+        modalActivo.id === "linkModal" &&
 
-            return control.value;
+        botonSeleccionado
 
-        })
+    ){
+
+        estadoActual.botonHTML =
+            botonSeleccionado.outerHTML;
+
+    }
+
+
+    return (
+
+        JSON.stringify(estadoActual) !==
+
+        JSON.stringify(estadoInicialModal)
 
     );
 
-    return estadoActual !== estadoInicialModal;
-
 }
 
+
+/*====================================================
+        RESTAURAR CAMBIOS
+====================================================*/
+
+function restaurarEstadoModal(){
+
+    if(
+
+        !modalActivo ||
+
+        !estadoInicialModal
+
+    ){
+
+        return;
+
+    }
+
+
+    /*=========================================
+        RESTAURAR CONFIGURACIÓN
+    =========================================*/
+
+    try{
+
+        configuracion =
+            JSON.parse(
+                estadoInicialModal.configuracion
+            );
+
+    }catch(error){
+
+        return;
+
+    }
+
+
+    /*=========================================
+        RESTAURAR CONTROLES
+    =========================================*/
+
+    const controles =
+        JSON.parse(
+            estadoInicialModal.controles
+        );
+
+
+    controles.forEach(estado => {
+
+        const control =
+            document.getElementById(
+                estado.id
+            );
+
+
+        if(!control){
+
+            return;
+
+        }
+
+
+        if(control.type === "checkbox"){
+
+            control.checked =
+                estado.checked;
+
+        }else{
+
+            control.value =
+                estado.value;
+
+        }
+
+
+        if(estado.colorFinal){
+
+            control.dataset.colorFinal =
+                estado.colorFinal;
+
+        }
+
+    });
+
+
+    /*=========================================
+        RESTAURAR BOTÓN
+    =========================================*/
+
+    if(
+
+        modalActivo.id === "linkModal" &&
+
+        estadoInicialModal.botonHTML &&
+
+        botonSeleccionado
+
+    ){
+
+        const nuevoBoton =
+            document.createElement("div");
+
+        nuevoBoton.innerHTML =
+            estadoInicialModal.botonHTML;
+
+        const restaurado =
+            nuevoBoton.firstElementChild;
+
+
+        if(restaurado){
+
+            botonSeleccionado.replaceWith(
+                restaurado
+            );
+
+            botonSeleccionado =
+                restaurado;
+
+        }
+
+    }
+
+
+    /*=========================================
+        RESTAURAR VISTA GENERAL
+    =========================================*/
+
+    restaurarTema();
+
+    restaurarLogo();
+
+    restaurarTitulo();
+
+    restaurarColores();
+
+    restaurarFuente();
+
+    restaurarRadius();
+
+    restaurarVelocidadAnimaciones();
+
+    restaurarGlass();
+
+    restaurarNeumorphism();
+
+
+    /*=========================================
+        RESTAURAR BOTONES
+    =========================================*/
+
+    if(
+
+        typeof activarBotones ===
+        "function"
+
+    ){
+
+        activarBotones();
+
+    }
+
+
+    /*=========================================
+        LIMPIAR EDITOR UNIVERSAL
+    =========================================*/
+
+    cerrarEditorUniversal();
+
+}
 
 
 
@@ -3670,10 +4036,13 @@ function modalTieneCambios(){
 
         cerrarTodosLosModales();
 
-        titleModal.style.display = "flex";
+titleModal.style.display = "flex";
 
-        guardarEstadoModal(titleModal);
+/*=========================================
+    GUARDAR ESTADO INICIAL
+=========================================*/
 
+guardarEstadoModal(titleModal);
 
     };
 
@@ -3682,156 +4051,409 @@ function modalTieneCambios(){
 /*=========================================
     EDITOR COLOR DE FONDO Y BOTONES
 =========================================*/
+
+
 document.getElementById("btnBackground").onclick = () => {
+
+
+    /*=========================================
+        CERRAR OTROS MODALES
+    =========================================*/
 
     cerrarTodosLosModales();
 
-    colorModal.style.display = "flex";
 
-   guardarEstadoModal(colorModal);
+    /*=========================================
+        RESTAURAR DATOS GUARDADOS
+    =========================================*/
+
+    restaurarColores();
+
+    restaurarVelocidadAnimaciones();
+
+
+    /* Restaurar fuente */
+
+    if(
+
+        configuracion.font &&
+
+        typeof fuentes !== "undefined"
+
+    ){
+
+        fuentes.value =
+            configuracion.font;
+
+    }
+
+
+    /*=========================================
+        ABRIR
+    =========================================*/
+
+    colorModal.style.display =
+        "flex";
+
+
+    /*=========================================
+        GUARDAR ESTADO INICIAL
+    =========================================*/
+
+    guardarEstadoModal(
+        colorModal
+    );
 
 };
 
 
 
+/*====================================================
+CERRAR MODALES
+====================================================*/
+
+document
+.querySelectorAll(".closeModal")
+.forEach(btn => {
+
+
+btn.onclick = () => {
+
+    const modal = btn.closest(".modal");
+
+    if(!modal){
+
+        return;
+
+    }
+
+
+    /*=========================================
+        ¿HAY CAMBIOS?
+    =========================================*/
+
+    if(modalTieneCambios()){
+
+        mostrarAdvertenciaCambios(() => {
+
+            cerrarModalDefinitivamente(modal);
+
+        });
+
+        return;
+
+    }
+
+
+    /*=========================================
+        NO HAY CAMBIOS
+    =========================================*/
+
+    cerrarModalDefinitivamente(modal);
+
+};
+
+
+});
+
+/*====================================================
+CERRAR AL HACER CLICK FUERA DEL MODAL
+====================================================*/
+
+window.addEventListener("click", e => {
+
+
+if(!e.target.classList.contains("modal")){
+
+    return;
+
+}
+
+
+const modal = e.target;
+
+
+if(modalTieneCambios()){
+
+    mostrarAdvertenciaCambios(() => {
+
+        cerrarModalDefinitivamente(modal);
+
+    });
+
+    return;
+
+}
+
+
+cerrarModalDefinitivamente(modal);
+
+
+});
 
 
 
 /*====================================================
-            CERRAR MODALES
+SISTEMA DE ADVERTENCIA Y NOTIFICACIONES
 ====================================================*/
 
-document.querySelectorAll(".closeModal").forEach(btn=>{
+const warningModal =
+document.getElementById("warningModal");
 
-    btn.onclick=()=>{
+const warningCancel =
+document.getElementById("warningCancel");
 
-        if(modalTieneCambios()){
+const warningConfirm =
+document.getElementById("warningConfirm");
 
-            const salir = confirm(
+const saveNotification =
+document.getElementById("saveNotification");
 
-                "Has realizado modificaciones.\n\n" +
+/*====================================================
+MOSTRAR ADVERTENCIA
+====================================================*/
 
-                "Si cierras ahora perderás todos los cambios que no has guardado.\n\n" +
+function mostrarAdvertenciaCambios(callback){
 
-                "¿Deseas cerrar de todas formas?"
 
-            );
+if(!warningModal){
 
-            if(!salir){
+    if(typeof callback === "function"){
+        callback();
+    }
 
-                return;
+    return;
 
-            }
+}
 
-        }
+warningModal.style.display = "flex";
 
-        document.querySelectorAll(".modal").forEach(modal=>{
 
-            modal.style.display="none";
+warningCancel.onclick = () => {
 
-        });
+    warningModal.style.display = "none";
 
-        modalActivo = null;
+};
+
+
+warningConfirm.onclick = () => {
+
+    warningModal.style.display = "none";
+
+
+    if(typeof callback === "function"){
+
+        callback();
 
     }
 
-});
+};
 
-window.onclick=(e)=>{
 
-    if(!e.target.classList.contains("modal")) return;
+}
 
-    if(modalTieneCambios()){
+/*====================================================
+MOSTRAR NOTIFICACIÓN DE GUARDADO
+====================================================*/
 
-        const salir = confirm(
+let timerNotificacionGuardado = null;
 
-            "Has realizado modificaciones.\n\n" +
+function mostrarNotificacionGuardado(){
 
-            "Si cierras ahora perderás todos los cambios que no has guardado.\n\n" +
 
-            "¿Deseas cerrar de todas formas?"
+if(!saveNotification){
 
-        );
+    return;
 
-        if(!salir){
+}
 
-            return;
 
-        }
+clearTimeout(
+    timerNotificacionGuardado
+);
 
-    }
 
-    e.target.style.display="none";
+saveNotification.classList.remove("hide");
+
+saveNotification.classList.remove("show");
+
+
+/* Reiniciar animación de la barra */
+
+const barra =
+    saveNotification.querySelector(
+        ".save-notification-progress span"
+    );
+
+if(barra){
+
+    barra.style.animation = "none";
+
+    void barra.offsetWidth;
+
+    barra.style.animation =
+        "saveProgress 3.5s linear forwards";
+
+}
+
+
+void saveNotification.offsetWidth;
+
+
+saveNotification.classList.add("show");
+
+
+timerNotificacionGuardado =
+    setTimeout(() => {
+
+        saveNotification.classList.remove("show");
+
+        saveNotification.classList.add("hide");
+
+    }, 3500);
+
+
+}
+
+/*====================================================
+CERRAR MODAL REALMENTE
+====================================================*/
+
+function cerrarModalDefinitivamente(modal){
+
+
+if(!modal){
+
+    return;
+
+}
+
+
+modal.style.display = "none";
+
+
+if(modalActivo === modal){
 
     modalActivo = null;
 
 }
 
 
+estadoInicialModal = null;
+
+
+}
+
+
+
+
+/*====================================================
+GUARDAR LOGO
+====================================================*/
 
 document.getElementById("saveLogo").onclick = async () => {
 
-    /*==============================
-            URL DEL LOGO
-    ==============================*/
+/*==============================
+        URL DEL LOGO
+==============================*/
 
-    const url = document
-        .getElementById("logoURL")
-        .value
-        .trim();
+const url = document
+    .getElementById("logoURL")
+    .value
+    .trim();
 
-    if(url !== ""){
+if (url !== "") {
 
-        logo.src = url;
+    logo.src = url;
 
-        favicon.href = url;
+    favicon.href = url;
 
-        configuracion.logo = url;
+    configuracion.logo = url;
 
-    }
+}
 
-    /*==============================
-            TAMAÑO
-    ==============================*/
 
-    configuracion.logoSize = Number(logoSize.value);
+/*==============================
+        TAMAÑO
+==============================*/
 
-    actualizarTamanoLogo(configuracion.logoSize);
+configuracion.logoSize =
+    Number(logoSize.value);
 
-    /*==============================
-        GUARDAR COLORES DEL ANILLO
-    ==============================*/
+actualizarTamanoLogo(
+    configuracion.logoSize
+);
 
-    const colores = [];
 
-    document
-        .querySelectorAll("#logoGradientEditor input[type=color]")
-        .forEach(input => {
+/*==============================
+    GUARDAR COLORES DEL ANILLO
+==============================*/
 
-            colores.push(input.value);
+const colores = [];
 
-        });
+document
+    .querySelectorAll(
+        "#logoGradientEditor input[type=color]"
+    )
+    .forEach(input => {
 
-    configuracion.logoGradient = colores;
+        colores.push(input.value);
 
-    actualizarGradienteLogo();
+    });
 
-    /*==============================
-            GUARDAR
-    ==============================*/
+configuracion.logoGradient =
+    colores;
+
+actualizarGradienteLogo();
+
+
+/*==============================
+        GUARDAR SERVIDOR
+==============================*/
+
+try {
 
     await guardarConfiguracionServidor();
 
 
-/* El nuevo estado ya es el estado guardado */
-guardarEstadoModal(logoModal);
+    /*==============================
+        ACTUALIZAR ESTADO GUARDADO
+    ==============================*/
 
-logoModal.style.display = "none";
+    guardarEstadoModal(logoModal);
 
-modalActivo = null;
 
+    /*==============================
+        NOTIFICACIÓN
+    ==============================*/
+
+    mostrarNotificacionGuardado();
+
+
+    /*==============================
+        CERRAR MODAL
+    ==============================*/
+
+    logoModal.style.display =
+        "none";
+
+    modalActivo = null;
+
+    estadoInicialModal = null;
+
+
+} catch (error) {
+
+    console.error(
+        "Error al guardar el logo:",
+        error
+    );
+
+}
 
 };
+
+
 
 /*====================================================
             LOGO DESDE COMPUTADORA
@@ -3865,13 +4487,34 @@ document.getElementById("logoFile").addEventListener("change", async (e) => {
 
         }
 
-        configuracion.logo = resultado.logo;
 
-        logo.src = resultado.logo;
+configuracion.logo =
+resultado.logo;
 
-        favicon.href = resultado.logo;
+logo.src =
+resultado.logo;
 
-        await guardarConfiguracionServidor();
+favicon.href =
+resultado.logo;
+
+/*=========================================
+GUARDAR EN SERVIDOR
+=========================================*/
+
+await guardarConfiguracionServidor();
+
+/*=========================================
+ACTUALIZAR ESTADO GUARDADO
+=========================================*/
+
+guardarEstadoModal(logoModal);
+
+/*=========================================
+NOTIFICACIÓN
+=========================================*/
+
+mostrarNotificacionGuardado();
+
 
 
 
@@ -3952,10 +4595,10 @@ configuracion.descriptionBackgroundColor =
 
 /* Aplicarlos inmediatamente */
 
-desc.style.color =
+descripcionElemento.style.color =
     configuracion.descriptionTextColor;
 
-desc.style.backgroundColor =
+descripcionElemento.style.backgroundColor =
     configuracion.descriptionBackgroundColor;
 
 
@@ -3967,7 +4610,7 @@ profileDescription.style.backgroundColor =
 
 /* Guardar texto */
 
-desc.textContent =
+descripcionElemento.textContent =
     nuevaDescripcion;
 
     subtitle.childNodes[0].textContent =
@@ -4046,14 +4689,38 @@ actualizarTamanoSubtitulo(
 
 /* Guardar configuración */
 
+/*=========================================
+GUARDAR EN SERVIDOR
+=========================================*/
 
 await guardarConfiguracionServidor();
 
+/*=========================================
+ACTUALIZAR ESTADO GUARDADO
+=========================================*/
+
 guardarEstadoModal(titleModal);
 
-titleModal.style.display = "none";
+/*=========================================
+NOTIFICACIÓN DE GUARDADO
+=========================================*/
+
+mostrarNotificacionGuardado();
+
+/*=========================================
+CERRAR MODAL
+=========================================*/
+
+titleModal.style.display =
+"none";
+
+/*=========================================
+LIMPIAR MODAL ACTIVO
+=========================================*/
 
 modalActivo = null;
+
+estadoInicialModal = null;
 
 
 };
@@ -4063,27 +4730,66 @@ modalActivo = null;
     HERRAMIENTAS DE LA DESCRIPCIÓN
 ====================================================*/
 
-const desc = document.getElementById("description");
+const desc =
+    document.getElementById("description");
+
 
 if (desc) {
 
-    document.getElementById("descJustify")?.addEventListener("click", () => {
 
-        desc.style.textAlign = "justify";
-        desc.style.textAlignLast = "left";
+    /*=========================================
+        JUSTIFICAR DESCRIPCIÓN
+    =========================================*/
 
-    });
+    document
+        .getElementById("descJustify")
+        ?.addEventListener("click", () => {
 
-    document.getElementById("descCenter")?.addEventListener("click", () => {
+            desc.style.textAlign =
+                "justify";
 
-        desc.style.textAlign = "center";
-        desc.style.textAlignLast = "center";
+            desc.style.textAlignLast =
+                "left";
 
-    });
 
-    
+            /*
+                CAMBIO TEMPORAL
 
-    
+                NO se guarda en servidor.
+            */
+
+            configuracion.descriptionAlign =
+                "justify";
+
+        });
+
+
+    /*=========================================
+        CENTRAR DESCRIPCIÓN
+    =========================================*/
+
+    document
+        .getElementById("descCenter")
+        ?.addEventListener("click", () => {
+
+            desc.style.textAlign =
+                "center";
+
+            desc.style.textAlignLast =
+                "center";
+
+
+            /*
+                CAMBIO TEMPORAL
+
+                NO se guarda en servidor.
+            */
+
+            configuracion.descriptionAlign =
+                "center";
+
+        });
+
 }
 
 
@@ -4649,6 +5355,10 @@ cerrarTodosLosModales();
 document.getElementById("linkModal")
     .style.display = "flex";
 
+   guardarEstadoModal(
+    document.getElementById("linkModal")
+);
+
             };
 
         });
@@ -4662,8 +5372,7 @@ document.getElementById("linkModal")
             GUARDAR CAMBIOS DEL BOTÓN
     ====================================================*/
 
-    document.getElementById("saveLink").onclick = () => {
-
+    document.getElementById("saveLink").onclick = async () => {
         if(!botonSeleccionado) return;
 
 
@@ -4790,11 +5499,25 @@ document.getElementById("linkModal")
             nuevaPestana;
 
 
-        guardarBotones();
+       await guardarBotones();
 
 
-        document.getElementById("linkModal")
-            .style.display = "none";
+/*=========================================
+    LIMPIAR ESTADO DE CAMBIOS
+=========================================*/
+
+modalActivo = null;
+
+estadoInicialModal = null;
+
+
+/*=========================================
+    CERRAR
+=========================================*/
+
+document.getElementById("linkModal")
+    .style.display = "none";
+
 
     };
 
@@ -4805,19 +5528,31 @@ document.getElementById("linkModal")
 
 document.getElementById("deleteLink").onclick = () => {
 
-    if(!botonSeleccionado) return;
+    if(!botonSeleccionado){
+
+        return;
+
+    }
 
 
-    if(confirm("¿Deseas eliminar este botón?")){
+    if(
+
+        confirm(
+            "¿Deseas eliminar este botón?"
+        )
+
+    ){
+
+        /*-----------------------------------------
+            SOLO ELIMINAR DE LA VISTA
+            NO GUARDAR SERVIDOR
+        -----------------------------------------*/
 
         botonSeleccionado.remove();
 
-        guardarBotones();
-
-        botonSeleccionado = null;
-
-        document.getElementById("linkModal")
-            .style.display = "none";
+        /*
+            NO llamar guardarBotones()
+        */
 
     }
 

@@ -1,7 +1,7 @@
 {
     "theme": "light",
     "logo": "/uploads/logo-1785948038328.jpeg",
-    "logoSize": 211,
+    "logoSize": 176,
     "title": "Jaime Martinez",
     "subtitle": "Img. de Sistemas",
     "logoGradient": [
@@ -24,13 +24,13 @@
         "#f63b35",
         "#f63b35"
     ],
-    "radius": 32,
-    "font": "Verdana,sans-serif",
-    "animationSpeed": 0.9,
+    "radius": 24,
+    "font": "Georgia,serif",
+    "animationSpeed": 0.95,
     "glass": false,
     "neumorphism": false,
     "admin": false,
-    "background": "#000000",
+    "background": "#545454",
     "card": "#000000",
     "button": "#000000",
     "border": "#858585",
@@ -43,7 +43,7 @@
     "titleSize": 46,
     "subtitleSize": 22,
     "description": "Con experiencia en análisis, diseño y optimización de bases de datos y procesos tecnológicos. \nEnfoque en la mejora de la eficiencia empresarial mediante el uso de software seguro y sistemas de red.",
-    "descriptionAlign": "justify",
+    "descriptionAlign": "center",
     "descriptionTextColor": "#FFFFFF",
     "descriptionBackgroundColor": "rgba(0, 0, 0, 0.21)",
     "linkTextColor": "#FFFFFF"

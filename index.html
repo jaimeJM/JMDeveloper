@@ -580,10 +580,22 @@ accept="image/*">
  <span style="color: white;" id="animationValue"> 0.35 s </span> 
 
  
-                
-     
+                        
+            <div class="buttons">
 
-                                 <button class="closeModal closeX">
+                    <button
+                        class="btn-save"
+                        id="saveGeneralColors"
+                        type="button"
+                        title="Guardar cambios">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+
+                    </button>
+
+            </div>  
+
+                    <button class="closeModal closeX"  type="button">
                     <i class="fa-solid fa-xmark"></i>
                      </button>
 
@@ -767,6 +779,96 @@ accept="image/*">
     </div>
 
 </div>
+
+
+
+
+<!--====================================================
+    MODAL DE ADVERTENCIA DE CAMBIOS SIN GUARDAR
+====================================================-->
+
+<div id="warningModal" class="custom-warning-overlay">
+
+```
+<div class="custom-warning-box">
+
+    <div class="warning-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+
+    <h2>Cambios sin guardar</h2>
+
+    <p>
+        Has realizado modificaciones que todavía
+        no han sido guardadas.
+    </p>
+
+    <p class="warning-small">
+        Si sales ahora, perderás todos los cambios realizados.
+    </p>
+
+    <div class="warning-progress">
+        <span></span>
+    </div>
+
+    <div class="warning-buttons">
+
+        <button
+            type="button"
+            id="warningCancel"
+            class="warning-continue">
+
+            <i class="fa-solid fa-pen"></i>
+            Seguir editando
+
+        </button>
+
+        <button
+            type="button"
+            id="warningConfirm"
+            class="warning-exit">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Salir sin guardar
+
+        </button>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!--====================================================
+    NOTIFICACIÓN DE GUARDADO
+====================================================-->
+
+<div id="saveNotification" class="save-notification">
+
+```
+<div class="save-notification-icon">
+    <i class="fa-solid fa-check"></i>
+</div>
+
+<div class="save-notification-content">
+
+    <strong>Cambios guardados</strong>
+
+    <span>
+        La configuración se guardó correctamente.
+    </span>
+
+    <div class="save-notification-progress">
+        <span></span>
+    </div>
+
+</div>
+```
+
+</div>
+
+
 
 <!-- JavaScript -->
     <script src="JM Developer.js"></script>

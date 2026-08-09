@@ -2814,3 +2814,523 @@ input[type="range"]::-moz-range-thumb{
 }
 
 
+
+/*====================================================
+ADVERTENCIA PERSONALIZADA
+====================================================*/
+
+.custom-warning-overlay {
+
+position: fixed;
+
+inset: 0;
+
+display: none;
+
+align-items: center;
+
+justify-content: center;
+
+background: rgba(0, 0, 0, 0.72);
+
+backdrop-filter: blur(7px);
+
+-webkit-backdrop-filter: blur(7px);
+
+z-index: 9999999999;
+
+}
+
+/*=========================================
+CAJA DE ADVERTENCIA
+=========================================*/
+
+.custom-warning-box {
+
+width: min(430px, calc(100% - 40px));
+
+padding: 30px;
+
+border-radius: 20px;
+
+background:
+    linear-gradient(
+        145deg,
+        rgba(25,25,25,.98),
+        rgba(10,10,10,.98)
+    );
+
+border: 1px solid rgba(255, 180, 0, .35);
+
+box-shadow:
+    0 25px 80px rgba(0,0,0,.65),
+    0 0 35px rgba(255,180,0,.08);
+
+text-align: center;
+
+animation:
+    warningModalIn .35s ease forwards;
+
+}
+
+@keyframes warningModalIn {
+
+from {
+
+    opacity: 0;
+
+    transform:
+        translateY(25px)
+        scale(.94);
+
+}
+
+to {
+
+    opacity: 1;
+
+    transform:
+        translateY(0)
+        scale(1);
+
+}
+
+}
+
+/*=========================================
+ICONO PRECAUCIÓN
+=========================================*/
+
+.warning-icon {
+
+width: 65px;
+
+height: 65px;
+
+margin: 0 auto 18px;
+
+display: flex;
+
+align-items: center;
+
+justify-content: center;
+
+border-radius: 50%;
+
+background:
+    rgba(255, 174, 0, .12);
+
+border:
+    1px solid rgba(255, 174, 0, .4);
+
+color: #ffb300;
+
+font-size: 30px;
+
+box-shadow:
+    0 0 25px rgba(255,174,0,.12);
+
+animation:
+    warningPulse 1.4s infinite;
+
+}
+
+@keyframes warningPulse {
+
+0%, 100% {
+
+    transform: scale(1);
+
+}
+
+50% {
+
+    transform: scale(1.08);
+
+}
+
+}
+
+/*=========================================
+TEXTO
+=========================================*/
+
+.custom-warning-box h2 {
+
+margin: 0 0 10px;
+
+color: #ffffff;
+
+font-size: 22px;
+
+}
+
+.custom-warning-box p {
+
+margin: 7px 0;
+
+color: #dddddd;
+
+line-height: 1.5;
+
+}
+
+.custom-warning-box .warning-small {
+
+color: #999999;
+
+font-size: 13px;
+
+}
+
+/*=========================================
+BARRA DE PROGRESO
+=========================================*/
+
+.warning-progress {
+
+width: 100%;
+
+height: 4px;
+
+margin: 22px 0;
+
+overflow: hidden;
+
+border-radius: 10px;
+
+background: rgba(255,255,255,.08);
+
+}
+
+.warning-progress span {
+
+display: block;
+
+width: 100%;
+
+height: 100%;
+
+background: #ffb300;
+
+}
+
+/*=========================================
+BOTONES
+=========================================*/
+
+.warning-buttons {
+
+display: flex;
+
+gap: 12px;
+
+justify-content: center;
+
+}
+
+.warning-buttons button {
+
+flex: 1;
+
+border: 0;
+
+border-radius: 10px;
+
+padding: 12px 14px;
+
+cursor: pointer;
+
+font-weight: 600;
+
+transition: .25s ease;
+
+}
+
+.warning-continue {
+
+background: rgba(255,255,255,.08);
+
+color: #ffffff;
+
+}
+
+.warning-continue {
+
+background: rgba(255,255,255,.15);
+
+transform: translateY(-2px);
+
+}
+
+.warning-exit {
+
+background: #b62525;
+
+color: #ffffff;
+
+}
+
+.warning-exit {
+
+background: #d73535;
+
+transform: translateY(-2px);
+
+}
+
+/*====================================================
+NOTIFICACIÓN DE GUARDADO
+====================================================*/
+
+.save-notification {
+
+position: fixed;
+
+top: 25px;
+
+right: 25px;
+
+width: min(380px, calc(100% - 40px));
+
+display: flex;
+
+align-items: center;
+
+gap: 14px;
+
+padding: 16px 18px;
+
+border-radius: 15px;
+
+background:
+    linear-gradient(
+        145deg,
+        rgba(20,20,20,.98),
+        rgba(8,8,8,.98)
+    );
+
+border:
+    1px solid rgba(0,210,255,.35);
+
+box-shadow:
+    0 20px 60px rgba(0,0,0,.55),
+    0 0 25px rgba(0,210,255,.08);
+
+z-index: 99999999;
+
+opacity: 0;
+
+transform: translateX(120%);
+
+pointer-events: none;
+
+}
+
+.save-notification.show {
+
+animation:
+    saveNotificationIn .45s
+    cubic-bezier(.22,1,.36,1)
+    forwards;
+
+}
+
+.save-notification.hide {
+
+animation:
+    saveNotificationOut .35s
+    ease forwards;
+
+}
+
+@keyframes saveNotificationIn {
+
+from {
+
+    opacity: 0;
+
+    transform: translateX(120%);
+
+}
+
+to {
+
+    opacity: 1;
+
+    transform: translateX(0);
+
+}
+
+}
+
+@keyframes saveNotificationOut {
+
+from {
+
+    opacity: 1;
+
+    transform: translateX(0);
+
+}
+
+to {
+
+    opacity: 0;
+
+    transform: translateX(120%);
+
+}
+
+}
+
+/*=========================================
+ICONO CHECK
+=========================================*/
+
+.save-notification-icon {
+
+width: 45px;
+
+height: 45px;
+
+flex-shrink: 0;
+
+display: flex;
+
+align-items: center;
+
+justify-content: center;
+
+border-radius: 50%;
+
+background:
+    rgba(0,210,255,.12);
+
+border:
+    1px solid rgba(0,210,255,.4);
+
+color: #00d2ff;
+
+font-size: 20px;
+
+}
+
+/*=========================================
+CONTENIDO
+=========================================*/
+
+.save-notification-content {
+
+flex: 1;
+
+}
+
+.save-notification-content strong {
+
+display: block;
+
+color: #ffffff;
+
+font-size: 15px;
+
+margin-bottom: 3px;
+
+}
+
+.save-notification-content span {
+
+display: block;
+
+color: #999999;
+
+font-size: 12px;
+
+}
+
+/*=========================================
+BARRA NOTIFICACIÓN
+=========================================*/
+
+.save-notification-progress {
+
+height: 3px;
+
+margin-top: 10px;
+
+overflow: hidden;
+
+border-radius: 10px;
+
+background: rgba(255,255,255,.08);
+
+}
+
+.save-notification-progress span {
+
+display: block;
+
+width: 100%;
+
+height: 100%;
+
+background: #00d2ff;
+
+}
+
+.save-notification.show
+.save-notification-progress span {
+
+animation:
+    saveProgress 3.5s linear forwards;
+
+}
+
+@keyframes saveProgress {
+
+from {
+
+    width: 100%;
+
+}
+
+to {
+
+    width: 0%;
+
+}
+
+}
+
+/*=========================================
+MÓVIL
+=========================================*/
+
+@media(max-width:600px){
+
+.custom-warning-box {
+
+    padding: 24px;
+
+}
+
+.warning-buttons {
+
+    flex-direction: column;
+
+}
+
+.save-notification {
+
+    top: 15px;
+
+    right: 15px;
+
+    left: 15px;
+
+    width: auto;
+
+}
+
+}
+
