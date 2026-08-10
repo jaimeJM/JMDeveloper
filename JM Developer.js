@@ -2870,21 +2870,44 @@ function restaurarVelocidadAnimaciones() {
 }
 
 
-
 /*====================================================
-        GUARDAR EDITOR DE COLORES GENERALES
+GUARDAR EDITOR DE COLORES GENERALES
 ====================================================*/
 
 document.getElementById(
-    "saveGeneralColors"
+"saveGeneralColors"
 ).onclick = async () => {
 
 
+try {
+
     /*=========================================
-        GUARDAR CONFIGURACIÓN
+        GUARDAR EN SERVIDOR
     =========================================*/
 
     await guardarConfiguracionServidor();
+
+
+    /*=========================================
+        ACTUALIZAR ESTADO GUARDADO
+    =========================================*/
+
+    guardarEstadoModal(colorModal);
+
+
+    /*=========================================
+        MOSTRAR NOTIFICACIÓN
+    =========================================*/
+
+    mostrarNotificacionGuardado();
+
+
+    /*=========================================
+        CERRAR MODAL
+    =========================================*/
+
+    colorModal.style.display =
+        "none";
 
 
     /*=========================================
@@ -2896,12 +2919,15 @@ document.getElementById(
     estadoInicialModal = null;
 
 
-    /*=========================================
-        CERRAR MODAL
-    =========================================*/
+} catch(error) {
 
-    colorModal.style.display =
-        "none";
+    console.error(
+        "Error al guardar los colores:",
+        error
+    );
+
+}
+
 
 };
 
@@ -3290,7 +3316,7 @@ document.querySelector("#colorModal .modal-content")
 /*==================================================
            GUARDA NUEVO RADIO
 ==================================================*/
-radius.oninput = async ()=>{
+radius.oninput = ()=>{
 
     document.querySelectorAll(".link-card").forEach(card=>{
 
@@ -3445,23 +3471,26 @@ if (
     CAMBIAR SOLO EL TÍTULO
 ==================================================*/
 
-fuenteTitulo.onchange = async () => {
+fuenteTitulo.onchange = () => {
 
-    title.style.fontFamily = fuenteTitulo.value;
+    title.style.fontFamily =
+        fuenteTitulo.value;
 
-    subtitle.style.fontFamily = fuenteTitulo.value;
+    subtitle.style.fontFamily =
+        fuenteTitulo.value;
 
-    configuracion.titleFont = fuenteTitulo.value;
+    configuracion.titleFont =
+        fuenteTitulo.value;
 
-    await guardarConfiguracionServidor();
-
-
-
-
-}
+};
 
 
-logoSize.addEventListener("input", async ()=>{
+
+/*==================================================
+    TAMAÑO DEL LOGO
+==================================================*/
+
+logoSize.addEventListener("input", ()=>{
 
     configuracion.logoSize =
         Number(logoSize.value);
@@ -3470,17 +3499,12 @@ logoSize.addEventListener("input", async ()=>{
         configuracion.logoSize
     );
 
-    // Sincroniza el aro de colores con el tamaño del logo
     document
         .getElementById("box1")
         ?.style.setProperty(
             "--logo-size",
             configuracion.logoSize + "px"
         );
-
-    await guardarConfiguracionServidor();
-
-
 
 });
 
@@ -4132,18 +4156,29 @@ btn.onclick = () => {
         ¿HAY CAMBIOS?
     =========================================*/
 
-    if(modalTieneCambios()){
 
-        mostrarAdvertenciaCambios(() => {
+if(modalTieneCambios()){
 
-            cerrarModalDefinitivamente(modal);
+    mostrarAdvertenciaCambios(() => {
 
-        });
+        /*=========================================
+            RESTAURAR TODO LO QUE NO SE GUARDÓ
+        =========================================*/
 
-        return;
+        restaurarEstadoModal();
 
-    }
 
+        /*=========================================
+            CERRAR MODAL
+        =========================================*/
+
+        cerrarModalDefinitivamente(modal);
+
+    });
+
+    return;
+
+}
 
     /*=========================================
         NO HAY CAMBIOS
@@ -4177,6 +4212,17 @@ if(modalTieneCambios()){
 
     mostrarAdvertenciaCambios(() => {
 
+        /*=========================================
+            RESTAURAR CAMBIOS NO GUARDADOS
+        =========================================*/
+
+        restaurarEstadoModal();
+
+
+        /*=========================================
+            CERRAR MODAL
+        =========================================*/
+
         cerrarModalDefinitivamente(modal);
 
     });
@@ -4184,7 +4230,6 @@ if(modalTieneCambios()){
     return;
 
 }
-
 
 cerrarModalDefinitivamente(modal);
 
@@ -4209,41 +4254,144 @@ document.getElementById("warningConfirm");
 const saveNotification =
 document.getElementById("saveNotification");
 
+
+
+
 /*====================================================
-MOSTRAR ADVERTENCIA
+MOSTRAR ADVERTENCIA / CONFIRMACIÓN
 ====================================================*/
 
-function mostrarAdvertenciaCambios(callback){
+function mostrarAdvertenciaCambios(
+callback,
+opciones = {}
+){
 
 
 if(!warningModal){
 
     if(typeof callback === "function"){
+
         callback();
+
     }
 
     return;
 
 }
 
-warningModal.style.display = "flex";
 
+/*=========================================
+    TEXTOS
+=========================================*/
+
+const titulo =
+    opciones.titulo ||
+    "Cambios sin guardar";
+
+const mensaje =
+    opciones.mensaje ||
+    "Has realizado modificaciones que todavía no han sido guardadas.";
+
+const detalle =
+    opciones.detalle ||
+    "Si sales ahora, perderás todos los cambios realizados.";
+
+const textoConfirmar =
+    opciones.textoConfirmar ||
+    "Salir sin guardar";
+
+
+/*=========================================
+    BUSCAR ELEMENTOS
+=========================================*/
+
+const tituloElemento =
+    warningModal.querySelector("h2");
+
+const parrafos =
+    warningModal.querySelectorAll("p");
+
+const botonConfirmar =
+    document.getElementById(
+        "warningConfirm"
+    );
+
+
+/*=========================================
+    CAMBIAR TEXTO
+=========================================*/
+
+if(tituloElemento){
+
+    tituloElemento.textContent =
+        titulo;
+
+}
+
+
+if(parrafos[0]){
+
+    parrafos[0].textContent =
+        mensaje;
+
+}
+
+
+if(parrafos[1]){
+
+    parrafos[1].textContent =
+        detalle;
+
+}
+
+
+if(botonConfirmar){
+
+    botonConfirmar.innerHTML =
+
+        '<i class="fa-solid fa-right-from-bracket"></i> ' +
+
+        textoConfirmar;
+
+}
+
+
+/*=========================================
+    ABRIR
+=========================================*/
+
+warningModal.style.display =
+    "flex";
+
+
+/*=========================================
+    CANCELAR
+=========================================*/
 
 warningCancel.onclick = () => {
 
-    warningModal.style.display = "none";
+    warningModal.style.display =
+        "none";
 
 };
 
 
-warningConfirm.onclick = () => {
+/*=========================================
+    CONFIRMAR
+=========================================*/
 
-    warningModal.style.display = "none";
+warningConfirm.onclick = async () => {
+
+    warningModal.style.display =
+        "none";
 
 
-    if(typeof callback === "function"){
+    if(
+        typeof callback ===
+        "function"
+    ){
 
-        callback();
+        await callback();
 
     }
 
@@ -4252,13 +4400,24 @@ warningConfirm.onclick = () => {
 
 }
 
+
 /*====================================================
 MOSTRAR NOTIFICACIÓN DE GUARDADO
 ====================================================*/
 
+
 let timerNotificacionGuardado = null;
 
-function mostrarNotificacionGuardado(){
+function mostrarNotificacionGuardado(
+
+
+titulo = "Cambios guardados",
+
+mensaje =
+    "La configuración se guardó correctamente."
+
+
+){
 
 
 if(!saveNotification){
@@ -4268,26 +4427,73 @@ if(!saveNotification){
 }
 
 
+/*=========================================
+    BUSCAR TEXTOS
+=========================================*/
+
+const tituloElemento =
+    saveNotification.querySelector(
+        ".save-notification-content strong"
+    );
+
+const mensajeElemento =
+    saveNotification.querySelector(
+        ".save-notification-content span"
+    );
+
+
+/*=========================================
+    ACTUALIZAR TEXTO
+=========================================*/
+
+if(tituloElemento){
+
+    tituloElemento.textContent =
+        titulo;
+
+}
+
+
+if(mensajeElemento){
+
+    mensajeElemento.textContent =
+        mensaje;
+
+}
+
+
+/*=========================================
+    CANCELAR TEMPORIZADOR ANTERIOR
+=========================================*/
+
 clearTimeout(
     timerNotificacionGuardado
 );
 
 
-saveNotification.classList.remove("hide");
+/*=========================================
+    REINICIAR ANIMACIÓN
+=========================================*/
 
-saveNotification.classList.remove("show");
+saveNotification.classList.remove(
+    "hide"
+);
 
+saveNotification.classList.remove(
+    "show"
+);
 
-/* Reiniciar animación de la barra */
 
 const barra =
     saveNotification.querySelector(
         ".save-notification-progress span"
     );
 
+
 if(barra){
 
-    barra.style.animation = "none";
+    barra.style.animation =
+        "none";
 
     void barra.offsetWidth;
 
@@ -4297,23 +4503,37 @@ if(barra){
 }
 
 
+/*=========================================
+    MOSTRAR
+=========================================*/
+
 void saveNotification.offsetWidth;
 
+saveNotification.classList.add(
+    "show"
+);
 
-saveNotification.classList.add("show");
 
+/*=========================================
+    OCULTAR DESPUÉS DE 3.5 SEGUNDOS
+=========================================*/
 
 timerNotificacionGuardado =
     setTimeout(() => {
 
-        saveNotification.classList.remove("show");
+        saveNotification.classList.remove(
+            "show"
+        );
 
-        saveNotification.classList.add("hide");
+        saveNotification.classList.add(
+            "hide"
+        );
 
     }, 3500);
 
 
 }
+
 
 /*====================================================
 CERRAR MODAL REALMENTE
@@ -4416,30 +4636,18 @@ try {
     await guardarConfiguracionServidor();
 
 
-    /*==============================
-        ACTUALIZAR ESTADO GUARDADO
-    ==============================*/
+     /*=========================================
+        MOSTRAR NOTIFICACIÓN
+    =========================================*/
 
-    guardarEstadoModal(logoModal);
-
-
-    /*==============================
-        NOTIFICACIÓN
-    ==============================*/
-
-    mostrarNotificacionGuardado();
+mostrarNotificacionGuardado();
 
 
-    /*==============================
+/*=========================================
         CERRAR MODAL
-    ==============================*/
+=========================================*/
 
-    logoModal.style.display =
-        "none";
-
-    modalActivo = null;
-
-    estadoInicialModal = null;
+cerrarModalDefinitivamente(logoModal);
 
 
 } catch (error) {
@@ -4578,7 +4786,7 @@ document.getElementById("saveTitle").onclick = async () => {
         GUARDAR ESTILO DE LA DESCRIPCIÓN
 ====================================================*/
 
-const desc = document.getElementById("description");
+const descripcionElemento = document.getElementById("description");
 
 configuracion.descriptionAlign =
     desc.style.textAlign || "justify";
@@ -4689,39 +4897,26 @@ actualizarTamanoSubtitulo(
 
 /* Guardar configuración */
 
+
 /*=========================================
-GUARDAR EN SERVIDOR
+        GUARDAR EN SERVIDOR
 =========================================*/
 
 await guardarConfiguracionServidor();
 
-/*=========================================
-ACTUALIZAR ESTADO GUARDADO
-=========================================*/
-
-guardarEstadoModal(titleModal);
 
 /*=========================================
-NOTIFICACIÓN DE GUARDADO
+        MOSTRAR NOTIFICACIÓN
 =========================================*/
 
 mostrarNotificacionGuardado();
 
-/*=========================================
-CERRAR MODAL
-=========================================*/
-
-titleModal.style.display =
-"none";
 
 /*=========================================
-LIMPIAR MODAL ACTIVO
+        CERRAR MODAL DEFINITIVAMENTE
 =========================================*/
 
-modalActivo = null;
-
-estadoInicialModal = null;
-
+cerrarModalDefinitivamente(titleModal);
 
 };
 
@@ -5499,64 +5694,151 @@ document.getElementById("linkModal")
             nuevaPestana;
 
 
-       await guardarBotones();
+ /*=========================================
+        GUARDAR BOTONES
+=========================================*/
+
+await guardarBotones();
+
+        
+/*=========================================
+        NOTIFICACIÓN
+=========================================*/
+
+mostrarNotificacionGuardado(
+    "Cambios guardados",
+    "El botón se guardó correctamente."
+);
 
 
 /*=========================================
-    LIMPIAR ESTADO DE CAMBIOS
+        CERRAR MODAL
 =========================================*/
 
-modalActivo = null;
-
-estadoInicialModal = null;
-
-
-/*=========================================
-    CERRAR
-=========================================*/
-
-document.getElementById("linkModal")
-    .style.display = "none";
+cerrarModalDefinitivamente(
+    document.getElementById("linkModal")
+);
 
 
     };
 
 
+
+
 /*====================================================
-            ELIMINAR BOTÓN
+ELIMINAR BOTÓN
 ====================================================*/
 
-document.getElementById("deleteLink").onclick = () => {
+document.getElementById(
+"deleteLink"
+).onclick = () => {
 
-    if(!botonSeleccionado){
 
-        return;
+if(!botonSeleccionado){
+
+    return;
+
+}
+
+
+/*=========================================
+    MOSTRAR CONFIRMACIÓN PERSONALIZADA
+=========================================*/
+
+mostrarAdvertenciaCambios(
+
+    async () => {
+
+        /*=====================================
+            GUARDAR REFERENCIA
+        =====================================*/
+
+        const botonEliminado =
+            botonSeleccionado;
+
+
+        /*=====================================
+            ELIMINAR DE LA VISTA
+        =====================================*/
+
+        botonEliminado.remove();
+
+
+        /*=====================================
+            LIMPIAR SELECCIÓN
+        =====================================*/
+
+        botonSeleccionado =
+            null;
+
+
+        /*=====================================
+            GUARDAR CAMBIOS
+        =====================================*/
+
+        await guardarBotones();
+
+
+        /*=====================================
+            LIMPIAR ESTADO DEL MODAL
+        =====================================*/
+
+        modalActivo =
+            null;
+
+        estadoInicialModal =
+            null;
+
+
+        /*=====================================
+            CERRAR EDITOR DEL BOTÓN
+        =====================================*/
+
+        const linkModal =
+            document.getElementById(
+                "linkModal"
+            );
+
+        if(linkModal){
+
+            linkModal.style.display =
+                "none";
+
+        }
+
+
+        /*=====================================
+            MOSTRAR NOTIFICACIÓN
+        =====================================*/
+
+        mostrarNotificacionGuardado(
+            "Botón eliminado",
+            "El botón fue eliminado correctamente."
+        );
+
+    },
+
+    {
+
+        titulo:
+            "¿Deseas eliminar este botón?",
+
+        mensaje:
+            "Esta acción eliminará el botón seleccionado.",
+
+        detalle:
+            "El botón será eliminado y este cambio se guardará.",
+
+        textoConfirmar:
+            "Eliminar botón"
 
     }
 
+);
 
-    if(
-
-        confirm(
-            "¿Deseas eliminar este botón?"
-        )
-
-    ){
-
-        /*-----------------------------------------
-            SOLO ELIMINAR DE LA VISTA
-            NO GUARDAR SERVIDOR
-        -----------------------------------------*/
-
-        botonSeleccionado.remove();
-
-        /*
-            NO llamar guardarBotones()
-        */
-
-    }
 
 };
+
 
 
 /*====================================================
