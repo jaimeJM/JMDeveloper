@@ -274,17 +274,20 @@ body{
      box-sizing:border-box;
     overflow:hidden;
 
-    background-color:var(--card);
+   background-color:var(--card-color-1);
 
-    background-image:
+background-image:
+    var(--card-gradient),
     linear-gradient(
         to bottom,
         rgba(255,255,255,.15) 0%,
         rgba(255,255,255,.08) 45%,
-        rgba(255,255,255,0) 50%
+        rgba(255,255,255,0) 100%
     ),
+    var(--card-image);
 
-      var(--card-image);
+
+ 
 
     background-size:cover;
     background-position:center;
@@ -3336,3 +3339,311 @@ MÓVIL
 
 }
 
+
+/*====================================================
+        EDITOR DE GRADIENTE DE TARJETA
+====================================================*/
+
+.card-gradient-editor{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap:15px;
+
+    margin-top:10px;
+
+}
+
+
+.gradient-color-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:12px;
+
+    border-radius:14px;
+
+    background:rgba(255,255,255,.06);
+
+    border:
+        1px solid
+        rgba(255,255,255,.15);
+
+}
+
+
+.gradient-color-item span{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#ffffff;
+
+}
+
+
+.gradient-color-item input[type="color"]{
+
+    width:55px;
+
+    height:55px;
+
+    margin:0;
+
+}
+
+
+/*====================================================
+        AYUDA DEL LOGO SVG
+====================================================*/
+
+.watermark-help{
+
+    display:block;
+
+    margin-top:8px;
+
+    color:rgba(255,255,255,.65);
+
+    font-size:12px;
+
+    line-height:1.4;
+
+}
+
+
+/*====================================================
+        MARCA DE AGUA DE LA TARJETA
+====================================================*/
+
+.card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    isolation:isolate;
+
+}
+
+
+/*
+    Capa de marca de agua.
+    Se coloca detrás del contenido.
+*/
+
+
+/*====================================================
+        MARCA DE AGUA SVG
+        PATRÓN ESCALONADO
+====================================================*/
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-40%;
+
+    z-index:0;
+
+    pointer-events:none;
+
+
+    /*
+        DOS CAPAS DEL MISMO SVG
+
+        Esto permite crear:
+
+              SVG
+              
+        SVG         SVG
+
+              SVG
+
+        SVG         SVG
+    */
+
+    background-image:
+
+        var(--card-watermark),
+
+        var(--card-watermark);
+
+
+    background-repeat:
+
+        repeat,
+
+        repeat;
+
+
+    /*
+        LOGO MÁS PEQUEÑO
+    */
+
+    background-size:
+
+        95px 95px,
+
+        95px 95px;
+
+
+    /*
+        SEGUNDA CAPA DESPLAZADA
+        PARA CREAR EL ESCALONADO
+    */
+
+    background-position:
+
+        0 0,
+
+        47.5px 47.5px;
+
+
+    opacity:
+        .08;
+
+
+    /*
+        INCLINACIÓN EXACTA
+        DE 20 GRADOS
+    */
+
+    transform:
+        rotate(20deg)
+        scale(1.15);
+
+
+    transform-origin:
+        center;
+
+
+    animation:
+
+        cardWatermarkMove
+        22s
+        ease-in-out
+        infinite;
+
+}
+
+
+
+
+/*
+    Todo el contenido de la tarjeta
+    queda encima de la marca de agua.
+*/
+
+.card > *{
+
+    position:relative;
+
+    z-index:1;
+
+}
+
+
+
+/*====================================================
+        ANIMACIÓN MARCA DE AGUA SVG
+====================================================*/
+
+@keyframes cardWatermarkMove{
+
+    0%{
+
+        background-position:
+
+            0 0,
+
+            47.5px 47.5px;
+
+    }
+
+
+    25%{
+
+        background-position:
+
+            0 -80px,
+
+            47.5px -32.5px;
+
+    }
+
+
+    50%{
+
+        background-position:
+
+            80px -80px,
+
+            127.5px -32.5px;
+
+    }
+
+
+    75%{
+
+        background-position:
+
+            -80px 80px,
+
+            -32.5px 127.5px;
+
+    }
+
+
+    100%{
+
+        background-position:
+
+            0 0,
+
+            47.5px 47.5px;
+
+    }
+
+}
+
+
+
+
+/*====================================================
+        CUANDO NO EXISTE LOGO
+====================================================*/
+
+.card:not(.has-watermark)::before{
+
+    display:none;
+
+}
+
+
+/*====================================================
+        RESPONSIVE
+====================================================*/
+
+@media(max-width:600px){
+
+    .card-gradient-editor{
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}

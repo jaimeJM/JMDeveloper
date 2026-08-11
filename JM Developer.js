@@ -654,6 +654,198 @@ function actualizarTamanoSubtitulo(valor){
 
 
 
+/*====================================================
+        GRADIENTE DE LA TARJETA
+====================================================*/
+
+function actualizarGradienteTarjeta(){
+
+    const color1 =
+        configuracion.cardColor1 ||
+        configuracion.card ||
+        "#202020";
+
+
+    const color2 =
+        configuracion.cardColor2 ||
+        "#303030";
+
+
+    const color3 =
+        configuracion.cardColor3 ||
+        "#101010";
+
+
+    const gradiente =
+        `linear-gradient(
+            135deg,
+            ${color1} 0%,
+            ${color2} 50%,
+            ${color3} 100%
+        )`;
+
+
+    document.documentElement.style.setProperty(
+        "--card-color-1",
+        color1
+    );
+
+    
+/*-----------------------------------------
+    APLICAR FONDO DE LA TARJETA
+-----------------------------------------*/
+
+aplicarFondoTarjeta();
+
+
+
+    document.documentElement.style.setProperty(
+        "--card-color-2",
+        color2
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--card-color-3",
+        color3
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--card-gradient",
+        gradiente
+    );
+
+
+    /*
+        Mantener compatibilidad con el
+        sistema anterior.
+    */
+
+    document.documentElement.style.setProperty(
+        "--card",
+        color1
+    );
+
+
+    /*
+        Si existe imagen de fondo,
+        mantenemos la imagen.
+    */
+
+    const card =
+        document.querySelector(".card");
+
+    if(!card){
+
+        return;
+
+    }
+
+
+}
+
+
+
+/*====================================================
+        APLICAR FONDO COMPLETO DE LA TARJETA
+====================================================*/
+
+function aplicarFondoTarjeta(){
+
+    const card =
+        document.querySelector(".card");
+
+
+    if(!card){
+
+        return;
+
+    }
+
+
+    const color1 =
+        configuracion.cardColor1 ||
+        configuracion.card ||
+        "#202020";
+
+
+    const color2 =
+        configuracion.cardColor2 ||
+        "#303030";
+
+
+    const color3 =
+        configuracion.cardColor3 ||
+        "#101010";
+
+
+    const gradiente =
+        `linear-gradient(
+            135deg,
+            ${color1} 0%,
+            ${color2} 50%,
+            ${color3} 100%
+        )`;
+
+
+    /*
+        SIN IMAGEN
+    */
+
+    if(!configuracion.cardImage){
+
+        card.style.backgroundImage =
+            gradiente;
+
+        card.style.backgroundSize =
+            "cover";
+
+        card.style.backgroundPosition =
+            "center";
+
+        card.style.backgroundRepeat =
+            "no-repeat";
+
+        return;
+
+    }
+
+
+    /*
+        CON IMAGEN
+    */
+
+    card.style.backgroundImage = `
+
+        ${gradiente},
+
+        linear-gradient(
+            to bottom,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0) 45%,
+            rgba(0,0,0,.20) 100%
+        ),
+
+        url("${configuracion.cardImage}")
+
+    `;
+
+
+    card.style.backgroundSize =
+        "cover, cover, cover";
+
+
+    card.style.backgroundPosition =
+        "center, center, center";
+
+
+    card.style.backgroundRepeat =
+        "no-repeat";
+
+}
+
+
 
 
 /*====================================================
@@ -690,31 +882,108 @@ if(configuracion.background){
 
 }
 
-    /* Tarjeta */
 
-if(configuracion.card){
+/*====================================================*
+    RESTAURAR 3 COLORES DE TARJETA
+====================================================*/
 
-    document.documentElement.style.setProperty(
+const color1 =
+    configuracion.cardColor1 ||
+    configuracion.card ||
+    "#202020";
 
-        "--card",
+const color2 =
+    configuracion.cardColor2 ||
+    "#303030";
 
-        configuracion.card
+const color3 =
+    configuracion.cardColor3 ||
+    "#101010";
 
-    );
 
-    tarjeta.dataset.colorFinal =
-        configuracion.card;
+const cardColor1 =
+    document.getElementById("cardColor1");
 
-    tarjeta.value =
+const cardColor2 =
+    document.getElementById("cardColor2");
+
+const cardColor3 =
+    document.getElementById("cardColor3");
+
+
+/*-----------------------------------------
+    RESTAURAR COLOR 1
+-----------------------------------------*/
+
+if(cardColor1){
+
+    cardColor1.value =
         rgbObjetoAHex(
-            obtenerRGBDesdeColor(
-                configuracion.card
-            )
+            obtenerRGBDesdeColor(color1)
         );
 
-    actualizarColorFooter();
+}
+
+
+/*-----------------------------------------
+    RESTAURAR COLOR 2
+-----------------------------------------*/
+
+if(cardColor2){
+
+    cardColor2.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(color2)
+        );
 
 }
+
+
+/*-----------------------------------------
+    RESTAURAR COLOR 3
+-----------------------------------------*/
+
+if(cardColor3){
+
+    cardColor3.value =
+        rgbObjetoAHex(
+            obtenerRGBDesdeColor(color3)
+        );
+
+}
+
+
+/*-----------------------------------------
+    GUARDAR EN CONFIGURACIÓN TEMPORAL
+-----------------------------------------*/
+
+configuracion.cardColor1 =
+    color1;
+
+configuracion.cardColor2 =
+    color2;
+
+configuracion.cardColor3 =
+    color3;
+
+
+/*-----------------------------------------
+    APLICAR DEGRADADO
+-----------------------------------------*/
+
+actualizarGradienteTarjeta();
+
+
+/*-----------------------------------------
+    RESTAURAR MARCA DE AGUA SVG
+-----------------------------------------*/
+
+aplicarMarcaAguaTarjeta();
+
+
+
+
+
 
 
 
@@ -2874,62 +3143,222 @@ function restaurarVelocidadAnimaciones() {
 GUARDAR EDITOR DE COLORES GENERALES
 ====================================================*/
 
+
 document.getElementById(
-"saveGeneralColors"
+    "saveGeneralColors"
 ).onclick = async () => {
 
+    try{
 
-try {
+        /*====================================================
+            GUARDAR GRADIENTE
+        ====================================================*/
 
-    /*=========================================
-        GUARDAR EN SERVIDOR
-    =========================================*/
-
-    await guardarConfiguracionServidor();
-
-
-    /*=========================================
-        ACTUALIZAR ESTADO GUARDADO
-    =========================================*/
-
-    guardarEstadoModal(colorModal);
+        configuracion.cardColor1 =
+            document.getElementById(
+                "cardColor1"
+            ).value;
 
 
-    /*=========================================
-        MOSTRAR NOTIFICACIÓN
-    =========================================*/
-
-    mostrarNotificacionGuardado();
-
-
-    /*=========================================
-        CERRAR MODAL
-    =========================================*/
-
-    colorModal.style.display =
-        "none";
+        configuracion.cardColor2 =
+            document.getElementById(
+                "cardColor2"
+            ).value;
 
 
-    /*=========================================
-        LIMPIAR ESTADO
-    =========================================*/
-
-    modalActivo = null;
-
-    estadoInicialModal = null;
+        configuracion.cardColor3 =
+            document.getElementById(
+                "cardColor3"
+            ).value;
 
 
-} catch(error) {
+        configuracion.card =
+            configuracion.cardColor1;
 
-    console.error(
-        "Error al guardar los colores:",
-        error
-    );
 
-}
+        /*====================================================
+            SUBIR IMAGEN PENDIENTE
+        ====================================================*/
 
+        if(imagenCardPendiente){
+
+            const datos =
+                new FormData();
+
+
+            datos.append(
+                "cardImage",
+                imagenCardPendiente
+            );
+
+
+            const respuesta =
+                await fetch(
+                    "/uploadCardImage",
+                    {
+                        method:"POST",
+                        body:datos
+                    }
+                );
+
+
+            if(!respuesta.ok){
+
+                throw new Error(
+                    "Error HTTP al subir imagen."
+                );
+
+            }
+
+
+            const resultado =
+                await respuesta.json();
+
+
+            if(!resultado.ok){
+
+                throw new Error(
+                    resultado.error ||
+                    "No se pudo guardar la imagen."
+                );
+
+            }
+
+
+            configuracion.cardImage =
+                resultado.cardImage;
+
+
+            imagenCardPendiente =
+                null;
+
+
+            if(backgroundImage){
+
+                backgroundImage.value = "";
+
+            }
+
+        }
+
+
+        /*====================================================
+            APLICAR TODO
+        ====================================================*/
+
+        actualizarGradienteTarjeta();
+
+        aplicarMarcaAguaTarjeta();
+
+
+        /*====================================================
+            GUARDAR CONFIGURACIÓN
+        ====================================================*/
+
+        await guardarConfiguracionServidor();
+
+
+        /*====================================================
+            ESTADO DEL MODAL
+        ====================================================*/
+
+        guardarEstadoModal(
+            colorModal
+        );
+
+
+        mostrarNotificacionGuardado();
+
+
+        colorModal.style.display =
+            "none";
+
+
+        modalActivo = null;
+
+        estadoInicialModal = null;
+
+
+    }catch(error){
+
+        console.error(
+            "Error al guardar los colores:",
+            error
+        );
+
+        alert(
+            error.message
+        );
+
+    }
 
 };
+
+
+/*====================================================
+        QUITAR MARCA DE AGUA
+====================================================*/
+
+const removeCardWatermark =
+    document.getElementById(
+        "removeCardWatermark"
+    );
+
+
+if(removeCardWatermark){
+
+    removeCardWatermark.onclick =
+        async () => {
+
+
+            try{
+
+                const respuesta =
+                    await fetch(
+                        "/removeCardWatermark",
+                        {
+
+                            method:"POST"
+
+                        }
+                    );
+
+
+                const resultado =
+                    await respuesta.json();
+
+
+                if(!resultado.ok){
+
+                    alert(
+                        resultado.error ||
+                        "No se pudo eliminar el logo."
+                    );
+
+                    return;
+
+                }
+
+
+                configuracion.cardWatermark =
+                    "";
+
+
+                aplicarMarcaAguaTarjeta();
+
+
+            }catch(error){
+
+                console.error(
+                    "Error eliminando logo:",
+                    error
+                );
+
+            }
+
+        };
+
+}
 
 
 /*====================================================
@@ -3248,21 +3677,46 @@ const LIMITE_BOTONES = 10;
 
 /*   botón flotante  */
 
-addButton.onclick = () => {
+
+addButton.onclick = async () => {
 
     const totalBotones =
-        document.querySelectorAll("#linksContainer .link-card").length;
+        document.querySelectorAll(
+            "#linksContainer .link-card"
+        ).length;
 
-    if (totalBotones >= LIMITE_BOTONES) {
 
-        alert("Solo puedes crear un máximo de " + LIMITE_BOTONES + " botones.");
+    if(totalBotones >= LIMITE_BOTONES){
+
+        alert(
+            "Solo puedes crear un máximo de " +
+            LIMITE_BOTONES +
+            " botones."
+        );
 
         return;
+
     }
+
+
+    /*
+        Crear botón
+    */
 
     agregarBoton();
 
-    guardarBotones();
+
+    /*
+        Guardar y ESPERAR
+        a que termine el servidor.
+    */
+
+    await guardarBotones();
+
+
+    /*
+        Activar eventos
+    */
 
     activarBotones();
 
@@ -3271,6 +3725,8 @@ addButton.onclick = () => {
     activarDragDrop();
 
 };
+
+
 
 
 
@@ -4118,6 +4574,33 @@ document.getElementById("btnBackground").onclick = () => {
 
     colorModal.style.display =
         "flex";
+
+
+
+/*====================================================
+        RESTAURAR GRADIENTE EN EL MODAL
+====================================================*/
+
+document.getElementById(
+    "cardColor1"
+).value =
+    configuracion.cardColor1 ||
+    configuracion.card ||
+    "#202020";
+
+
+document.getElementById(
+    "cardColor2"
+).value =
+    configuracion.cardColor2 ||
+    "#303030";
+
+
+document.getElementById(
+    "cardColor3"
+).value =
+    configuracion.cardColor3 ||
+    "#101010";
 
 
     /*=========================================
@@ -5019,7 +5502,14 @@ subtitleSize.oninput = ()=>{
 
 const fondo = document.getElementById("backgroundColor");
 
-const tarjeta = document.getElementById("cardColor");
+const tarjeta1 =
+    document.getElementById("cardColor1");
+
+const tarjeta2 =
+    document.getElementById("cardColor2");
+
+const tarjeta3 =
+    document.getElementById("cardColor3");
 
 const botones = document.getElementById("buttonColor");
 
@@ -5044,13 +5534,152 @@ vincularEditorUniversal({
     despuesDeAplicar: () => actualizarColorFooter()
 });
 
-vincularEditorUniversal({
-    boton: tarjeta,
-    picker: tarjeta,
-    propiedad: "card",
-    variableCSS: "--card",
-    despuesDeAplicar: () => actualizarColorFooter()
-});
+
+
+/*====================================================
+        COLOR 1 DEL GRADIENTE
+        EDITOR UNIVERSAL
+====================================================*/
+
+if(tarjeta1){
+
+    tarjeta1.addEventListener(
+        "input",
+        () => {
+
+            configuracion.cardColor1 =
+                tarjeta1.value;
+
+            actualizarGradienteTarjeta();
+
+        }
+    );
+
+
+    vincularEditorUniversal({
+
+        boton: tarjeta1,
+
+        picker: tarjeta1,
+
+        propiedad:
+            "cardColor1",
+
+        variableCSS:
+            "--card-color-1",
+
+        despuesDeAplicar: (valor) => {
+
+            configuracion.cardColor1 =
+                valor;
+
+            actualizarGradienteTarjeta();
+
+        }
+
+    });
+
+}
+
+
+
+
+/*====================================================
+        COLOR 2 DEL GRADIENTE
+        EDITOR UNIVERSAL
+====================================================*/
+
+if(tarjeta2){
+
+    tarjeta2.addEventListener(
+        "input",
+        () => {
+
+            configuracion.cardColor2 =
+                tarjeta2.value;
+
+            actualizarGradienteTarjeta();
+
+        }
+    );
+
+
+    vincularEditorUniversal({
+
+        boton: tarjeta2,
+
+        picker: tarjeta2,
+
+        propiedad:
+            "cardColor2",
+
+        variableCSS:
+            "--card-color-2",
+
+        despuesDeAplicar: (valor) => {
+
+            configuracion.cardColor2 =
+                valor;
+
+            actualizarGradienteTarjeta();
+
+        }
+
+    });
+
+}
+
+
+
+
+/*====================================================
+        COLOR 3 DEL GRADIENTE
+        EDITOR UNIVERSAL
+====================================================*/
+
+if(tarjeta3){
+
+    tarjeta3.addEventListener(
+        "input",
+        () => {
+
+            configuracion.cardColor3 =
+                tarjeta3.value;
+
+            actualizarGradienteTarjeta();
+
+        }
+    );
+
+
+    vincularEditorUniversal({
+
+        boton: tarjeta3,
+
+        picker: tarjeta3,
+
+        propiedad:
+            "cardColor3",
+
+        variableCSS:
+            "--card-color-3",
+
+        despuesDeAplicar: (valor) => {
+
+            configuracion.cardColor3 =
+                valor;
+
+            actualizarGradienteTarjeta();
+
+        }
+
+    });
+
+}
+
+
+
+
 
 vincularEditorUniversal({
     boton: botones,
@@ -5297,6 +5926,13 @@ fontFile.addEventListener("change", async (e) => {
 });
 
 
+
+/*====================================================
+        IMAGEN DE FONDO PENDIENTE
+====================================================*/
+
+let imagenCardPendiente = null;
+
 /*====================================================
             FONDO DE CARD
 ====================================================*/
@@ -5304,73 +5940,105 @@ fontFile.addEventListener("change", async (e) => {
 
 const backgroundImage = document.getElementById("backgroundImage");
 
-backgroundImage.addEventListener("change", async (e) => {
+/*====================================================
+        SELECCIONAR IMAGEN DE FONDO
+        NO SUBIR TODAVÍA
+====================================================*/
 
-    const archivo = e.target.files[0];
+backgroundImage.addEventListener(
+    "change",
+    (e) => {
 
-    if (!archivo) return;
-
-    const datos = new FormData();
-
-    datos.append("cardImage", archivo);
-
-    try{
-
-        const respuesta = await fetch("/uploadCardImage",{
-
-            method:"POST",
-
-            body:datos
-
-        });
-
-        if (!respuesta.ok) {
-    throw new Error(`Error HTTP: ${respuesta.status}`);
-}
-
-const resultado = await respuesta.json();
+        const archivo =
+            e.target.files[0];
 
 
+        if(!archivo){
 
-        if(!resultado.ok){
+            imagenCardPendiente = null;
 
-    alert("No se pudo subir la imagen.");
+            return;
 
-    return;
-
-}
-
-        configuracion.cardImage = resultado.cardImage;
-
-        await guardarConfiguracionServidor();
+        }
 
 
+        /*
+            Guardamos solamente el archivo
+            en memoria.
 
-   
+            TODAVÍA NO se envía al servidor.
+        */
 
-        document.querySelector(".card").style.backgroundImage = `
-            linear-gradient(
-                to bottom,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,0) 45%,
-                var(--card) 100%
-            ),
-            url('${resultado.cardImage}')
-        `;
-
-        document.documentElement.style.setProperty(
-            "--card-image",
-            `url("${resultado.cardImage}")`
-        );
+        imagenCardPendiente =
+            archivo;
 
 
-    }catch(error){
+        /*
+            Vista previa inmediata
+        */
 
-        console.error("Error subiendo imagen:", error);
+        const vistaPrevia =
+            URL.createObjectURL(
+                archivo
+            );
+
+
+        const card =
+            document.querySelector(".card");
+
+
+        if(card){
+
+            const color1 =
+                configuracion.cardColor1 ||
+                configuracion.card ||
+                "#202020";
+
+
+            const color2 =
+                configuracion.cardColor2 ||
+                "#303030";
+
+
+            const color3 =
+                configuracion.cardColor3 ||
+                "#101010";
+
+
+            const gradiente =
+                `linear-gradient(
+                    135deg,
+                    ${color1} 0%,
+                    ${color2} 50%,
+                    ${color3} 100%
+                )`;
+
+
+            card.style.backgroundImage = `
+
+                ${gradiente},
+
+                url("${vistaPrevia}")
+
+            `;
+
+
+            card.style.backgroundSize =
+                "cover, cover";
+
+
+            card.style.backgroundPosition =
+                "center, center";
+
+
+            card.style.backgroundRepeat =
+                "no-repeat";
+
+        }
 
     }
+);
 
-});
 
 
 /*=========================================
@@ -5404,18 +6072,24 @@ document.getElementById("removeCardImage").onclick = async () => {
 
 
 
-        document.querySelector(".card").style.backgroundImage = `
-        linear-gradient(
-            to bottom,
-            rgba(255,255,255,.15) 0%,
-            rgba(255,255,255,.08) 45%,
-            var(--card) 100%
-        )`;
 
-        document.documentElement.style.setProperty(
-            "--card-image",
-            "none"
-        );
+/*=========================================
+    RESTAURAR DEGRADADO DE 3 COLORES
+=========================================*/
+
+actualizarGradienteTarjeta();
+
+
+/*=========================================
+    ELIMINAR IMAGEN CSS
+=========================================*/
+
+document.documentElement.style.setProperty(
+    "--card-image",
+    "none"
+);
+
+
 
     }catch(error){
 
@@ -5424,6 +6098,222 @@ document.getElementById("removeCardImage").onclick = async () => {
     }
 
 };
+
+
+
+
+/*====================================================
+        APLICAR MARCA DE AGUA
+====================================================*/
+
+function aplicarMarcaAguaTarjeta(){
+
+    const card =
+        document.querySelector(
+            ".card"
+        );
+
+
+    if(!card){
+
+        return;
+
+    }
+
+
+    const logo =
+        configuracion.cardWatermark;
+
+
+    if(!logo){
+
+        card.classList.remove(
+            "has-watermark"
+        );
+
+        document.documentElement.style
+            .setProperty(
+                "--card-watermark",
+                "none"
+            );
+
+        return;
+
+    }
+
+
+    document.documentElement.style
+        .setProperty(
+
+            "--card-watermark",
+
+            `url("${logo}")`
+
+        );
+
+
+    card.classList.add(
+        "has-watermark"
+    );
+
+}
+
+
+/*====================================================
+        LOGO SVG MARCA DE AGUA
+====================================================*/
+
+const cardWatermarkLogo =
+    document.getElementById(
+        "cardWatermarkLogo"
+    );
+
+
+if(cardWatermarkLogo){
+
+    cardWatermarkLogo.addEventListener(
+        "change",
+        async (e) => {
+
+
+            const archivo =
+                e.target.files[0];
+
+
+            if(!archivo){
+
+                return;
+
+            }
+
+
+            /*-----------------------------------------
+                VALIDAR SVG
+            -----------------------------------------*/
+
+            const extension =
+                archivo.name
+                .toLowerCase()
+                .split(".")
+                .pop();
+
+
+            if(
+                extension !== "svg" &&
+                archivo.type !==
+                "image/svg+xml"
+            ){
+
+                alert(
+                    "Solo puedes subir archivos SVG."
+                );
+
+                e.target.value = "";
+
+                return;
+
+            }
+
+
+            /*-----------------------------------------
+                FORM DATA
+            -----------------------------------------*/
+
+            const datos =
+                new FormData();
+
+
+            datos.append(
+                "cardWatermark",
+                archivo
+            );
+
+
+            try{
+
+                const respuesta =
+                    await fetch(
+                        "/uploadCardWatermark",
+                        {
+
+                            method:"POST",
+
+                            body:datos
+
+                        }
+                    );
+
+
+                const resultado =
+                    await respuesta.json();
+
+
+                if(!resultado.ok){
+
+                    alert(
+                        resultado.error ||
+                        "No se pudo subir el logo."
+                    );
+
+                    return;
+
+                }
+
+
+                /*-----------------------------------------
+                    GUARDAR RUTA TEMPORAL
+                -----------------------------------------*/
+
+
+configuracion.cardWatermark =
+    resultado.cardWatermark;
+
+
+/*-----------------------------------------
+    GUARDAR CONFIGURACIÓN
+-----------------------------------------*/
+
+await guardarConfiguracionServidor();
+
+
+/*-----------------------------------------
+    APLICAR MARCA DE AGUA
+-----------------------------------------*/
+
+aplicarMarcaAguaTarjeta();
+
+
+
+
+                /*-----------------------------------------
+                    MARCAR CAMBIO
+                -----------------------------------------*/
+
+                /*
+                    No guardamos la configuración
+                    general aquí.
+
+                    El archivo SVG sí fue subido
+                    al servidor porque es necesario
+                    para poder mostrarlo.
+                */
+
+                e.target.value = "";
+
+
+            }catch(error){
+
+                console.error(
+                    "Error subiendo logo SVG:",
+                    error
+                );
+
+            }
+
+        }
+    );
+
+}
 
 /*====================================================
         COLOR DE LOS ICONOS
@@ -5700,7 +6590,7 @@ document.getElementById("linkModal")
 
 await guardarBotones();
 
-        
+
 /*=========================================
         NOTIFICACIÓN
 =========================================*/
@@ -6254,7 +7144,7 @@ async function cargarBotones() {
             fuente de verdad para la carga inicial.
         */
 
-        contenedor.innerHTML = "";
+       
 
     }
 

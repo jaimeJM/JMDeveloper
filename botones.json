@@ -1,32 +1,16 @@
 [
     {
-        "texto": "WhatsApp",
-        "icono": "fab fa-whatsapp",
-        "url": "https://api.whatsapp.com/send?phone=51960722146&text=Hola%2C%20%20Preciso%20de%20tu%20asistencia%20t%C3%A9cnica%20Ing.%20Jaime%20Martinez",
-        "textColor": "#FFFFFF",
+        "texto": "Nuevo botón",
+        "icono": "",
+        "url": "",
+        "textColor": "#FF0000",
         "description": "",
         "newTab": false
     },
     {
-        "texto": "TikTok",
-        "icono": "fab fa-tiktok",
-        "url": "https://www.tiktok.com/@jaime_abraham_martinez",
-        "textColor": "#fffefe",
-        "description": "",
-        "newTab": false
-    },
-    {
-        "texto": "Facebook",
-        "icono": "fab fa-facebook",
-        "url": "https://www.facebook.com/profile.php?id=61588687977605",
-        "textColor": "#fffefe",
-        "description": "",
-        "newTab": false
-    },
-    {
-        "texto": "Instagram",
-        "icono": "fab fa-instagram",
-        "url": "https://www.instagram.com/jaime_abraham_martinez/",
+        "texto": "Nuevo botón",
+        "icono": "fa-solid fa-link",
+        "url": "",
         "textColor": "#fffefe",
         "description": "",
         "newTab": false

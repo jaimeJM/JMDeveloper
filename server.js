@@ -42,6 +42,7 @@ const storage = multer.diskStorage({
     }
 
 },
+
     filename:function(req,file,cb){
 
         const extension = path.extname(file.originalname);
@@ -57,26 +58,42 @@ const storage = multer.diskStorage({
 
             break;
 
-            case "cardImage":
+            
 
-                cb(
-                    null,
-                    "fondo-card-" + Date.now() + extension
-                );
-
-            break;
-
-            case "font":
+case "cardImage":
 
     cb(
-
         null,
-
-        file.originalname
-
+        "fondo-card-" + Date.now() + extension
     );
 
 break;
+
+
+case "cardWatermark":
+
+    cb(
+        null,
+        "card-watermark.svg"
+    );
+
+break;
+
+
+
+
+                case "font":
+                                
+
+                    cb(
+
+                        null,
+
+                        file.originalname
+
+                    );
+
+                break;
 
             default:
 
@@ -542,6 +559,177 @@ app.post("/uploadCardImage", upload.single("cardImage"), (req, res) => {
     }
 
 });
+
+
+
+
+
+
+// =========================================================
+// SUBIR / REEMPLAZAR LOGO SVG COMO MARCA DE AGUA
+// =========================================================
+
+app.post(
+    "/uploadCardWatermark",
+    upload.single("cardWatermark"),
+    (req, res) => {
+
+        try {
+
+            if (!req.file) {
+
+                return res.status(400).json({
+
+                    ok:false,
+
+                    error:
+                        "No se recibió ningún archivo SVG."
+
+                });
+
+            }
+
+
+            const configuracion =
+                leerConfiguracion();
+
+
+            const ruta =
+                "/uploads/card-watermark.svg";
+
+
+            /*
+                El archivo siempre utiliza
+                el mismo nombre:
+
+                card-watermark.svg
+
+                Por lo tanto el nuevo SVG
+                reemplaza al anterior.
+            */
+
+
+            configuracion.cardWatermark =
+                ruta;
+
+
+            guardarConfiguracion(
+                configuracion
+            );
+
+
+            return res.json({
+
+                ok:true,
+
+                cardWatermark:
+                    ruta
+
+            });
+
+
+        }catch(error){
+
+            console.error(
+                "Error subiendo marca de agua:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                ok:false,
+
+                error:error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+
+
+// =========================================================
+// ELIMINAR LOGO SVG DE MARCA DE AGUA
+// =========================================================
+
+app.post(
+    "/removeCardWatermark",
+    (req, res) => {
+
+        try{
+
+            const configuracion =
+                leerConfiguracion();
+
+
+            const ruta =
+                configuracion.cardWatermark;
+
+
+            if(ruta){
+
+                const archivo =
+                    path.join(
+                        __dirname,
+                        ruta
+                    );
+
+
+                if(
+                    fs.existsSync(
+                        archivo
+                    )
+                ){
+
+                    fs.unlinkSync(
+                        archivo
+                    );
+
+                }
+
+            }
+
+
+            configuracion.cardWatermark =
+                "";
+
+
+            guardarConfiguracion(
+                configuracion
+            );
+
+
+            res.json({
+
+                ok:true
+
+            });
+
+
+        }catch(error){
+
+            console.error(
+                "Error eliminando marca de agua:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok:false,
+
+                error:error.message
+
+            });
+
+        }
+
+    }
+);
 
 app.post("/removeCardImage",(req,res)=>{
 

@@ -531,15 +531,95 @@ accept="image/*">
 
 </div>
 
-            <label>
+<!--=========================================
+        GRADIENTE DE LA TARJETA
+=========================================-->
 
-                Color de tarjeta 
+<label>
+    Color de tarjeta
+</label>
 
-            </label><br>
 
-            <input
-                type="color"
-                id="cardColor">
+
+
+<div class="card-gradient-editor">
+
+    <div class="gradient-color-item">
+
+        <span>Color 1</span>
+
+        <input
+            type="color"
+            id="cardColor1"
+            value="#202020">
+
+    </div>
+
+
+    <div class="gradient-color-item">
+
+        <span>Color 2</span>
+
+        <input
+            type="color"
+            id="cardColor2"
+            value="#303030">
+
+    </div>
+
+
+    <div class="gradient-color-item">
+
+        <span>Color 3</span>
+
+        <input
+            type="color"
+            id="cardColor3"
+            value="#101010">
+
+    </div>
+
+</div>
+
+
+
+<!--====================================================
+        LOGO SVG PARA FONDO DE TARJETA
+====================================================-->
+
+<label>
+
+    Logo para el fondo de tarjeta
+
+</label>
+
+<input
+    type="file"
+    id="cardWatermarkLogo"
+    accept=".svg,image/svg+xml">
+
+
+<small class="watermark-help">
+
+    Selecciona un archivo SVG.
+    El logo se utilizará como marca de agua animada
+    sobre el fondo de la tarjeta.
+
+</small>
+
+
+<button
+    id="removeCardWatermark"
+    type="button">
+
+    <i class="fa-solid fa-eraser"></i>
+
+    Quitar logo
+
+</button>
+
+
+
 
             <label>
 

@@ -31,14 +31,14 @@
     "neumorphism": false,
     "admin": false,
     "background": "#000000",
-    "card": "#000000",
+    "card": "#ff0000",
     "button": "#000000",
     "border": "#858585",
     "shadow": "#616161",
     "iconColor": "#FFFFFF",
     "text": "#FFFFFF",
     "textSecondary": "#FFFFFF",
-    "cardImage": "/uploads/fondo-card-1786385273279.png",
+    "cardImage": "",
     "titleFont": "VerandahReverie_PERSONAL_USE_ONLY",
     "titleSize": 46,
     "subtitleSize": 22,
@@ -46,5 +46,9 @@
     "descriptionAlign": "justify",
     "descriptionTextColor": "#FFFFFF",
     "descriptionBackgroundColor": "rgba(0, 0, 0, 0.29)",
-    "linkTextColor": "#FFFFFF"
+    "linkTextColor": "#FF0000",
+    "cardColor1": "#ff0000",
+    "cardColor2": "#3300ff",
+    "cardColor3": "#00fbff",
+    "cardWatermark": "/uploads/card-watermark.svg"
 }
