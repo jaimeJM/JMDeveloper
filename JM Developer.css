@@ -265,29 +265,40 @@ body{
         TARJETA
 ==========================*/
 
+
 .card{
 
     width:680px;
     max-width:100%;
+
+    margin:0;
+
     border-radius:35px;
+
     padding:45px;
-     box-sizing:border-box;
+    padding-bottom:100px;
+
+    box-sizing:border-box;
+
+    min-height:100vh;
+
+    position:relative;
+
     overflow:hidden;
 
-   background-color:var(--card-color-1);
+    isolation:isolate;
 
-background-image:
-    var(--card-gradient),
-    linear-gradient(
-        to bottom,
-        rgba(255,255,255,.15) 0%,
-        rgba(255,255,255,.08) 45%,
-        rgba(255,255,255,0) 100%
-    ),
-    var(--card-image);
+    background-color:var(--card-color-1);
 
-
- 
+    background-image:
+        var(--card-gradient),
+        linear-gradient(
+            to bottom,
+            rgba(255,255,255,.15) 0%,
+            rgba(255,255,255,.08) 45%,
+            rgba(255,255,255,0) 100%
+        ),
+        var(--card-image);
 
     background-size:cover;
     background-position:center;
@@ -2465,25 +2476,12 @@ input[type="range"]::-moz-range-thumb{
         margin: 0;
     }
 
-     /* Card */
-.card{
 
-    width:100%;
-    max-width:100%;
-    margin:0;
-    border-radius:0;
 
-    min-height:100vh;
 
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
 
-    padding-bottom:100px;
 
-    box-sizing:border-box;
 
-}
 
 /* Footer sobre la imagen */
 .creator-footer{
@@ -3423,124 +3421,59 @@ MÓVIL
 
 
 /*====================================================
-        MARCA DE AGUA DE LA TARJETA
+    MARCA DE AGUA — PATRÓN ESCALONADO SVG
 ====================================================*/
 
-.card{
+.card-watermark-container{
 
-    position:relative;
+    position:absolute !important;
+
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+
+    width:100%;
+    height:100%;
 
     overflow:hidden;
 
-    isolation:isolate;
-
-}
-
-
-/*
-    Capa de marca de agua.
-    Se coloca detrás del contenido.
-*/
-
-
-/*====================================================
-        MARCA DE AGUA SVG
-        PATRÓN ESCALONADO
-====================================================*/
-
-.card::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:-40%;
+    pointer-events:none;
 
     z-index:0;
 
+    opacity:0.15;
+}
+
+/*====================================================
+    LOGOS INDIVIDUALES
+====================================================*/
+
+.card-watermark-item{
+
+    position:absolute;
+
+    width:65px;
+    height:65px;
+
+    object-fit:contain;
+
+    opacity:0.75;
+
     pointer-events:none;
-
-
-    /*
-        DOS CAPAS DEL MISMO SVG
-
-        Esto permite crear:
-
-              SVG
-              
-        SVG         SVG
-
-              SVG
-
-        SVG         SVG
-    */
-
-    background-image:
-
-        var(--card-watermark),
-
-        var(--card-watermark);
-
-
-    background-repeat:
-
-        repeat,
-
-        repeat;
-
-
-    /*
-        LOGO MÁS PEQUEÑO
-    */
-
-    background-size:
-
-        95px 95px,
-
-        95px 95px;
-
-
-    /*
-        SEGUNDA CAPA DESPLAZADA
-        PARA CREAR EL ESCALONADO
-    */
-
-    background-position:
-
-        0 0,
-
-        47.5px 47.5px;
-
-
-    opacity:
-        .08;
-
-
-    /*
-        INCLINACIÓN EXACTA
-        DE 20 GRADOS
-    */
 
     transform:
         rotate(20deg)
         scale(1.15);
 
-
-    transform-origin:
-        center;
-
-
     animation:
-
         cardWatermarkMove
-        22s
+        8s
         ease-in-out
         infinite;
 
+    will-change:transform;
 }
-
-
-
 
 /*
     Todo el contenido de la tarjeta
@@ -3557,68 +3490,102 @@ MÓVIL
 
 
 
-/*====================================================
-        ANIMACIÓN MARCA DE AGUA SVG
-====================================================*/
+/*====================================================*
+    ANIMACIÓN DE MOVIMIENTO
+*====================================================*/
 
 @keyframes cardWatermarkMove{
 
     0%{
 
-        background-position:
-
-            0 0,
-
-            47.5px 47.5px;
+        transform:
+            rotate(20deg)
+            translate3d(0,0,0)
+            scale(1.15);
 
     }
-
 
     25%{
 
-        background-position:
-
-            0 -80px,
-
-            47.5px -32.5px;
+        transform:
+            rotate(20deg)
+            translate3d(35px,-45px,0)
+            scale(1.18);
 
     }
-
 
     50%{
 
-        background-position:
-
-            80px -80px,
-
-            127.5px -32.5px;
+        transform:
+            rotate(20deg)
+            translate3d(-30px,-80px,0)
+            scale(1.15);
 
     }
-
 
     75%{
 
-        background-position:
-
-            -80px 80px,
-
-            -32.5px 127.5px;
+        transform:
+            rotate(20deg)
+            translate3d(45px,35px,0)
+            scale(1.18);
 
     }
 
-
     100%{
 
-        background-position:
-
-            0 0,
-
-            47.5px 47.5px;
+        transform:
+            rotate(20deg)
+            translate3d(0,0,0)
+            scale(1.15);
 
     }
 
 }
 
+/*====================================================*
+    MOVIMIENTO ESCALONADO
+*====================================================*/
+
+.card-watermark-item:nth-child(1){
+    animation-delay:0s;
+}
+
+.card-watermark-item:nth-child(2){
+    animation-delay:-1s;
+}
+
+.card-watermark-item:nth-child(3){
+    animation-delay:-2s;
+}
+
+.card-watermark-item:nth-child(4){
+    animation-delay:-3s;
+}
+
+.card-watermark-item:nth-child(5){
+    animation-delay:-4s;
+}
+
+.card-watermark-item:nth-child(6){
+    animation-delay:-5s;
+}
+
+.card-watermark-item:nth-child(7){
+    animation-delay:-6s;
+}
+
+.card-watermark-item:nth-child(8){
+    animation-delay:-7s;
+}
+
+.card-watermark-item:nth-child(9){
+    animation-delay:-2.5s;
+}
+
+.card-watermark-item:nth-child(10){
+    animation-delay:-4.5s;
+}
 
 
 

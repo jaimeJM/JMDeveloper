@@ -665,45 +665,28 @@ function actualizarGradienteTarjeta(){
         configuracion.card ||
         "#202020";
 
-
     const color2 =
         configuracion.cardColor2 ||
         "#303030";
-
 
     const color3 =
         configuracion.cardColor3 ||
         "#101010";
 
 
-    const gradiente =
-        `linear-gradient(
-            135deg,
-            ${color1} 0%,
-            ${color2} 50%,
-            ${color3} 100%
-        )`;
-
+    /*====================================================
+            GUARDAR VARIABLES CSS
+    ====================================================*/
 
     document.documentElement.style.setProperty(
         "--card-color-1",
         color1
     );
 
-    
-/*-----------------------------------------
-    APLICAR FONDO DE LA TARJETA
------------------------------------------*/
-
-aplicarFondoTarjeta();
-
-
-
     document.documentElement.style.setProperty(
         "--card-color-2",
         color2
     );
-
 
     document.documentElement.style.setProperty(
         "--card-color-3",
@@ -711,74 +694,10 @@ aplicarFondoTarjeta();
     );
 
 
-    document.documentElement.style.setProperty(
-        "--card-gradient",
-        gradiente
-    );
-
-
-    /*
-        Mantener compatibilidad con el
-        sistema anterior.
-    */
-
-    document.documentElement.style.setProperty(
-        "--card",
-        color1
-    );
-
-
-    /*
-        Si existe imagen de fondo,
-        mantenemos la imagen.
-    */
-
-    const card =
-        document.querySelector(".card");
-
-    if(!card){
-
-        return;
-
-    }
-
-
-}
-
-
-
-/*====================================================
-        APLICAR FONDO COMPLETO DE LA TARJETA
-====================================================*/
-
-function aplicarFondoTarjeta(){
-
-    const card =
-        document.querySelector(".card");
-
-
-    if(!card){
-
-        return;
-
-    }
-
-
-    const color1 =
-        configuracion.cardColor1 ||
-        configuracion.card ||
-        "#202020";
-
-
-    const color2 =
-        configuracion.cardColor2 ||
-        "#303030";
-
-
-    const color3 =
-        configuracion.cardColor3 ||
-        "#101010";
-
+    /*====================================================
+            GRADIENTE COMPLETO
+            SOLO SE UTILIZA SIN IMAGEN
+    ====================================================*/
 
     const gradiente =
         `linear-gradient(
@@ -788,15 +707,83 @@ function aplicarFondoTarjeta(){
             ${color3} 100%
         )`;
 
+    document.documentElement.style.setProperty(
+        "--card-gradient",
+        gradiente
+    );
 
-    /*
-        SIN IMAGEN
-    */
+
+    /* Compatibilidad con el sistema anterior */
+
+    document.documentElement.style.setProperty(
+        "--card",
+        color1
+    );
+
+
+    /*====================================================
+            APLICAR FONDO
+    ====================================================*/
+
+    aplicarFondoTarjeta();
+}
+
+
+/*====================================================
+        APLICAR FONDO DE LA TARJETA
+====================================================*/
+
+function aplicarFondoTarjeta(){
+
+    const card =
+        document.querySelector(".card");
+
+    if(!card){
+        return;
+    }
+
+
+    /*====================================================
+            COLORES DEL EDITOR
+    ====================================================*/
+
+    const color1 =
+        configuracion.cardColor1 ||
+        configuracion.card ||
+        "#202020";
+
+    const color2 =
+        configuracion.cardColor2 ||
+        "#303030";
+
+    const color3 =
+        configuracion.cardColor3 ||
+        "#101010";
+
+
+    /*====================================================
+            GRADIENTE COMPLETO
+            ESTE ES EL FONDO NORMAL
+    ====================================================*/
+
+    const gradienteCompleto =
+        `linear-gradient(
+            135deg,
+            ${color1} 0%,
+            ${color2} 50%,
+            ${color3} 100%
+        )`;
+
+
+    /*====================================================
+            SIN IMAGEN
+            → USAR LOS 3 COLORES
+    ====================================================*/
 
     if(!configuracion.cardImage){
 
         card.style.backgroundImage =
-            gradiente;
+            gradienteCompleto;
 
         card.style.backgroundSize =
             "cover";
@@ -808,45 +795,51 @@ function aplicarFondoTarjeta(){
             "no-repeat";
 
         return;
-
     }
 
 
-    /*
-        CON IMAGEN
-    */
+    /*====================================================
+            CON IMAGEN
+            → SOLAMENTE COLOR 1
+    ====================================================*/
+
+    const degradadoColor1 =
+        `linear-gradient(
+            to top,
+            ${color1} 0%,
+            ${color1} 20%,
+            rgba(0,0,0,0) 65%,
+            rgba(0,0,0,0) 100%
+        )`;
+
+
+    /*====================================================
+            IMAGEN
+    ====================================================*/
+
+    const imagen =
+        configuracion.cardImage;
+
+
+    /*====================================================
+            IMAGEN + DEGRADADO COLOR 1
+    ====================================================*/
 
     card.style.backgroundImage = `
-
-        ${gradiente},
-
-        linear-gradient(
-            to bottom,
-            rgba(255,255,255,0) 0%,
-            rgba(255,255,255,0) 45%,
-            rgba(0,0,0,.20) 100%
-        ),
-
-        url("${configuracion.cardImage}")
-
+        ${degradadoColor1},
+        url("${imagen}")
     `;
 
 
     card.style.backgroundSize =
-        "cover, cover, cover";
-
+        "cover, cover";
 
     card.style.backgroundPosition =
-        "center, center, center";
-
+        "center, center";
 
     card.style.backgroundRepeat =
-        "no-repeat";
-
+        "no-repeat, no-repeat";
 }
-
-
-
 
 /*====================================================
                 PASO 4
@@ -979,37 +972,6 @@ actualizarGradienteTarjeta();
 -----------------------------------------*/
 
 aplicarMarcaAguaTarjeta();
-
-
-
-
-
-
-
-
-   if(configuracion.cardImage){
-
-        document.documentElement.style.setProperty(
-            "--card-image",
-            `url("${configuracion.cardImage}")`
-        );
-
-        document.querySelector(".card").style.backgroundImage = `
-            linear-gradient(
-                to bottom,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,0) 45%,
-                var(--card) 100%
-            ),
-            url('${configuracion.cardImage}')
-        `;
-
-    }
-
-
-
-
-
 
     /* Botón */
 
@@ -5987,54 +5949,36 @@ backgroundImage.addEventListener(
             document.querySelector(".card");
 
 
-        if(card){
+if(card){
 
-            const color1 =
-                configuracion.cardColor1 ||
-                configuracion.card ||
-                "#202020";
+    const color1 =
+    configuracion.cardColor1 ||
+    configuracion.card ||
+    "#202020";
 
+const degradadoColor1 =
+    `linear-gradient(
+        to top,
+        ${color1} 0%,
+        ${color1} 20%,
+        rgba(0,0,0,0) 65%,
+        rgba(0,0,0,0) 100%
+    )`;
 
-            const color2 =
-                configuracion.cardColor2 ||
-                "#303030";
+card.style.backgroundImage = `
+    ${degradadoColor1},
+    url("${vistaPrevia}")
+`;
 
+card.style.backgroundSize =
+    "cover, cover";
 
-            const color3 =
-                configuracion.cardColor3 ||
-                "#101010";
+card.style.backgroundPosition =
+    "center, center";
 
-
-            const gradiente =
-                `linear-gradient(
-                    135deg,
-                    ${color1} 0%,
-                    ${color2} 50%,
-                    ${color3} 100%
-                )`;
-
-
-            card.style.backgroundImage = `
-
-                ${gradiente},
-
-                url("${vistaPrevia}")
-
-            `;
-
-
-            card.style.backgroundSize =
-                "cover, cover";
-
-
-            card.style.backgroundPosition =
-                "center, center";
-
-
-            card.style.backgroundRepeat =
-                "no-repeat";
-
-        }
+card.style.backgroundRepeat =
+    "no-repeat, no-repeat";
+}
 
     }
 );
@@ -6080,14 +6024,7 @@ document.getElementById("removeCardImage").onclick = async () => {
 actualizarGradienteTarjeta();
 
 
-/*=========================================
-    ELIMINAR IMAGEN CSS
-=========================================*/
 
-document.documentElement.style.setProperty(
-    "--card-image",
-    "none"
-);
 
 
 
@@ -6103,7 +6040,7 @@ document.documentElement.style.setProperty(
 
 
 /*====================================================
-        APLICAR MARCA DE AGUA
+        APLICAR MARCA DE AGUA SVG
 ====================================================*/
 
 function aplicarMarcaAguaTarjeta(){
@@ -6125,36 +6062,84 @@ function aplicarMarcaAguaTarjeta(){
         configuracion.cardWatermark;
 
 
-    if(!logo){
+    /*-----------------------------------------
+        NO EXISTE LOGO
+    -----------------------------------------*/
 
-        card.classList.remove(
-            "has-watermark"
+if(!logo){
+
+    card.classList.remove(
+        "has-watermark"
+    );
+
+    document.documentElement.style
+        .setProperty(
+            "--card-watermark",
+            "none"
         );
 
-        document.documentElement.style
-            .setProperty(
-                "--card-watermark",
-                "none"
-            );
 
-        return;
+    /*=========================================
+        LIMPIAR PATRÓN SVG
+    =========================================*/
+
+    const contenedor =
+        document.querySelector(
+            ".card-watermark-container"
+        );
+
+    if(contenedor){
+
+        contenedor.innerHTML = "";
 
     }
 
 
+    return;
+}
+
+
+    /*-----------------------------------------
+        EVITAR CACHE DEL SVG
+    -----------------------------------------*/
+
+    const logoActualizado =
+        logo +
+        "?v=" +
+        Date.now();
+
+
+    /*-----------------------------------------
+        APLICAR SVG
+    -----------------------------------------*/
+
     document.documentElement.style
         .setProperty(
-
             "--card-watermark",
-
-            `url("${logo}")`
-
+            `url("${logoActualizado}")`
         );
 
 
-    card.classList.add(
-        "has-watermark"
-    );
+    /*-----------------------------------------
+        ACTIVAR MARCA DE AGUA
+    -----------------------------------------*/
+
+   card.classList.add(
+    "has-watermark"
+);
+
+
+/*====================================================
+    CREAR PATRÓN ESCALONADO SVG
+====================================================*/
+
+crearPatronMarcaAgua();
+
+
+console.log(
+    "Marca de agua aplicada:",
+    logoActualizado
+);
 
 }
 
@@ -6281,6 +6266,39 @@ await guardarConfiguracionServidor();
 -----------------------------------------*/
 
 aplicarMarcaAguaTarjeta();
+
+
+/*-----------------------------------------
+    VERIFICAR QUE EL SVG RESPONDE
+-----------------------------------------*/
+
+const imagenPrueba =
+    new Image();
+
+imagenPrueba.onload = () => {
+
+    console.log(
+        "SVG cargado correctamente:",
+        resultado.cardWatermark
+    );
+
+};
+
+
+imagenPrueba.onerror = () => {
+
+    console.error(
+        "El SVG fue guardado pero el navegador no pudo cargarlo:",
+        resultado.cardWatermark
+    );
+
+};
+
+
+imagenPrueba.src =
+    resultado.cardWatermark +
+    "?v=" +
+    Date.now();
 
 
 
@@ -7856,3 +7874,193 @@ window.addEventListener("resize", () => {
 
 });
 
+
+/*====================================================*
+    CREAR PATRÓN ESCALONADO SVG
+*====================================================*/
+
+function crearPatronMarcaAgua(){
+
+    const contenedor =
+        document.querySelector(
+            ".card-watermark-container"
+        );
+
+    if(!contenedor){
+        return;
+    }
+
+    /*
+        Limpiar patrón anterior
+    */
+
+    contenedor.innerHTML = "";
+
+    /*
+        Si no existe SVG,
+        no crear nada.
+    */
+
+    if(!configuracion.cardWatermark){
+        return;
+    }
+
+    /*
+        TAMAÑO DEL SVG
+    */
+
+    const tamanoLogo = 65;
+
+    /*
+        DISTANCIA ENTRE LOGOS
+    */
+
+    const separacionX = 180;
+
+    const separacionY = 140;
+
+    /*
+        Área suficientemente grande
+    */
+
+    const ancho =
+        contenedor.offsetWidth ||
+        1000;
+
+    const alto =
+        contenedor.offsetHeight ||
+        1000;
+
+    /*
+        Cantidad de columnas
+    */
+
+    const columnas =
+        Math.ceil(
+            ancho / separacionX
+        ) + 4;
+
+    /*
+        Cantidad de filas
+    */
+
+    const filas =
+        Math.ceil(
+            alto / separacionY
+        ) + 4;
+
+    /*
+        Crear filas
+    */
+
+    for(
+        let fila = -2;
+        fila < filas;
+        fila++
+    ){
+
+        /*
+            ESCALONAMIENTO
+        */
+
+        const desplazamiento =
+            fila % 2 === 0
+                ? 0
+                : separacionX / 2;
+
+        for(
+            let columna = -2;
+            columna < columnas;
+            columna++
+        ){
+
+            const logo =
+                document.createElement(
+                    "img"
+                );
+
+            logo.className =
+                "card-watermark-item";
+
+            /*
+                ANIMACIÓN ESCALONADA
+            */
+
+            logo.style.animationDelay =
+                (
+                    (fila + columna) *
+                    -0.45
+                ) + "s";
+
+            /*
+                SVG
+            */
+
+            logo.src =
+                configuracion.cardWatermark;
+
+            /*
+                Posición horizontal
+            */
+
+            logo.style.left =
+                (
+                    columna *
+                    separacionX
+                    +
+                    desplazamiento
+                ) + "px";
+
+            /*
+                Posición vertical
+            */
+
+            logo.style.top =
+                (
+                    fila *
+                    separacionY
+                ) + "px";
+
+            /*
+                Tamaño
+            */
+
+            logo.style.width =
+                tamanoLogo + "px";
+
+            logo.style.height =
+                tamanoLogo + "px";
+
+            /*
+                Agregar al contenedor
+            */
+
+            contenedor.appendChild(
+                logo
+            );
+
+        }
+
+    }
+
+}
+
+
+/*====================================================
+    ACTUALIZAR PATRÓN AL CAMBIAR TAMAÑO
+====================================================*/
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if(
+            configuracion.cardWatermark
+        ){
+
+            crearPatronMarcaAgua();
+
+        }
+
+    }
+);
