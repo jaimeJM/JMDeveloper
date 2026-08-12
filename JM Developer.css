@@ -457,6 +457,10 @@ body{
 
 }
 
+/*==================================
+     GROSOR EFECTO GIRATORIO DEL LOGO
+==================================*/
+
 #box1::before{
 
     
@@ -465,7 +469,7 @@ body{
 
     position:absolute;
 
-    inset:-2px;
+    inset:-4px;
 
     border-radius:50%;
 
@@ -3131,7 +3135,7 @@ background:
     );
 
 border:
-    1px solid rgba(0,210,255,.35);
+    1px solid rgba(4, 255, 0, 0.35);
 
 box-shadow:
     0 20px 60px rgba(0,0,0,.55),
@@ -3383,9 +3387,9 @@ MÓVIL
 
     align-items:center;
 
-    gap:8px;
+    gap:4px;
 
-    padding:12px;
+    padding: 15px;
 
     border-radius:14px;
 
@@ -3402,7 +3406,7 @@ MÓVIL
 
     font-size:13px;
 
-    font-weight:600;
+    font-weight:100;
 
     color:#ffffff;
 
@@ -3411,9 +3415,9 @@ MÓVIL
 
 .gradient-color-item input[type="color"]{
 
-    width:55px;
+    width:47px;
 
-    height:55px;
+    height:47px;
 
     margin:0;
 
@@ -3632,4 +3636,78 @@ MÓVIL
 
     }
 
+}
+
+
+/*====================================================
+        BOTONES ELIMINAR IMAGEN DE FONDO Y LOGO SVG
+====================================================*/
+
+#removeCardImage,
+#removeCardWatermark{
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:10px 9px;
+
+    min-height:42px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    cursor:pointer;
+
+    font-size:10px;
+
+    font-weight:600;
+
+    color:#fff;
+
+    background:#dc3545;
+
+    box-shadow:
+        0 6px 14px rgba(0,0,0,.20);
+
+    transition:
+        transform .25s ease,
+        background .25s ease,
+        box-shadow .25s ease;
+}
+
+
+#removeCardImage:hover,
+#removeCardWatermark:hover{
+
+    background:#c62828;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.28);
+}
+
+
+#removeCardImage:active,
+#removeCardWatermark:active{
+
+    transform:
+        translateY(0)
+        scale(.97);
+}
+
+
+#removeCardImage i,
+#removeCardWatermark i{
+
+    color:#fff;
+
+    font-size:16px;
 }
