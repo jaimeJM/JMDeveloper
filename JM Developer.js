@@ -6532,6 +6532,35 @@ vincularEditorUniversal({
 });
 
 
+/*====================================================
+        ICONO → TEXTO AUTOMÁTICO
+====================================================*/
+
+const linkIcon = document.getElementById("linkIcon");
+const linkTitle = document.getElementById("linkTitle");
+
+if (linkIcon && linkTitle) {
+
+    linkIcon.addEventListener("change", () => {
+
+        const opcionSeleccionada =
+            linkIcon.options[linkIcon.selectedIndex];
+
+        if (!opcionSeleccionada) return;
+
+        const nombreIcono =
+            opcionSeleccionada.textContent.trim();
+
+        linkTitle.value = nombreIcono;
+
+    });
+
+}
+
+
+
+
+
     /*====================================================
                 EDITOR DE BOTONES
     ====================================================*/
@@ -6607,6 +6636,8 @@ linkTextColor.value =
 
                 document.getElementById("linkDescription").value =
                     botonSeleccionado.dataset.description || "";
+
+                    actualizarContadorDescripcionBoton();
 
                 /* NUEVA PESTAÑA */
 
@@ -7142,6 +7173,494 @@ configuracion.font ||
 }
 
 
+
+/*====================================================
+    ESTADÍSTICAS DE LA TARJETA
+====================================================*/
+
+const cardStats =
+    document.getElementById("cardStats");
+
+const cardViewsCounter =
+    document.getElementById("cardViewsCounter");
+
+const cardLikesCounter =
+    document.getElementById("cardLikesCounter");
+
+const cardLikeButton =
+    document.getElementById("cardLikeButton");
+
+const cardViewsIcon =
+    document.getElementById("cardViewsIcon");
+
+
+
+/*====================================================
+    CONTADOR DE VISUALIZACIONES
+====================================================*/
+
+function cargarVisualizaciones() {
+
+    if (!cardViewsCounter) return;
+
+    let visitas =
+        Number(
+            localStorage.getItem("cardViews")
+        ) || 0;
+
+    visitas++;
+
+    localStorage.setItem(
+        "cardViews",
+        visitas
+    );
+
+    cardViewsCounter.textContent =
+        visitas;
+
+}
+
+
+
+/*====================================================
+    ANIMACIÓN DEL OJO
+====================================================*/
+
+function animarOjo() {
+
+    if (!cardViewsIcon) return;
+
+    cardViewsIcon.classList.remove(
+        "card-eye-animation"
+    );
+
+    void cardViewsIcon.offsetWidth;
+
+    cardViewsIcon.classList.add(
+        "card-eye-animation"
+    );
+
+}
+
+
+cargarVisualizaciones();
+animarOjo();
+
+
+
+/*====================================================
+    CONTADOR DE LIKES
+====================================================*/
+
+function cargarLikes() {
+
+    if (!cardLikesCounter) return;
+
+    const likes =
+        Number(
+            localStorage.getItem("cardLikes")
+        ) || 0;
+
+    cardLikesCounter.textContent =
+        likes;
+
+}
+
+
+
+/*====================================================
+    VERIFICAR SI YA DIO LIKE
+====================================================*/
+
+function verificarLike() {
+
+    if (!cardLikeButton) return;
+
+    const yaDioLike =
+        localStorage.getItem(
+            "cardYaDioLike"
+        ) === "true";
+
+    if (yaDioLike) {
+
+        cardLikeButton.classList.add(
+            "liked"
+        );
+
+    }
+
+}
+
+cargarLikes();
+verificarLike();
+
+
+
+/*====================================================
+    DAR LIKE
+====================================================*/
+
+if (cardLikeButton) {
+
+    cardLikeButton.addEventListener(
+        "click",
+        () => {
+
+            const yaDioLike =
+                localStorage.getItem(
+                    "cardYaDioLike"
+                ) === "true";
+
+
+            if (yaDioLike) {
+
+                return;
+
+            }
+
+
+            let likes =
+                Number(
+                    localStorage.getItem(
+                        "cardLikes"
+                    )
+                ) || 0;
+
+
+            likes++;
+
+
+            localStorage.setItem(
+                "cardLikes",
+                likes
+            );
+
+
+            localStorage.setItem(
+                "cardYaDioLike",
+                "true"
+            );
+
+
+            cardLikesCounter.textContent =
+                likes;
+
+
+            cardLikeButton.classList.add(
+                "liked"
+            );
+
+        }
+    );
+
+}
+
+
+
+/*====================================================
+    ARRASTRAR ESTADÍSTICAS DE LA TARJETA
+====================================================*/
+
+function activarArrastreCardStats() {
+
+    if (!cardStats) return;
+
+
+    const card =
+        document.querySelector(".card");
+
+
+    if (!card) return;
+
+
+    let arrastrando = false;
+
+    let inicioX = 0;
+    let inicioY = 0;
+
+    let posicionInicialX = 0;
+    let posicionInicialY = 0;
+
+
+    function iniciarArrastre(e) {
+
+        /*
+            Solo el administrador puede moverlo.
+        */
+
+        if (
+            !document.body.classList.contains(
+                "admin-mode"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        arrastrando = true;
+
+        cardStats.classList.add(
+            "dragging"
+        );
+
+
+        const punto =
+            e.touches
+            ? e.touches[0]
+            : e;
+
+
+        const rect =
+            cardStats.getBoundingClientRect();
+
+        const cardRect =
+            card.getBoundingClientRect();
+
+
+        inicioX =
+            punto.clientX;
+
+        inicioY =
+            punto.clientY;
+
+
+        posicionInicialX =
+            rect.left -
+            cardRect.left;
+
+
+        posicionInicialY =
+            rect.top -
+            cardRect.top;
+
+
+        e.preventDefault();
+
+    }
+
+
+    function mover(e) {
+
+        if (!arrastrando) return;
+
+
+        const punto =
+            e.touches
+            ? e.touches[0]
+            : e;
+
+
+        const cardRect =
+            card.getBoundingClientRect();
+
+        const statsRect =
+            cardStats.getBoundingClientRect();
+
+
+        let nuevaX =
+            posicionInicialX +
+            (
+                punto.clientX -
+                inicioX
+            );
+
+
+        let nuevaY =
+            posicionInicialY +
+            (
+                punto.clientY -
+                inicioY
+            );
+
+
+        const maxX =
+            cardRect.width -
+            statsRect.width;
+
+
+        const maxY =
+            cardRect.height -
+            statsRect.height;
+
+
+        nuevaX =
+            Math.max(
+                0,
+                Math.min(
+                    nuevaX,
+                    maxX
+                )
+            );
+
+
+        nuevaY =
+            Math.max(
+                0,
+                Math.min(
+                    nuevaY,
+                    maxY
+                )
+            );
+
+
+        cardStats.style.left =
+            nuevaX + "px";
+
+
+        cardStats.style.top =
+            nuevaY + "px";
+
+
+        cardStats.style.transform =
+            "none";
+
+
+        e.preventDefault();
+
+    }
+
+
+    function terminarArrastre() {
+
+        if (!arrastrando) return;
+
+
+        arrastrando = false;
+
+
+        cardStats.classList.remove(
+            "dragging"
+        );
+
+
+        guardarPosicionCardStats();
+
+    }
+
+
+    cardStats.addEventListener(
+        "mousedown",
+        iniciarArrastre
+    );
+
+
+    document.addEventListener(
+        "mousemove",
+        mover
+    );
+
+
+    document.addEventListener(
+        "mouseup",
+        terminarArrastre
+    );
+
+
+    cardStats.addEventListener(
+        "touchstart",
+        iniciarArrastre,
+        {
+            passive: false
+        }
+    );
+
+
+    document.addEventListener(
+        "touchmove",
+        mover,
+        {
+            passive: false
+        }
+    );
+
+
+    document.addEventListener(
+        "touchend",
+        terminarArrastre
+    );
+
+}
+
+/*====================================================
+    GUARDAR POSICIÓN
+====================================================*/
+
+function guardarPosicionCardStats() {
+
+    if (!cardStats) return;
+
+
+    const posicion = {
+
+        left:
+            cardStats.offsetLeft,
+
+        top:
+            cardStats.offsetTop
+
+    };
+
+
+    localStorage.setItem(
+        "cardStatsPosition",
+        JSON.stringify(posicion)
+    );
+
+}
+
+
+/*====================================================
+    RESTAURAR POSICIÓN
+====================================================*/
+
+function restaurarPosicionCardStats() {
+
+    if (!cardStats) return;
+
+
+    const guardado =
+        localStorage.getItem(
+            "cardStatsPosition"
+        );
+
+
+    if (!guardado) return;
+
+
+    try {
+
+        const posicion =
+            JSON.parse(guardado);
+
+
+        cardStats.style.left =
+            posicion.left + "px";
+
+
+        cardStats.style.top =
+            posicion.top + "px";
+
+
+        cardStats.style.transform =
+            "none";
+
+
+    } catch(error) {
+
+        console.error(
+            "Error restaurando posición:",
+            error
+        );
+
+    }
+
+}
+
+activarArrastreCardStats();
+restaurarPosicionCardStats();
+
 /*====================================================
             GUARDAR BOTONES
 ====================================================*/
@@ -7333,19 +7852,40 @@ async function cargarBotones() {
     }
 
 }
+
+
     
+/*====================================================
+        CONTADOR DESCRIPCIÓN DEL BOTÓN
+====================================================*/
 
-const descripcion = document.getElementById("linkDescription");
+const linkDescription =
+    document.getElementById("linkDescription");
 
-const contador = document.getElementById("contadorDescripcion");
-
-descripcion.addEventListener("input",()=>{
-
-contador.innerHTML = descripcion.value.length+" / 30";
+const contadorDescripcionBoton =
+    document.getElementById("contadorDescripcion");
 
 
-});
+function actualizarContadorDescripcionBoton(){
 
+    if(!linkDescription || !contadorDescripcionBoton){
+        return;
+    }
+
+    contadorDescripcionBoton.textContent =
+        `${linkDescription.value.length} / 30`;
+
+}
+
+
+if(linkDescription){
+
+    linkDescription.addEventListener(
+        "input",
+        actualizarContadorDescripcionBoton
+    );
+
+}
 
 
 function cambiarTema(){

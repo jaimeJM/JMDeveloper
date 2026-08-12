@@ -1151,6 +1151,9 @@ padding:18px;
 
 
 
+
+
+
 /*====================================================
     SISTEMA DE CARGA DE IMÁGENES
 ====================================================*/
@@ -1253,7 +1256,7 @@ padding:18px;
 
     border-radius:10px !important;
 
-    background:#111 !important;
+    background:rgba(255,255,255,.08) !important;
 
     border:1px solid rgba(255,255,255,.25) !important;
 
@@ -1424,15 +1427,15 @@ padding:18px;
 
 .file-preview-box.preview-ampliada{
 
-    width:240px !important;
+    width:200px !important;
 
-    height:240px !important;
+    height:200px !important;
 
-    min-width:240px !important;
+    min-width:200px !important;
 
-    min-height:240px !important;
+    min-height:200px !important;
 
-    flex:0 0 240px !important;
+    flex:0 0 200px !important;
 
     z-index:20;
 
@@ -4053,7 +4056,322 @@ MÓVIL
 }
 
 
+/*====================================================
+    ESTADÍSTICAS DE LA TARJETA
+====================================================*/
+
+.card-stats {
+
+    position: absolute;
+
+    left: 50%;
+    top: 300px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+
+    z-index: 20;
+
+    cursor: grab;
+
+    user-select: none;
+
+    touch-action: none;
+
+    white-space: nowrap;
+
+}
+
+
+/*====================================================
+    ELEMENTOS
+====================================================*/
+
+.card-stat-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    border: none;
+
+    background: transparent;
+
+    padding: 4px 6px;
+
+    margin: 0;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    color: inherit;
+
+}
+
+
+/*====================================================
+    ICONOS
+====================================================*/
+
+.card-stat-item i {
+
+    font-size: 17px;
+
+    transition:
+        transform .25s ease,
+        color .25s ease;
+
+}
+
+
+/*====================================================
+    OJO
+====================================================*/
+
+#cardViewsIcon {
+
+    transform-origin: center;
+
+}
+
+
+/*====================================================
+    ANIMACIÓN APERTURA DEL OJO
+====================================================*/
+
+@keyframes cardEyeOpen {
+
+    0% {
+
+        transform:
+            scaleY(0.1)
+            scaleX(0.8);
+
+        opacity: 0;
+
+    }
+
+    40% {
+
+        transform:
+            scaleY(0.55)
+            scaleX(1);
+
+        opacity: .6;
+
+    }
+
+    70% {
+
+        transform:
+            scaleY(1.15)
+            scaleX(1.05);
+
+        opacity: 1;
+
+    }
+
+    100% {
+
+        transform:
+            scaleY(1)
+            scaleX(1);
+
+        opacity: 1;
+
+    }
+
+}
+
+
+/*====================================================
+    APLICAR ANIMACIÓN
+====================================================*/
+
+#cardViewsIcon.card-eye-animation {
+
+    animation:
+        cardEyeOpen .8s ease-out;
+
+}
+
+
+/*====================================================
+    BOTÓN LIKE
+====================================================*/
+
+#cardLikeButton {
+
+    cursor: pointer;
+
+}
+
+
+/*====================================================
+    LIKE ACTIVADO
+====================================================*/
+
+#cardLikeButton.liked {
+
+    color: #2196f3 !important;
+
+}
+
+
+#cardLikeButton.liked i {
+
+    color: #2196f3 !important;
+
+    transform: scale(1.15);
+
+}
+
+
+/*====================================================
+    EFECTO AL PRESIONAR LIKE
+====================================================*/
+
+#cardLikeButton:active {
+
+    transform: scale(.92);
+
+}
+
+
+/*====================================================
+    ARRASTRANDO
+====================================================*/
+
+.card-stats.dragging {
+
+    cursor: grabbing;
+
+    opacity: .85;
+
+}
+
+
+/*====================================================
+    RESPONSIVE
+====================================================*/
+
+@media (max-width: 600px) {
+
+    .card-stats {
+
+        gap: 12px;
+
+    }
+
+    .card-stat-item {
+
+        font-size: 14px;
+
+    }
+
+    .card-stat-item i {
+
+        font-size: 15px;
+
+    }
+
+}
 
 
 
+/*====================================================
+    ESTADÍSTICAS DE LA TARJETA
+====================================================*/
 
+#cardStats {
+
+    position:absolute !important;
+
+    left:50% !important;
+    top:230px !important;
+
+    transform:translateX(-50%) !important;
+
+    display:flex !important;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:18px;
+
+    width:max-content;
+
+    z-index:9999 !important;
+
+    color:#ffffff;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    visibility:visible !important;
+
+    opacity:1 !important;
+
+}
+
+
+/* ELEMENTOS */
+
+#cardStats .card-stat-item {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    border:none;
+
+    background:transparent;
+
+    color:inherit;
+
+    padding:5px;
+
+}
+
+
+/* BOTÓN LIKE */
+
+#cardLikeButton {
+
+    cursor:pointer;
+
+}
+
+
+/* ICONOS */
+
+#cardStats i {
+
+    font-size:18px;
+
+}
+
+
+/* LIKE AZUL */
+
+#cardLikeButton.liked,
+#cardLikeButton.liked i {
+
+    color:#2196f3 !important;
+
+}
