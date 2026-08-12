@@ -129,11 +129,24 @@ Jaime Martinez1
     id="logoURL"
     placeholder="URL de la imagen">
 
-<input style="color: white;"
-    type="file"
-    id="logoFile"
-    accept="image/*">
+<div class="file-upload-preview">
 
+    <label for="logoFile" class="file-camera-button">
+        <i class="fa-solid fa-camera"></i>
+    </label>
+
+    <input
+        type="file"
+        id="logoFile"
+        accept="image/*">
+
+    <div class="file-preview-box">
+        <img
+            id="logoFilePreview"
+            alt="Vista previa">
+    </div>
+
+</div>
 
 
       <br><br>
@@ -292,10 +305,31 @@ Jaime Martinez1
 
                 <label>Fuente personalizada del título</label>
 
-            <input
-                type="file"
-                id="fontFile"
-                accept=".ttf,.otf,.woff,.woff2">
+<div class="file-upload-preview file-upload-font">
+
+    <label
+        for="fontFile"
+        class="file-camera-button"
+        title="Seleccionar fuente">
+
+        <i class="fa-solid fa-camera"></i>
+
+    </label>
+
+    <input
+        type="file"
+        id="fontFile"
+        accept=".ttf,.otf,.woff,.woff2">
+
+    <div
+        id="fontFileName"
+        class="file-name-preview">
+
+        Ningún archivo
+
+    </div>
+
+</div>
 
                 <select id="titleFont">
 
@@ -517,12 +551,26 @@ placeholder="Máximo 30 caracteres">
                 type="color"
                 id="backgroundColor">
 
-                <label>Imagen de fondo</label>
+ <label>Imagen de fondo</label>
 
-<input
-type="file"
-id="backgroundImage"
-accept="image/*">
+<div class="file-upload-preview">
+
+    <label for="backgroundImage" class="file-camera-button">
+        <i class="fa-solid fa-camera"></i>
+    </label>
+
+    <input
+        type="file"
+        id="backgroundImage"
+        accept="image/*">
+
+    <div class="file-preview-box">
+        <img
+            id="backgroundImagePreview"
+            alt="Vista previa">
+    </div>
+
+</div>
 
 <div class="buttons">
 
@@ -598,10 +646,31 @@ accept="image/*">
 
 </label>
 
-<input
-    type="file"
-    id="cardWatermarkLogo"
-    accept=".svg,image/svg+xml">
+<div class="file-upload-preview">
+
+    <label
+        for="cardWatermarkLogo"
+        class="file-camera-button"
+        title="Seleccionar logo SVG">
+
+        <i class="fa-solid fa-camera"></i>
+
+    </label>
+
+    <input
+        type="file"
+        id="cardWatermarkLogo"
+        accept=".svg,image/svg+xml">
+
+    <div class="file-preview-box">
+
+        <img
+            id="cardWatermarkLogoPreview"
+            alt="Vista previa del logo SVG">
+
+    </div>
+
+</div>
 
 
 <small class="watermark-help">
@@ -620,7 +689,7 @@ accept="image/*">
     
 </button>
 &nbsp;&nbsp;
- <a style="color: white;" href="https://convertio.co/es/png-svg/"  target="_blank"> <i class="fa-solid fa-hand-point-right"></i>
+ <a style="color: white; font-size: 12px; " href="https://convertio.co/es/png-svg/"  target="_blank"> <i class="fa-solid fa-hand-point-right"></i>
         &nbsp;&nbsp; Cambia tu logo a SVG &nbsp;&nbsp;<i class="fa-solid fa-hand-point-left"></i></a>
 
 

@@ -3377,6 +3377,173 @@ function restaurarNeumorphism() {
 
 const logo = document.getElementById("logo");
 
+
+/*====================================================
+        VISTA PREVIA DE ARCHIVOS
+====================================================*/
+
+function activarVistaPreviaArchivo(
+    inputId,
+    previewId
+){
+
+    const input =
+        document.getElementById(inputId);
+
+    const preview =
+        document.getElementById(previewId);
+
+    if(!input || !preview){
+
+        return;
+
+    }
+
+    input.addEventListener(
+        "change",
+        (e)=>{
+
+            const archivo =
+                e.target.files[0];
+
+            if(!archivo){
+
+                preview.src = "";
+
+                preview.parentElement
+                    .classList.remove("has-image");
+
+                return;
+
+            }
+
+            if(!archivo.type.startsWith("image/")){
+
+                return;
+
+            }
+
+            const lector =
+                new FileReader();
+
+            lector.onload =
+                (evento)=>{
+
+                    preview.src =
+                        evento.target.result;
+
+                    preview.parentElement
+                        .classList.add(
+                            "has-image"
+                        );
+
+                };
+
+            lector.readAsDataURL(
+                archivo
+            );
+
+        }
+    );
+
+}
+
+
+/*====================================================
+        ACTIVAR VISTAS PREVIAS
+====================================================*/
+
+activarVistaPreviaArchivo(
+    "logoFile",
+    "logoFilePreview"
+);
+
+
+activarVistaPreviaArchivo(
+    "backgroundImage",
+    "backgroundImagePreview"
+);
+
+
+activarVistaPreviaArchivo(
+    "cardWatermarkLogo",
+    "cardWatermarkLogoPreview"
+);
+
+
+
+/*====================================================
+        AMPLIAR VISTA PREVIA AL HACER CLICK
+====================================================*/
+
+document.querySelectorAll(
+    ".file-preview-box"
+).forEach(preview => {
+
+    preview.addEventListener(
+        "click",
+        () => {
+
+            if(
+                !preview.classList.contains(
+                    "has-image"
+                )
+            ){
+
+                return;
+
+            }
+
+            preview.classList.toggle(
+                "preview-ampliada"
+            );
+
+        }
+    );
+
+});
+
+
+
+
+
+/*====================================================
+        MOSTRAR NOMBRE DE LA FUENTE
+====================================================*/
+
+const fontFile =
+    document.getElementById("fontFile");
+
+const fontFileName =
+    document.getElementById("fontFileName");
+
+
+if(fontFile && fontFileName){
+
+    fontFile.addEventListener(
+        "change",
+        (e)=>{
+
+            const archivo =
+                e.target.files[0];
+
+            if(!archivo){
+
+                fontFileName.textContent =
+                    "Ningún archivo";
+
+                return;
+
+            }
+
+            fontFileName.textContent =
+                archivo.name;
+
+        }
+    );
+
+}
+
 const favicon = document.getElementById("favicon");
 
 const logoSize = document.getElementById("logoSize");
@@ -3446,8 +3613,7 @@ const contadorDescripcion = document.getElementById("contadorDescripcion");
 
 profileDescription.addEventListener("input",()=>{
 
-    contadorDescripcion.textContent =
-        `${profileDescription.value.length} / 220`;
+    contadorDescripcion.textContent = `${profileDescription.value.length} / 220`;
 
 });
 
@@ -5665,7 +5831,7 @@ vincularEditorUniversal({
 });
 
 
-const fontFile = document.getElementById("fontFile");
+
 
 
 
@@ -7169,14 +7335,14 @@ async function cargarBotones() {
 }
     
 
-const descripcion=document.getElementById("linkDescription");
-const contador=document.getElementById("contadorDescripcion");
+const descripcion = document.getElementById("linkDescription");
+
+const contador = document.getElementById("contadorDescripcion");
 
 descripcion.addEventListener("input",()=>{
 
-contador.innerHTML=
+contador.innerHTML = descripcion.value.length+" / 30";
 
-descripcion.value.length+" / 30";
 
 });
 
@@ -8064,3 +8230,4 @@ window.addEventListener(
 
     }
 );
+
