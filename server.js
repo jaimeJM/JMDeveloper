@@ -1,9 +1,13 @@
 
+require("dotenv").config();
+
 const express = require("express");
 const session = require("express-session");
 const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
+const bcrypt = require("bcrypt");
+
 
 const FONT_FOLDER = "fonts";
 
@@ -296,17 +300,42 @@ app.use(express.urlencoded({
 
 app.use(session({
 
-    secret:"jmdeveloper",
+    secret: process.env.SESSION_SECRET,
 
-    resave:false,
+    resave: false,
 
-    saveUninitialized:false,
+    saveUninitialized: false,
 
-    cookie:{
-        maxAge:24*60*60*1000
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false
     }
 
 }));
+
+
+/*====================================================
+        PROTEGER RUTAS DEL ADMINISTRADOR
+====================================================*/
+
+function requireAdmin(req, res, next) {
+
+    if (req.session.admin !== true) {
+
+        return res.status(403).json({
+
+            ok: false,
+
+            error: "No autorizado."
+
+        });
+
+    }
+
+    next();
+}
 
 
 app.use(express.static(__dirname));
@@ -416,6 +445,7 @@ app.get("/config",(req,res)=>{
     );
 
 });
+
 
 
 app.post("/config",(req,res)=>{
@@ -1436,25 +1466,158 @@ app.post("/guardarLogo",(req,res)=>{
 
 
 
-app.post("/admin/login",(req,res)=>{
+/*====================================================
+        LOGIN DEL ADMINISTRADOR
+====================================================*/
 
-    req.session.admin=true;
+app.post("/admin/login", async (req, res) => {
 
-    res.json({
-        ok:true
+    
+
+    try {
+
+        const { usuario, password } = req.body;
+
+
+        if (
+            typeof usuario !== "string" ||
+            typeof password !== "string"
+        ) {
+
+            return res.status(400).json({
+
+                ok: false,
+
+                error: "Datos de acceso inválidos."
+
+            });
+
+        }
+
+
+        const usuarioCorrecto =
+            usuario.trim().toLowerCase() ===
+            String(process.env.ADMIN_USER)
+                .trim()
+                .toLowerCase();
+
+
+        if (!usuarioCorrecto) {
+
+            return res.status(401).json({
+
+                ok: false,
+
+                error: "Usuario o contraseña incorrectos."
+
+            });
+
+        }
+
+
+        const passwordCorrecta =
+            await bcrypt.compare(
+                password,
+                process.env.ADMIN_PASSWORD_HASH
+            );
+
+
+        if (!passwordCorrecta) {
+
+            return res.status(401).json({
+
+                ok: false,
+
+                error: "Usuario o contraseña incorrectos."
+
+            });
+
+        }
+
+
+        req.session.admin = true;
+
+        console.log(
+    "LOGIN ADMIN:",
+    req.session.admin
+);
+
+console.log(
+    "SESSION ID:",
+    req.sessionID
+);
+
+
+        res.json({
+
+            ok: true
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Error en login:",
+            error
+        );
+
+
+        res.status(500).json({
+
+            ok: false,
+
+            error: "Error interno del servidor."
+
+        });
+
+    }
+
+});
+
+
+
+
+/*====================================================
+        LOGOUT DEL ADMINISTRADOR
+====================================================*/
+
+app.post("/admin/logout", (req, res) => {
+
+    req.session.destroy(error => {
+
+        if (error) {
+
+            console.error(
+                "Error cerrando sesión:",
+                error
+            );
+
+            return res.status(500).json({
+
+                ok: false,
+
+                error: "No se pudo cerrar la sesión."
+
+            });
+
+        }
+
+
+        res.clearCookie("connect.sid");
+
+
+        res.json({
+
+            ok: true
+
+        });
+
     });
 
 });
 
-app.post("/admin/logout",(req,res)=>{
 
-    req.session.admin=false;
-
-    res.json({
-        ok:true
-    });
-
-});
 
 app.get("/admin/status",(req,res)=>{
 
@@ -1499,15 +1662,11 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Servidor iniciado en el puerto ${PORT}`);
+    console.log(
+        `Servidor iniciado en el puerto ${PORT}`
+    );
 });
 
-
-
-
-app.listen(3000,()=>{
-    console.log("Servidor iniciado en http://localhost:3000");
-});
 
 
 

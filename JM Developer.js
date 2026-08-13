@@ -8780,15 +8780,13 @@ function getDragAfterElement(container,y){
 
 }
 
+
+
 /*====================================
         ADMINISTRADOR
 =====================================*/
 
-const ADMIN_USER="jaime";
 
-/* SHA256 de 123456789 */
-
-const ADMIN_HASH="15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225";
 
 const adminModal=document.getElementById("adminModal");
 
@@ -8812,87 +8810,114 @@ adminModal.onclick=(e)=>{
 
 };
 
-async function sha256(text){
 
-    const msg=new TextEncoder().encode(text);
 
-    const hashBuffer=await crypto.subtle.digest("SHA-256",msg);
-
-    const hashArray=[...new Uint8Array(hashBuffer)];
-
-    return hashArray
-
-    .map(b=>b.toString(16).padStart(2,"0"))
-
-    .join("");
-
-}
+/*====================================
+     BOTON LOGIN
+=====================================*/
 
 document
-
 .getElementById("loginAdmin")
+.onclick = async () => {
 
-.onclick=async()=>{
+    const user =
+        document
+        .getElementById("adminUser")
+        .value
+        .trim();
 
-    const user=
+    const pass =
+        document
+        .getElementById("adminPass")
+        .value;
 
-    document
 
-    .getElementById("adminUser")
+    if (!user || !pass) {
 
-    .value
+        alert(
+            "Introduce usuario y contraseña."
+        );
 
-    .trim()
-
-    .toLowerCase();
-
-    const pass=
-
-    document
-
-    .getElementById("adminPass")
-
-    .value;
-
-    const hash=
-
-    await sha256(pass);
-
-    if(
-
-        user===ADMIN_USER
-
-        &&
-
-        hash===ADMIN_HASH
-
-    ){
-
-await fetch("/admin/login",{
-
-    method:"POST"
-
-});
-
-mostrarControles();
-
-        adminModal.style.display="none";
-
-        document.getElementById("adminUser").value="";
-
-        document.getElementById("adminPass").value="";
-
-        mostrarControles();
+        return;
 
     }
 
-    else{
 
-        alert("Usuario o contraseña incorrectos");
+    try {
+
+        const respuesta =
+            await fetch("/admin/login", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    usuario: user,
+
+                    password: pass
+
+                })
+
+            });
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (!respuesta.ok || !datos.ok) {
+
+            alert(
+                datos.error ||
+                "Usuario o contraseña incorrectos."
+            );
+
+            return;
+
+        }
+
+
+        adminModal.style.display =
+            "none";
+
+
+        document
+        .getElementById("adminUser")
+        .value = "";
+
+
+        document
+        .getElementById("adminPass")
+        .value = "";
+
+
+        mostrarControles();
+
+
+    } catch (error) {
+
+        console.error(
+            "Error iniciando sesión:",
+            error
+        );
+
+
+        alert(
+            "No se pudo conectar con el servidor."
+        );
 
     }
 
 };
+
+
+
+
 
 function mostrarControles(){
 
