@@ -451,7 +451,7 @@ body{
 
     overflow:visible;
 
-    transition:.3s;
+    transition:.1s;
 
     margin:20px auto;
 
@@ -478,7 +478,7 @@ body{
 
    background:var(--logo-gradient);
 
-    animation:logoRotate 3s linear infinite;
+    animation:logoRotate 6s linear infinite;
 
 }
 
@@ -4056,16 +4056,17 @@ MÓVIL
 }
 
 
+
+
 /*====================================================
     ESTADÍSTICAS DE LA TARJETA
 ====================================================*/
 
-.card-stats {
-
+#cardStats {
     position: absolute;
 
     left: 50%;
-    top: 300px;
+    top: 230px;
 
     transform: translateX(-50%);
 
@@ -4075,7 +4076,9 @@ MÓVIL
 
     gap: 18px;
 
-    z-index: 20;
+    width: max-content;
+
+    z-index: 9999;
 
     cursor: grab;
 
@@ -4085,6 +4088,14 @@ MÓVIL
 
     white-space: nowrap;
 
+   color: var(--card-stats-icon-color, #ffffff);
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    visibility: visible;
+    opacity: 1;
 }
 
 
@@ -4092,7 +4103,7 @@ MÓVIL
     ELEMENTOS
 ====================================================*/
 
-.card-stat-item {
+#cardStats .card-stat-item {
 
     display: flex;
 
@@ -4106,16 +4117,9 @@ MÓVIL
 
     background: transparent;
 
-    padding: 4px 6px;
-
-    margin: 0;
-
-    font-size: 16px;
-
-    font-weight: 600;
-
-    color: inherit;
-
+    color: var(--card-stats-icon-color, #ffffff);
+    
+    padding: 5px;
 }
 
 
@@ -4123,128 +4127,28 @@ MÓVIL
     ICONOS
 ====================================================*/
 
-.card-stat-item i {
-
-    font-size: 17px;
-
-    transition:
-        transform .25s ease,
-        color .25s ease;
-
+#cardStats i {
+    font-size: 18px;
 }
 
 
 /*====================================================
-    OJO
+    LIKE AZUL
 ====================================================*/
 
-#cardViewsIcon {
-
-    transform-origin: center;
-
-}
-
-
-/*====================================================
-    ANIMACIÓN APERTURA DEL OJO
-====================================================*/
-
-@keyframes cardEyeOpen {
-
-    0% {
-
-        transform:
-            scaleY(0.1)
-            scaleX(0.8);
-
-        opacity: 0;
-
-    }
-
-    40% {
-
-        transform:
-            scaleY(0.55)
-            scaleX(1);
-
-        opacity: .6;
-
-    }
-
-    70% {
-
-        transform:
-            scaleY(1.15)
-            scaleX(1.05);
-
-        opacity: 1;
-
-    }
-
-    100% {
-
-        transform:
-            scaleY(1)
-            scaleX(1);
-
-        opacity: 1;
-
-    }
-
-}
-
-
-/*====================================================
-    APLICAR ANIMACIÓN
-====================================================*/
-
-#cardViewsIcon.card-eye-animation {
-
-    animation:
-        cardEyeOpen .8s ease-out;
-
-}
-
-
-/*====================================================
-    BOTÓN LIKE
-====================================================*/
-
-#cardLikeButton {
-
-    cursor: pointer;
-
-}
-
-
-/*====================================================
-    LIKE ACTIVADO
-====================================================*/
-
-#cardLikeButton.liked {
-
-    color: #2196f3 !important;
-
-}
-
-
+#cardLikeButton.liked,
 #cardLikeButton.liked i {
 
     color: #2196f3 !important;
-
-    transform: scale(1.15);
-
 }
 
 
 /*====================================================
-    EFECTO AL PRESIONAR LIKE
+    PRESIONAR LIKE
 ====================================================*/
 
 #cardLikeButton:active {
-
     transform: scale(.92);
-
 }
 
 
@@ -4252,12 +4156,63 @@ MÓVIL
     ARRASTRANDO
 ====================================================*/
 
-.card-stats.dragging {
+#cardStats.dragging {
 
     cursor: grabbing;
 
     opacity: .85;
+}
 
+
+/*====================================================
+    ANIMACIÓN DEL OJO
+====================================================*/
+
+#cardViewsIcon {
+    transform-origin: center;
+}
+
+
+@keyframes cardEyeOpen {
+
+    0% {
+        transform:
+            scaleY(.1)
+            scaleX(.8);
+
+        opacity: 0;
+    }
+
+    40% {
+        transform:
+            scaleY(.55)
+            scaleX(1);
+
+        opacity: .6;
+    }
+
+    70% {
+        transform:
+            scaleY(1.15)
+            scaleX(1.05);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            scaleY(1)
+            scaleX(1);
+
+        opacity: 1;
+    }
+}
+
+
+#cardViewsIcon.card-eye-animation {
+
+    animation:
+        cardEyeOpen .8s ease-out;
 }
 
 
@@ -4267,111 +4222,78 @@ MÓVIL
 
 @media (max-width: 600px) {
 
-    .card-stats {
+    #cardStats {
 
         gap: 12px;
 
-    }
-
-    .card-stat-item {
-
         font-size: 14px;
-
     }
 
-    .card-stat-item i {
+    #cardStats i {
 
         font-size: 15px;
-
     }
-
 }
 
 
 
 /*====================================================
-    ESTADÍSTICAS DE LA TARJETA
+    COLOR AUTOMÁTICO DE CARDSTATS
 ====================================================*/
 
 #cardStats {
 
-    position:absolute !important;
+    --card-stats-icon-color: #ffffff;
 
-    left:50% !important;
-    top:230px !important;
-
-    transform:translateX(-50%) !important;
-
-    display:flex !important;
-
-    align-items:center;
-    justify-content:center;
-
-    gap:18px;
-
-    width:max-content;
-
-    z-index:9999 !important;
-
-    color:#ffffff;
-
-    font-size:18px;
-
-    font-weight:600;
-
-    visibility:visible !important;
-
-    opacity:1 !important;
-
+    color:
+        var(--card-stats-icon-color);
 }
 
 
-/* ELEMENTOS */
+/*====================================================
+    ELEMENTOS DE ESTADÍSTICAS
+====================================================*/
 
 #cardStats .card-stat-item {
 
-    display:flex;
+    color:
+        var(--card-stats-icon-color);
 
-    align-items:center;
-
-    justify-content:center;
-
-    gap:6px;
-
-    border:none;
-
-    background:transparent;
-
-    color:inherit;
-
-    padding:5px;
-
+    background:
+        transparent;
 }
 
 
-/* BOTÓN LIKE */
+/*====================================================
+    ICONOS
+====================================================*/
 
-#cardLikeButton {
+#cardStats .card-stat-item i {
 
-    cursor:pointer;
-
+    color:
+        var(--card-stats-icon-color);
 }
 
 
-/* ICONOS */
+/*====================================================
+    CONTADORES
+====================================================*/
 
-#cardStats i {
+#cardStats .card-stat-item span {
 
-    font-size:18px;
-
+    color:
+        var(--card-stats-icon-color);
 }
 
 
-/* LIKE AZUL */
+/*====================================================
+    LIKE ACTIVO
+====================================================*/
 
-#cardLikeButton.liked,
-#cardLikeButton.liked i {
+#cardStats #cardLikeButton.liked,
+#cardStats #cardLikeButton.liked i,
+#cardStats #cardLikeButton.liked span {
 
-    color:#2196f3 !important;
-
+    color:
+        #2196f3 !important;
 }

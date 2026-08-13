@@ -794,6 +794,12 @@ function aplicarFondoTarjeta(){
         card.style.backgroundRepeat =
             "no-repeat";
 
+
+    /*========================================
+        ACTUALIZAR COLOR DE ICONOS
+    ========================================*/
+
+            actualizarColorIconosCardStats();
         return;
     }
 
@@ -839,6 +845,12 @@ function aplicarFondoTarjeta(){
 
     card.style.backgroundRepeat =
         "no-repeat, no-repeat";
+
+/*========================================
+    ACTUALIZAR COLOR DE ICONOS
+========================================*/
+
+actualizarColorIconosCardStats();
 }
 
 /*====================================================
@@ -7165,12 +7177,44 @@ div.style.fontFamily =
 configuracion.font ||
 "'Segoe UI',sans-serif";
 
-
-
 // Mantener ocultos los controles si no es administrador
 
-
 }
+
+
+
+/*====================================================
+    IDENTIFICADOR DEL DISPOSITIVO
+====================================================*/
+
+function obtenerDeviceId() {
+
+    let deviceId =
+        localStorage.getItem(
+            "jmDeveloperDeviceId"
+        );
+
+
+    if (!deviceId) {
+
+        deviceId =
+            crypto.randomUUID();
+
+
+        localStorage.setItem(
+            "jmDeveloperDeviceId",
+            deviceId
+        );
+
+    }
+
+
+    return deviceId;
+}
+
+
+
+
 
 
 
@@ -7195,32 +7239,88 @@ const cardViewsIcon =
 
 
 
+
 /*====================================================
-    CONTADOR DE VISUALIZACIONES
+    REGISTRAR VISUALIZACIÓN
 ====================================================*/
 
-function cargarVisualizaciones() {
+async function cargarVisualizaciones() {
 
     if (!cardViewsCounter) return;
 
-    let visitas =
-        Number(
-            localStorage.getItem("cardViews")
-        ) || 0;
 
-    visitas++;
+    try {
 
-    localStorage.setItem(
-        "cardViews",
-        visitas
-    );
+        const deviceId =
+            obtenerDeviceId();
 
-    cardViewsCounter.textContent =
-        visitas;
+
+        const respuesta =
+            await fetch(
+                "/stats/view",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            deviceId
+                        })
+
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (
+            typeof datos.views === "number"
+        ) {
+
+            cardViewsCounter.textContent =
+                datos.views;
+
+        }
+
+
+        /*
+            Solo animamos cuando esta
+            visita realmente fue registrada.
+        */
+
+        if (datos.registrada) {
+
+            animarOjo();
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error registrando visualización:",
+            error
+        );
+
+    }
 
 }
-
-
 
 /*====================================================
     ANIMACIÓN DEL OJO
@@ -7244,131 +7344,242 @@ function animarOjo() {
 
 
 cargarVisualizaciones();
-animarOjo();
+cargarEstadoLike();
 
-
-
-/*====================================================
-    CONTADOR DE LIKES
-====================================================*/
-
-function cargarLikes() {
-
-    if (!cardLikesCounter) return;
-
-    const likes =
-        Number(
-            localStorage.getItem("cardLikes")
-        ) || 0;
-
-    cardLikesCounter.textContent =
-        likes;
-
-}
-
+actualizarColorIconosCardStats();
 
 
 /*====================================================
-    VERIFICAR SI YA DIO LIKE
+    CARGAR ESTADO DE LIKE
 ====================================================*/
 
-function verificarLike() {
+async function cargarEstadoLike() {
 
     if (!cardLikeButton) return;
 
-    const yaDioLike =
-        localStorage.getItem(
-            "cardYaDioLike"
-        ) === "true";
 
-    if (yaDioLike) {
+    try {
 
-        cardLikeButton.classList.add(
-            "liked"
+        const deviceId =
+            obtenerDeviceId();
+
+
+        const respuesta =
+            await fetch(
+                `/stats/like?deviceId=${encodeURIComponent(deviceId)}`,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (
+            typeof datos.likes === "number"
+        ) {
+
+            cardLikesCounter.textContent =
+                datos.likes;
+
+        }
+
+
+        if (datos.liked) {
+
+            cardLikeButton.classList.add(
+                "liked"
+            );
+
+        } else {
+
+            cardLikeButton.classList.remove(
+                "liked"
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando Like:",
+            error
         );
 
     }
 
 }
 
-cargarLikes();
-verificarLike();
-
-
-
 /*====================================================
-    DAR LIKE
+    TOGGLE LIKE
 ====================================================*/
 
-if (cardLikeButton) {
+async function cambiarLike() {
 
-    cardLikeButton.addEventListener(
-        "click",
-        () => {
-
-            const yaDioLike =
-                localStorage.getItem(
-                    "cardYaDioLike"
-                ) === "true";
+    if (!cardLikeButton) return;
 
 
-            if (yaDioLike) {
+    /*
+        Evitar doble clic mientras
+        esperamos al servidor.
+    */
 
-                return;
+    if (
+        cardLikeButton.dataset.procesando === "true"
+    ) {
 
-            }
+        return;
 
-
-            let likes =
-                Number(
-                    localStorage.getItem(
-                        "cardLikes"
-                    )
-                ) || 0;
-
-
-            likes++;
+    }
 
 
-            localStorage.setItem(
-                "cardLikes",
-                likes
+    cardLikeButton.dataset.procesando =
+        "true";
+
+
+    try {
+
+        const deviceId =
+            obtenerDeviceId();
+
+
+        const respuesta =
+            await fetch(
+                "/stats/like",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            deviceId
+                        })
+
+                }
             );
 
 
-            localStorage.setItem(
-                "cardYaDioLike",
-                "true"
+        if (!respuesta.ok) {
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
             );
 
+        }
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (
+            typeof datos.likes === "number"
+        ) {
 
             cardLikesCounter.textContent =
-                likes;
+                datos.likes;
 
+        }
+
+
+        /*
+            LIKE ACTIVADO
+        */
+
+        if (datos.liked) {
 
             cardLikeButton.classList.add(
                 "liked"
             );
 
         }
+
+        /*
+            LIKE QUITADO
+        */
+
+        else {
+
+            cardLikeButton.classList.remove(
+                "liked"
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cambiando Like:",
+            error
+        );
+
+    } finally {
+
+        cardLikeButton.dataset.procesando =
+            "false";
+
+    }
+
+}
+
+if (cardLikeButton) {
+
+    cardLikeButton.addEventListener(
+        "click",
+        cambiarLike
     );
 
 }
 
 
 
+
+
+
+
+
 /*====================================================
-    ARRASTRAR ESTADÍSTICAS DE LA TARJETA
+    PERMISO PARA MOVER CARDSTATS
 ====================================================*/
+
+let cardStatsAdminPuedeMover = false;
+
+
+/*====================================================
+    MOVER ESTADÍSTICAS DENTRO DE LA CARD
+====================================================*/
+
 
 function activarArrastreCardStats() {
 
-    if (!cardStats) return;
+    const stats =
+        document.getElementById("cardStats");
+
+    if (!stats) return;
 
 
     const card =
-        document.querySelector(".card");
-
+        stats.closest(".card");
 
     if (!card) return;
 
@@ -7382,41 +7593,46 @@ function activarArrastreCardStats() {
     let posicionInicialY = 0;
 
 
-    function iniciarArrastre(e) {
+    /*================================================
+        INICIAR
+    =================================================*/
 
-        /*
-            Solo el administrador puede moverlo.
-        */
+function iniciarArrastre(e) {
 
-        if (
-            !document.body.classList.contains(
-                "admin-mode"
-            )
-        ) {
+    /*
+        SOLO EL ADMINISTRADOR
+        PUEDE MOVER CARDSTATS
+    */
 
-            return;
-
-        }
+    if (!cardStatsAdminPuedeMover) {
+        return;
+    }
 
 
-        arrastrando = true;
+    /*
+        El Like siempre debe funcionar.
+        No debe iniciar el movimiento.
+    */
 
-        cardStats.classList.add(
-            "dragging"
-        );
+    if (
+        e.target.closest("#cardLikeButton")
+    ) {
+        return;
+    }   
 
 
         const punto =
             e.touches
-            ? e.touches[0]
-            : e;
+                ? e.touches[0]
+                : e;
 
-
-        const rect =
-            cardStats.getBoundingClientRect();
 
         const cardRect =
             card.getBoundingClientRect();
+
+
+        const statsRect =
+            stats.getBoundingClientRect();
 
 
         inicioX =
@@ -7426,20 +7642,58 @@ function activarArrastreCardStats() {
             punto.clientY;
 
 
+        /*
+            Convertimos la posición visual
+            a posición relativa a la card.
+        */
+
         posicionInicialX =
-            rect.left -
+            statsRect.left -
             cardRect.left;
 
 
         posicionInicialY =
-            rect.top -
+            statsRect.top -
             cardRect.top;
 
 
-        e.preventDefault();
+        /*
+            Desde este momento dejamos
+            de utilizar translateX(-50%).
+        */
 
+        stats.style.transform =
+            "none";
+
+
+        /*
+            Aplicamos directamente
+            la posición calculada.
+        */
+
+        stats.style.left =
+            posicionInicialX + "px";
+
+
+        stats.style.top =
+            posicionInicialY + "px";
+
+
+        arrastrando = true;
+
+
+        stats.classList.add(
+            "dragging"
+        );
+
+
+        e.preventDefault();
     }
 
+
+    /*================================================
+        MOVER
+    =================================================*/
 
     function mover(e) {
 
@@ -7448,15 +7702,16 @@ function activarArrastreCardStats() {
 
         const punto =
             e.touches
-            ? e.touches[0]
-            : e;
+                ? e.touches[0]
+                : e;
 
 
         const cardRect =
             card.getBoundingClientRect();
 
+
         const statsRect =
-            cardStats.getBoundingClientRect();
+            stats.getBoundingClientRect();
 
 
         let nuevaX =
@@ -7475,52 +7730,71 @@ function activarArrastreCardStats() {
             );
 
 
-        const maxX =
+        /*
+            Límites
+        */
+
+        const limiteIzquierdo =
+            0;
+
+
+        const limiteSuperior =
+            0;
+
+
+        const limiteDerecho =
             cardRect.width -
             statsRect.width;
 
 
-        const maxY =
+        const limiteInferior =
             cardRect.height -
             statsRect.height;
 
 
+        /*
+            Evitar salir de la card
+        */
+
         nuevaX =
             Math.max(
-                0,
+                limiteIzquierdo,
                 Math.min(
                     nuevaX,
-                    maxX
+                    limiteDerecho
                 )
             );
 
 
         nuevaY =
             Math.max(
-                0,
+                limiteSuperior,
                 Math.min(
                     nuevaY,
-                    maxY
+                    limiteInferior
                 )
             );
 
 
-        cardStats.style.left =
+        /*
+            Aplicar posición
+        */
+
+        stats.style.left =
             nuevaX + "px";
 
 
-        cardStats.style.top =
+        stats.style.top =
             nuevaY + "px";
 
 
-        cardStats.style.transform =
-            "none";
-
-
         e.preventDefault();
-
     }
 
+
+    /*================================================
+        TERMINAR
+    =================================================*/
 
     function terminarArrastre() {
 
@@ -7530,17 +7804,20 @@ function activarArrastreCardStats() {
         arrastrando = false;
 
 
-        cardStats.classList.remove(
+        stats.classList.remove(
             "dragging"
         );
 
 
         guardarPosicionCardStats();
-
     }
 
 
-    cardStats.addEventListener(
+    /*================================================
+        MOUSE
+    =================================================*/
+
+    stats.addEventListener(
         "mousedown",
         iniciarArrastre
     );
@@ -7558,7 +7835,11 @@ function activarArrastreCardStats() {
     );
 
 
-    cardStats.addEventListener(
+    /*================================================
+        TOUCH
+    =================================================*/
+
+    stats.addEventListener(
         "touchstart",
         iniciarArrastre,
         {
@@ -7580,74 +7861,139 @@ function activarArrastreCardStats() {
         "touchend",
         terminarArrastre
     );
-
 }
 
 /*====================================================
-    GUARDAR POSICIÓN
+    GUARDAR POSICIÓN DE CARDSTATS EN SERVIDOR
 ====================================================*/
 
-function guardarPosicionCardStats() {
+async function guardarPosicionCardStats() {
 
-    if (!cardStats) return;
+    const stats =
+        document.getElementById("cardStats");
+
+    if (!stats) return;
 
 
     const posicion = {
 
         left:
-            cardStats.offsetLeft,
+            Math.round(
+                stats.offsetLeft
+            ),
 
         top:
-            cardStats.offsetTop
+            Math.round(
+                stats.offsetTop
+            )
 
     };
 
 
-    localStorage.setItem(
-        "cardStatsPosition",
-        JSON.stringify(posicion)
-    );
+    try {
 
+        const respuesta =
+            await fetch(
+                "/card-stats/position",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            posicion
+                        )
+
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error guardando posición:",
+            error
+        );
+
+    }
 }
 
 
+
 /*====================================================
-    RESTAURAR POSICIÓN
+    RESTAURAR POSICIÓN DE CARDSTATS DESDE SERVIDOR
 ====================================================*/
 
-function restaurarPosicionCardStats() {
+async function restaurarPosicionCardStats() {
 
-    if (!cardStats) return;
+    const stats =
+        document.getElementById("cardStats");
 
-
-    const guardado =
-        localStorage.getItem(
-            "cardStatsPosition"
-        );
-
-
-    if (!guardado) return;
+    if (!stats) return;
 
 
     try {
 
+        const respuesta =
+            await fetch(
+                "/card-stats/position",
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
+
+
         const posicion =
-            JSON.parse(guardado);
+            await respuesta.json();
 
 
-        cardStats.style.left =
-            posicion.left + "px";
+        if (
+            !posicion ||
+            typeof posicion.left !== "number" ||
+            typeof posicion.top !== "number"
+        ) {
+
+            return;
+
+        }
 
 
-        cardStats.style.top =
-            posicion.top + "px";
-
-
-        cardStats.style.transform =
+        stats.style.transform =
             "none";
 
 
-    } catch(error) {
+        stats.style.left =
+            posicion.left + "px";
+
+
+        stats.style.top =
+            posicion.top + "px";
+
+
+    } catch (error) {
 
         console.error(
             "Error restaurando posición:",
@@ -7655,11 +8001,336 @@ function restaurarPosicionCardStats() {
         );
 
     }
-
 }
 
 activarArrastreCardStats();
 restaurarPosicionCardStats();
+
+
+
+
+/*====================================================
+    COLOR AUTOMÁTICO DE ICONOS CARDSTATS
+====================================================*/
+
+function actualizarColorIconosCardStats() {
+
+    const stats =
+        document.getElementById("cardStats");
+
+    if (!stats) {
+        return;
+    }
+
+
+    /*
+     * cardStats está directamente dentro de .card
+     */
+    const card =
+        stats.parentElement;
+
+    if (!card) {
+        return;
+    }
+
+
+    const estilo =
+        getComputedStyle(card);
+
+
+    const backgroundColor =
+        estilo.backgroundColor;
+
+    const backgroundImage =
+        estilo.backgroundImage;
+
+
+    let r = null;
+    let g = null;
+    let b = null;
+
+
+    /*================================================
+        1. BUSCAR COLORES EN EL GRADIENTE
+    =================================================*/
+
+    const colores =
+        backgroundImage.match(
+            /rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s]+[\d.]+)?\s*\)/g
+        );
+
+
+    if (
+        colores &&
+        colores.length > 0
+    ) {
+
+        let sumaR = 0;
+        let sumaG = 0;
+        let sumaB = 0;
+
+        let cantidad = 0;
+
+
+        colores.forEach(color => {
+
+            const rgb =
+                color.match(
+                    /rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/
+                );
+
+            if (!rgb) {
+                return;
+            }
+
+
+            sumaR += Number(rgb[1]);
+            sumaG += Number(rgb[2]);
+            sumaB += Number(rgb[3]);
+
+            cantidad++;
+
+        });
+
+
+        if (cantidad > 0) {
+
+            r = sumaR / cantidad;
+            g = sumaG / cantidad;
+            b = sumaB / cantidad;
+
+        }
+
+    }
+
+
+    /*================================================
+        2. SI NO HAY GRADIENTE → USAR COLOR
+    =================================================*/
+
+    if (
+        r === null ||
+        g === null ||
+        b === null
+    ) {
+
+        const rgb =
+            backgroundColor.match(
+                /rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/
+            );
+
+
+        if (rgb) {
+
+            r = Number(rgb[1]);
+            g = Number(rgb[2]);
+            b = Number(rgb[3]);
+
+        }
+
+    }
+
+
+    /*================================================
+        3. SI TODAVÍA NO HAY COLOR
+    =================================================*/
+
+    if (
+        r === null ||
+        g === null ||
+        b === null
+    ) {
+
+        return;
+
+    }
+
+
+    /*================================================
+        4. LUMINOSIDAD
+    =================================================*/
+
+    const luminosidad =
+        (
+            r * 299 +
+            g * 587 +
+            b * 114
+        ) / 1000;
+
+
+    /*================================================
+        5. COLOR FINAL
+    =================================================*/
+
+    const colorIconos =
+        luminosidad >= 150
+            ? "#000000"
+            : "#ffffff";
+
+
+    /*================================================
+        6. APLICAR
+    =================================================*/
+
+    stats.style.setProperty(
+        "--card-stats-icon-color",
+        colorIconos
+    );
+
+
+    console.log(
+        "CARDSTATS → fondo:",
+        backgroundColor
+    );
+
+    console.log(
+        "CARDSTATS → imagen:",
+        backgroundImage
+    );
+
+    console.log(
+        "CARDSTATS → RGB:",
+        Math.round(r),
+        Math.round(g),
+        Math.round(b)
+    );
+
+    console.log(
+        "CARDSTATS → luminosidad:",
+        Math.round(luminosidad)
+    );
+
+    console.log(
+        "CARDSTATS → iconos:",
+        colorIconos
+    );
+}
+
+
+function detectarColorFondoCardStats() {
+
+    const card =
+        document.querySelector(".card");
+
+    const stats =
+        document.getElementById("cardStats");
+
+
+    if (!card || !stats) {
+        return;
+    }
+
+
+    const rect =
+        stats.getBoundingClientRect();
+
+
+    /*
+        Tomamos el centro de cardStats.
+    */
+
+    const x =
+        rect.left +
+        rect.width / 2;
+
+
+    const y =
+        rect.top +
+        rect.height / 2;
+
+
+    /*
+        Ocultamos temporalmente cardStats
+        para poder consultar qué hay detrás.
+    */
+
+    const visibilidad =
+        stats.style.visibility;
+
+
+    stats.style.visibility =
+        "hidden";
+
+
+    const elementoDebajo =
+        document.elementFromPoint(
+            x,
+            y
+        );
+
+
+    stats.style.visibility =
+        visibilidad;
+
+
+    if (!elementoDebajo) {
+        return;
+    }
+
+
+    /*
+        Buscamos la tarjeta real.
+    */
+
+    const tarjeta =
+        elementoDebajo.closest(".card");
+
+
+    if (!tarjeta) {
+        return;
+    }
+
+
+    const estilo =
+        getComputedStyle(tarjeta);
+
+
+    /*
+        Si tenemos un color sólido,
+        lo utilizamos.
+    */
+
+    const rgb =
+        estilo.backgroundColor.match(
+            /rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/
+        );
+
+
+    if (!rgb) {
+        return;
+    }
+
+
+    const r =
+        Number(rgb[1]);
+
+    const g =
+        Number(rgb[2]);
+
+    const b =
+        Number(rgb[3]);
+
+
+    const luminosidad =
+        (
+            r * 299 +
+            g * 587 +
+            b * 114
+        ) / 1000;
+
+
+    const color =
+        luminosidad >= 150
+            ? "#000000"
+            : "#ffffff";
+
+
+    stats.style.setProperty(
+        "--card-stats-icon-color",
+        color
+    );
+}
+
 
 /*====================================================
             GUARDAR BOTONES
@@ -8240,6 +8911,14 @@ function mostrarControles(){
 
     activarDragDrop();
 
+      /*
+        HABILITAR MOVIMIENTO DE CARDSTATS
+        SOLO PARA ADMIN
+    */
+
+
+    cardStatsAdminPuedeMover = true;
+
 }
 
 
@@ -8255,6 +8934,12 @@ function ocultarControles(){
     document.querySelectorAll(".options").forEach(btn=>{
         btn.style.display="none";
     });
+
+     /*
+        BLOQUEAR MOVIMIENTO DE CARDSTATS
+    */
+
+    cardStatsAdminPuedeMover = false;
 
 }
 

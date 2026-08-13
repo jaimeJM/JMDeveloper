@@ -785,10 +785,617 @@ app.post("/botones", express.json(), (req, res) => {
 });
 
 
+/*====================================================
+    ESTADÍSTICAS
+====================================================*/
+
+const STATS_FILE =
+    "stats.json";
+
+
+function leerStats() {
+
+    if (
+        !fs.existsSync(STATS_FILE)
+    ) {
+
+        const inicial = {
+
+            views: 0,
+
+            likes: 0,
+
+            viewDevices: {},
+
+            likeDevices: {}
+
+        };
+
+
+        fs.writeFileSync(
+
+            STATS_FILE,
+
+            JSON.stringify(
+                inicial,
+                null,
+                2
+            ),
+
+            "utf8"
+
+        );
+
+
+        return inicial;
+    }
+
+
+    try {
+
+        const datos =
+            JSON.parse(
+                fs.readFileSync(
+                    STATS_FILE,
+                    "utf8"
+                )
+            );
+
+
+        return {
+
+            views:
+                Number(datos.views) || 0,
+
+            likes:
+                Number(datos.likes) || 0,
+
+            viewDevices:
+                datos.viewDevices || {},
+
+            likeDevices:
+                datos.likeDevices || {}
+
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "Error leyendo stats.json:",
+            error
+        );
+
+
+        return {
+
+            views: 0,
+
+            likes: 0,
+
+            viewDevices: {},
+
+            likeDevices: {}
+
+        };
+
+    }
+
+}
+
+
+function guardarStats(stats) {
+
+    fs.writeFileSync(
+
+        STATS_FILE,
+
+        JSON.stringify(
+            stats,
+            null,
+            2
+        ),
+
+        "utf8"
+
+    );
+
+}
+
+
+/*====================================================
+    REGISTRAR VISUALIZACIÓN
+    UNA VEZ POR DISPOSITIVO
+====================================================*/
+
+app.post(
+    "/stats/view",
+    express.json(),
+    (req, res) => {
+
+        try {
+
+            const deviceId =
+                String(
+                    req.body.deviceId || ""
+                ).trim();
+
+
+            if (!deviceId) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "deviceId requerido."
+
+                });
+
+            }
+
+
+            const stats =
+                leerStats();
+
+
+            /*
+                ¿Este dispositivo ya vio
+                la tarjeta?
+            */
+
+            if (
+                stats.viewDevices[deviceId]
+            ) {
+
+                return res.json({
+
+                    ok: true,
+
+                    registrada: false,
+
+                    views:
+                        stats.views
+
+                });
+
+            }
+
+
+            /*
+                Nueva visualización
+            */
+
+            stats.views++;
+
+
+            stats.viewDevices[deviceId] =
+                true;
+
+
+            guardarStats(stats);
+
+
+            res.json({
+
+                ok: true,
+
+                registrada: true,
+
+                views:
+                    stats.views
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error /stats/view:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
 
 
 
 
+/*====================================================
+    ESTADO DEL LIKE
+====================================================*/
+
+app.get(
+    "/stats/like",
+    (req, res) => {
+
+        try {
+
+            const deviceId =
+                String(
+                    req.query.deviceId || ""
+                ).trim();
+
+
+            if (!deviceId) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "deviceId requerido."
+
+                });
+
+            }
+
+
+            const stats =
+                leerStats();
+
+
+            const liked =
+                !!stats.likeDevices[
+                    deviceId
+                ];
+
+
+            res.json({
+
+                ok: true,
+
+                liked: liked,
+
+                likes:
+                    stats.likes
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error GET /stats/like:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+/*====================================================
+    LIKE / QUITAR LIKE
+====================================================*/
+
+app.post(
+    "/stats/like",
+    express.json(),
+    (req, res) => {
+
+        try {
+
+            const deviceId =
+                String(
+                    req.body.deviceId || ""
+                ).trim();
+
+
+            if (!deviceId) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "deviceId requerido."
+
+                });
+
+            }
+
+
+            const stats =
+                leerStats();
+
+
+            /*
+                SI YA DIO LIKE
+                → QUITAR LIKE
+            */
+
+            if (
+                stats.likeDevices[deviceId]
+            ) {
+
+                delete
+                    stats.likeDevices[
+                        deviceId
+                    ];
+
+
+                stats.likes =
+                    Math.max(
+                        0,
+                        stats.likes - 1
+                    );
+
+
+                guardarStats(stats);
+
+
+                return res.json({
+
+                    ok: true,
+
+                    liked: false,
+
+                    likes:
+                        stats.likes
+
+                });
+
+            }
+
+
+            /*
+                SI NO DIO LIKE
+                → AGREGAR LIKE
+            */
+
+            stats.likeDevices[deviceId] =
+                true;
+
+
+            stats.likes++;
+
+
+            guardarStats(stats);
+
+
+            res.json({
+
+                ok: true,
+
+                liked: true,
+
+                likes:
+                    stats.likes
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error POST /stats/like:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+/*====================================================
+    POSICIÓN DE CARDSTATS
+====================================================*/
+
+const CARD_STATS_POSITION_FILE =
+    "card-stats-position.json";
+
+
+/*====================================================
+    OBTENER POSICIÓN
+====================================================*/
+
+app.get(
+    "/card-stats/position",
+    (req, res) => {
+
+        try {
+
+            if (
+                !fs.existsSync(
+                    CARD_STATS_POSITION_FILE
+                )
+            ) {
+
+                return res.json({
+                    left: 0,
+                    top: 230
+                });
+
+            }
+
+
+            const datos =
+                JSON.parse(
+                    fs.readFileSync(
+                        CARD_STATS_POSITION_FILE,
+                        "utf8"
+                    )
+                );
+
+
+            res.json({
+
+                left:
+                    Number(datos.left) || 0,
+
+                top:
+                    Number(datos.top) || 230
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error obteniendo posición de cardStats:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/*====================================================
+    GUARDAR POSICIÓN
+====================================================*/
+
+app.post("/card-stats/position",
+    express.json(),
+    (req, res) => {
+
+if (req.session.admin !== true) {
+
+    return res.status(403).json({
+        ok: false,
+        error: "Solo el administrador puede mover cardStats."
+    });
+
+}
+
+
+
+        try {
+
+            let left =
+                Number(req.body.left);
+
+
+            let top =
+                Number(req.body.top);
+
+
+            if (!Number.isFinite(left)) {
+                left = 100;
+            }
+
+
+            if (!Number.isFinite(top)) {
+                top = 364;
+            }
+
+
+            /*
+                Evitar valores absurdos
+            */
+
+            left =
+                Math.max(
+                    0,
+                    Math.round(left)
+                );
+
+
+            top =
+                Math.max(
+                    0,
+                    Math.round(top)
+                );
+
+
+            const datos = {
+
+                left: left,
+
+                top: top
+
+            };
+
+
+            fs.writeFileSync(
+
+                CARD_STATS_POSITION_FILE,
+
+                JSON.stringify(
+                    datos,
+                    null,
+                    2
+                ),
+
+                "utf8"
+
+            );
+
+
+            res.json({
+
+                ok: true,
+
+                ...datos
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error guardando posición de cardStats:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
 
 
 
@@ -897,14 +1504,10 @@ app.listen(PORT, () => {
 
 
 
-app.listen(3000, "192.168.0.3", () => {
-    console.log("Servidor iniciado");
-});
 
-/*
 app.listen(3000,()=>{
     console.log("Servidor iniciado en http://localhost:3000");
-});*/
+});
 
 
 
