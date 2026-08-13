@@ -1474,8 +1474,6 @@ app.post("/guardarLogo",(req,res)=>{
 
 app.post("/admin/login", async (req, res) => {
 
-    
-
     try {
 
         const { usuario, password } = req.body;
@@ -1516,46 +1514,56 @@ app.post("/admin/login", async (req, res) => {
 
         }
 
-console.log("========== DIAGNOSTICO LOGIN ==========");
 
-console.log(
-    "usuario:",
-    usuario
-);
+        console.log(
+            "========== DIAGNOSTICO LOGIN =========="
+        );
 
-console.log(
-    "password existe:",
-    !!password
-);
+        console.log(
+            "usuario:",
+            usuario
+        );
 
-console.log(
-    "ADMIN_USER existe:",
-    !!process.env.ADMIN_USER
-);
+        console.log(
+            "password existe:",
+            !!password
+        );
 
-console.log(
-    "ADMIN_HASH existe:",
-    !!process.env.ADMIN_HASH
-);
+        console.log(
+            "ADMIN_USER existe:",
+            !!process.env.ADMIN_USER
+        );
 
-console.log(
-    "ADMIN_HASH longitud:",
-    process.env.ADMIN_HASH
-        ? process.env.ADMIN_HASH.length
-        : 0
-);
+        console.log(
+            "ADMIN_HASH existe:",
+            !!process.env.ADMIN_HASH
+        );
 
-console.log(
-    "SESSION_SECRET existe:",
-    !!process.env.SESSION_SECRET
-);
+        console.log(
+            "ADMIN_HASH longitud:",
+            process.env.ADMIN_HASH
+                ? process.env.ADMIN_HASH.length
+                : 0
+        );
 
-console.log("=======================================");
+        console.log(
+            "SESSION_SECRET existe:",
+            !!process.env.SESSION_SECRET
+        );
+
+        console.log(
+            "======================================="
+        );
+
+
+        /*====================================================
+                COMPROBAR CONTRASEÑA
+        ====================================================*/
 
         const passwordCorrecta =
             await bcrypt.compare(
                 password,
-                process.env.ADMIN_PASSWORD_HASH
+                process.env.ADMIN_HASH
             );
 
 
@@ -1565,24 +1573,30 @@ console.log("=======================================");
 
                 ok: false,
 
-                error: "Usuario o contraseña incorrectos."
+                error:
+                    "Usuario o contraseña incorrectos."
 
             });
 
         }
 
 
+        /*====================================================
+                CREAR SESIÓN ADMIN
+        ====================================================*/
+
         req.session.admin = true;
 
-        console.log(
-    "LOGIN ADMIN:",
-    req.session.admin
-);
 
-console.log(
-    "SESSION ID:",
-    req.sessionID
-);
+        console.log(
+            "LOGIN ADMIN:",
+            req.session.admin
+        );
+
+        console.log(
+            "SESSION ID:",
+            req.sessionID
+        );
 
 
         res.json({
@@ -1604,7 +1618,8 @@ console.log(
 
             ok: false,
 
-            error: "Error interno del servidor."
+            error:
+                "Error interno del servidor."
 
         });
 
