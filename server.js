@@ -298,6 +298,8 @@ app.use(express.urlencoded({
 
 }));
 
+
+
 app.use(session({
 
     secret: process.env.SESSION_SECRET,
@@ -310,7 +312,7 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "lax",
-        secure: true
+        secure: process.env.NODE_ENV === "production"
     }
 
 }));
@@ -1514,6 +1516,41 @@ app.post("/admin/login", async (req, res) => {
 
         }
 
+console.log("========== DIAGNOSTICO LOGIN ==========");
+
+console.log(
+    "usuario:",
+    usuario
+);
+
+console.log(
+    "password existe:",
+    !!password
+);
+
+console.log(
+    "ADMIN_USER existe:",
+    !!process.env.ADMIN_USER
+);
+
+console.log(
+    "ADMIN_HASH existe:",
+    !!process.env.ADMIN_HASH
+);
+
+console.log(
+    "ADMIN_HASH longitud:",
+    process.env.ADMIN_HASH
+        ? process.env.ADMIN_HASH.length
+        : 0
+);
+
+console.log(
+    "SESSION_SECRET existe:",
+    !!process.env.SESSION_SECRET
+);
+
+console.log("=======================================");
 
         const passwordCorrecta =
             await bcrypt.compare(
