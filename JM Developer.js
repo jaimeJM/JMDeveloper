@@ -8525,21 +8525,24 @@ async function cargarBotones() {
 }
 
 
-    
-/*====================================================
+ /*====================================================
         CONTADOR DESCRIPCIÓN DEL BOTÓN
+        MÁXIMO 30 CARACTERES
 ====================================================*/
 
 const linkDescription =
     document.getElementById("linkDescription");
 
 const contadorDescripcionBoton =
-    document.getElementById("contadorDescripcion");
+    document.getElementById("contadorDescripcionBoton");
 
 
-function actualizarContadorDescripcionBoton(){
+function actualizarContadorDescripcionBoton() {
 
-    if(!linkDescription || !contadorDescripcionBoton){
+    if (
+        !linkDescription ||
+        !contadorDescripcionBoton
+    ) {
         return;
     }
 
@@ -8549,7 +8552,7 @@ function actualizarContadorDescripcionBoton(){
 }
 
 
-if(linkDescription){
+if (linkDescription) {
 
     linkDescription.addEventListener(
         "input",

@@ -1,6 +1,32 @@
 
 require("dotenv").config();
 
+console.log("===== VARIABLES ADMIN =====");
+
+console.log(
+    "ADMIN_USER:",
+    process.env.ADMIN_USER ? "OK" : "FALTA"
+);
+
+console.log(
+    "ADMIN_HASH:",
+    process.env.ADMIN_HASH ? "OK" : "FALTA"
+);
+
+console.log(
+    "ADMIN_HASH LENGTH:",
+    process.env.ADMIN_HASH
+        ? process.env.ADMIN_HASH.length
+        : 0
+);
+
+console.log(
+    "SESSION_SECRET:",
+    process.env.SESSION_SECRET ? "OK" : "FALTA"
+);
+
+console.log("===========================");
+
 const express = require("express");
 const session = require("express-session");
 const fs = require("fs");
@@ -300,6 +326,18 @@ app.use(express.urlencoded({
 
 
 
+
+
+const esProduccion =
+    process.env.NODE_ENV === "production";
+
+
+app.set(
+    "trust proxy",
+    1
+);
+
+
 app.use(session({
 
     secret: process.env.SESSION_SECRET,
@@ -309,10 +347,16 @@ app.use(session({
     saveUninitialized: false,
 
     cookie: {
-        maxAge: 24 * 60 * 60 * 1000,
+
+        maxAge:
+            24 * 60 * 60 * 1000,
+
         httpOnly: true,
+
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
+
+        secure: esProduccion
+
     }
 
 }));
@@ -450,17 +494,25 @@ app.get("/config",(req,res)=>{
 
 
 
-app.post("/config",(req,res)=>{
+app.post(
+    "/config",
+    requireAdmin,
+    (req, res) => {
 
-    guardarConfiguracion(req.body);
+        guardarConfiguracion(req.body);
 
-    res.json({
-        ok:true
-    });
+        res.json({
+            ok: true
+        });
 
-});
+    }
+);
 
-app.post("/uploadLogo", upload.single("logo"), (req, res) => {
+app.post(
+    "/uploadLogo",
+    requireAdmin,
+    upload.single("logo"),
+    (req, res) => {
 
     if (!req.file) {
 
@@ -494,7 +546,11 @@ app.post("/uploadLogo", upload.single("logo"), (req, res) => {
 /*====================================================
             SUBIR FUENTE
 ====================================================*/
-app.post("/uploadFont", upload.single("font"), (req, res) => {
+app.post(
+    "/uploadFont",
+    requireAdmin,
+    upload.single("font"),
+    (req, res) => {
 
     try{
 
@@ -544,8 +600,11 @@ app.post("/uploadFont", upload.single("font"), (req, res) => {
 // =========================
 // SUBIR IMAGEN DE LA TARJETA
 // =========================
-app.post("/uploadCardImage", upload.single("cardImage"), (req, res) => {
-
+app.post(
+    "/uploadCardImage",
+    requireAdmin,
+    upload.single("cardImage"),
+    (req, res) => {
     try {
 
         console.log("===== SUBIENDO IMAGEN =====");
@@ -605,6 +664,7 @@ app.post("/uploadCardImage", upload.single("cardImage"), (req, res) => {
 
 app.post(
     "/uploadCardWatermark",
+    requireAdmin,
     upload.single("cardWatermark"),
     (req, res) => {
 
@@ -692,6 +752,7 @@ app.post(
 
 app.post(
     "/removeCardWatermark",
+    requireAdmin,
     (req, res) => {
 
         try{
@@ -765,21 +826,27 @@ app.post(
     }
 );
 
-app.post("/removeCardImage",(req,res)=>{
+app.post(
+    "/removeCardImage",
+    requireAdmin,
+    (req, res) => {
 
-    const configuracion = leerConfiguracion();
+        const configuracion = leerConfiguracion();
 
-    eliminarImagenAnterior(configuracion.cardImage);
+        eliminarImagenAnterior(
+            configuracion.cardImage
+        );
 
-    configuracion.cardImage = "";
+        configuracion.cardImage = "";
 
-    guardarConfiguracion(configuracion);
+        guardarConfiguracion(configuracion);
 
-    res.json({
-        ok:true
-    });
+        res.json({
+            ok: true
+        });
 
-});
+    }
+);
 
 
 
@@ -804,17 +871,19 @@ app.get("/botones", (req, res) => {
 
 });
 
-app.post("/botones", express.json(), (req, res) => {
+app.post(
+    "/botones",
+    requireAdmin,
+    (req, res) => {
 
-    guardarBotones(req.body);
+        guardarBotones(req.body);
 
-    res.json({
+        res.json({
+            ok: true
+        });
 
-        ok: true
-
-    });
-
-});
+    }
+);
 
 
 /*====================================================
@@ -1321,18 +1390,13 @@ app.get(
     GUARDAR POSICIÓN
 ====================================================*/
 
-app.post("/card-stats/position",
+app.post(
+    "/card-stats/position",
     express.json(),
+    requireAdmin,
     (req, res) => {
 
-if (req.session.admin !== true) {
 
-    return res.status(403).json({
-        ok: false,
-        error: "Solo el administrador puede mover cardStats."
-    });
-
-}
 
 
 
@@ -1433,36 +1497,42 @@ if (req.session.admin !== true) {
 
 
 
-app.post("/guardarLogo",(req,res)=>{
+app.post(
+    "/guardarLogo",
+    requireAdmin,
+    (req, res) => {
 
-    const {logo}=req.body;
+        const { logo } = req.body;
 
-    let html=fs.readFileSync(
-        "index.html",
-        "utf8"
-    );
+        let html =
+            fs.readFileSync(
+                "index.html",
+                "utf8"
+            );
 
-    // Cambiar imagen del logo
-    html=html.replace(
-        /<img\s+id="logo"[\s\S]*?src=".*?"/,
-        `<img id="logo" src="${logo}"`
-    );
+        html =
+            html.replace(
+                /<img\s+id="logo"[\s\S]*?src=".*?"/,
+                `<img id="logo" src="${logo}"`
+            );
 
-    // Cambiar favicon
-    html=html.replace(
-        /<link id="favicon".*?>/,
-        `<link id="favicon" rel="shortcut icon" href="${logo}" type="image/x-icon">`
-    );
+        html =
+            html.replace(
+                /<link id="favicon".*?>/,
+                `<link id="favicon" rel="shortcut icon" href="${logo}" type="image/x-icon">`
+            );
 
-    fs.writeFileSync(
-        "index.html",
-        html
-    );
+        fs.writeFileSync(
+            "index.html",
+            html
+        );
 
-    res.json({ok:true});
+        res.json({
+            ok: true
+        });
 
-});
-
+    }
+);
 
 
 
@@ -1515,46 +1585,6 @@ app.post("/admin/login", async (req, res) => {
         }
 
 
-        console.log(
-            "========== DIAGNOSTICO LOGIN =========="
-        );
-
-        console.log(
-            "usuario:",
-            usuario
-        );
-
-        console.log(
-            "password existe:",
-            !!password
-        );
-
-        console.log(
-            "ADMIN_USER existe:",
-            !!process.env.ADMIN_USER
-        );
-
-        console.log(
-            "ADMIN_HASH existe:",
-            !!process.env.ADMIN_HASH
-        );
-
-        console.log(
-            "ADMIN_HASH longitud:",
-            process.env.ADMIN_HASH
-                ? process.env.ADMIN_HASH.length
-                : 0
-        );
-
-        console.log(
-            "SESSION_SECRET existe:",
-            !!process.env.SESSION_SECRET
-        );
-
-        console.log(
-            "======================================="
-        );
-
 
         /*====================================================
                 COMPROBAR CONTRASEÑA
@@ -1587,16 +1617,6 @@ app.post("/admin/login", async (req, res) => {
 
         req.session.admin = true;
 
-
-        console.log(
-            "LOGIN ADMIN:",
-            req.session.admin
-        );
-
-        console.log(
-            "SESSION ID:",
-            req.sessionID
-        );
 
 
         res.json({
@@ -1634,41 +1654,39 @@ app.post("/admin/login", async (req, res) => {
         LOGOUT DEL ADMINISTRADOR
 ====================================================*/
 
-app.post("/admin/logout", (req, res) => {
+app.post(
+    "/admin/logout",
+    (req, res) => {
 
-    req.session.destroy(error => {
+        req.session.destroy((error) => {
 
-        if (error) {
+            if (error) {
 
-            console.error(
-                "Error cerrando sesión:",
-                error
+                console.error(
+                    "Error cerrando sesión:",
+                    error
+                );
+
+                return res.status(500).json({
+                    ok: false,
+                    error:
+                        "No se pudo cerrar la sesión."
+                });
+
+            }
+
+            res.clearCookie(
+                "connect.sid"
             );
 
-            return res.status(500).json({
-
-                ok: false,
-
-                error: "No se pudo cerrar la sesión."
-
+            res.json({
+                ok: true
             });
-
-        }
-
-
-        res.clearCookie("connect.sid");
-
-
-        res.json({
-
-            ok: true
 
         });
 
-    });
-
-});
-
+    }
+);
 
 
 app.get("/admin/status",(req,res)=>{
@@ -1680,6 +1698,8 @@ app.get("/admin/status",(req,res)=>{
     });
 
 });
+
+
 
 app.use((err, req, res, next) => {
 
