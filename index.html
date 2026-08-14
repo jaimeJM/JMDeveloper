@@ -86,14 +86,16 @@
         </div>
 
 
-
 <!--=========================================
     ESTADÍSTICAS DE LA TARJETA
 =========================================-->
 
 <div id="cardStats" class="card-stats">
 
-    <!-- VISUALIZACIONES -->
+    <!--=====================================
+        VISUALIZACIONES
+    ======================================-->
+
     <div class="card-stat-item card-views">
 
         <i
@@ -108,7 +110,10 @@
     </div>
 
 
-    <!-- LIKES -->
+    <!--=====================================
+        LIKES
+    ======================================-->
+
     <button
         type="button"
         id="cardLikeButton"
@@ -122,8 +127,42 @@
 
     </button>
 
-</div>
 
+    <!--=====================================
+        COMPARTIDOS
+    ======================================-->
+
+    <button
+        type="button"
+        id="cardShareButton"
+        class="card-stat-item card-shares"
+        title="Compartir">
+
+       <i class="fa-solid fa-share"></i>
+
+        <span id="cardSharesCounter">
+            0
+        </span>
+
+    </button>
+
+
+    <!--=====================================
+        CONFIGURACIÓN ADMINISTRADOR
+        SOLO ADMIN
+    ======================================-->
+
+    <button
+        type="button"
+        id="cardStatsAdminButton"
+        class="card-stat-item card-stats-admin admin-only"
+        title="Editar estadísticas">
+
+        <i class="fa-solid fa-sliders"></i>
+
+    </button>
+
+</div>
 
 
         <!-- Nombre -->
@@ -570,6 +609,134 @@ Jaime Martinez1
         <button class="closeModal closeX" title="Cerrar">
     <i class="fa-solid fa-xmark"></i>
 </button>
+
+    </div>
+
+</div>
+
+
+
+<!--=========================================
+    MODAL EDITOR DE ESTADÍSTICAS
+=========================================-->
+
+<div class="modal" id="cardStatsModal">
+
+    <div class="modal-content card-stats-editor-modal">
+
+        <h2>
+            <i class="fa-solid fa-chart-simple"></i>
+            Editor de estadísticas
+        </h2>
+
+
+        <p class="card-stats-editor-description">
+            Modifica manualmente los contadores de
+            visualizaciones, likes y compartidos.
+        </p>
+
+
+        <!--=====================================
+            VISUALIZACIONES
+        ======================================-->
+
+        <label for="adminViewsCounter">
+            <i class="fa-solid fa-eye"></i>
+            Visualizaciones
+        </label>
+
+        <input
+            type="number"
+            id="adminViewsCounter"
+            min="0"
+            max="1000000000"
+            step="1"
+            inputmode="numeric"
+            value="0">
+
+
+        <!--=====================================
+            LIKES
+        ======================================-->
+
+        <label for="adminLikesCounter">
+            <i class="fa-solid fa-thumbs-up"></i>
+            Likes
+        </label>
+
+        <input
+            type="number"
+            id="adminLikesCounter"
+            min="0"
+            max="1000000000"
+            step="1"
+            inputmode="numeric"
+            value="0">
+
+
+        <!--=====================================
+            COMPARTIDOS
+        ======================================-->
+
+        <label for="adminSharesCounter">
+            <i class="fa-solid fa-share-nodes"></i>
+            Compartidos
+        </label>
+
+        <input
+            type="number"
+            id="adminSharesCounter"
+            min="0"
+            max="1000000000"
+            step="1"
+            inputmode="numeric"
+            value="0">
+
+
+        <!--=====================================
+            BOTONES
+        ======================================-->
+
+        <div class="buttons">
+
+            <button
+                type="button"
+                class="btn-save"
+                id="saveCardStats">
+
+                <i class="fa-solid fa-floppy-disk"></i>
+
+                Guardar
+
+            </button>
+
+&nbsp;&nbsp;
+            <button
+                type="button"
+                class="btn-reset"
+                id="resetCardStats">
+
+                <i class="fa-solid fa-rotate-left"></i>
+
+                Reiniciar
+
+            </button>
+
+        </div>
+
+
+        <!--=====================================
+            CERRAR
+        ======================================-->
+
+        <button
+            type="button"
+            class="closeModal closeX"
+            title="Cerrar">
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
 
     </div>
 

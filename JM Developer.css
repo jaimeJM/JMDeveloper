@@ -4297,3 +4297,205 @@ MÓVIL
     color:
         #2196f3 !important;
 }
+
+
+
+/*====================================================
+    BOTÓN COMPARTIR
+====================================================*/
+
+#cardShareButton {
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        opacity .2s ease;
+
+}
+
+
+#cardShareButton:hover {
+
+    transform: scale(1.08);
+
+}
+
+
+#cardShareButton:active {
+
+    transform: scale(.92);
+
+}
+
+
+/*====================================================
+    ICONO ADMIN CARDSTATS
+====================================================*/
+
+#cardStatsAdminButton {
+
+    cursor: pointer;
+
+    padding: 5px;
+
+    transition:
+        transform .2s ease,
+        opacity .2s ease;
+
+}
+
+
+#cardStatsAdminButton:hover {
+
+    transform: rotate(25deg) scale(1.08);
+
+}
+
+
+#cardStatsAdminButton:active {
+
+    transform: scale(.92);
+
+}
+
+
+/*====================================================
+    MODAL EDITOR ESTADÍSTICAS
+====================================================*/
+
+.card-stats-editor-modal {
+
+    width: min(430px, 92vw);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+}
+
+
+.card-stats-editor-modal h2 {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.card-stats-editor-description {
+
+    margin:
+        8px 0 20px;
+
+    opacity: .8;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+}
+
+
+/*====================================================
+    LABELS
+====================================================*/
+
+.card-stats-editor-modal label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 14px;
+
+    margin-bottom: 6px;
+
+    font-weight: 600;
+
+}
+
+
+.card-stats-editor-modal label i {
+
+    width: 20px;
+
+}
+
+
+/*====================================================
+    INPUTS
+====================================================*/
+
+.card-stats-editor-modal input[type="number"] {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 11px 12px;
+
+    border-radius: 10px;
+
+    border: 1px solid rgba(255,255,255,.2);
+
+    outline: none;
+
+    font-size: 16px;
+
+}
+
+
+/*====================================================
+    BOTÓN REINICIAR
+====================================================*/
+
+#resetCardStats {
+
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 10px 15px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    background: #dc3545;
+
+    color: #fff;
+
+    transition:
+        transform .2s ease,
+        background .2s ease;
+
+}
+
+
+#resetCardStats:hover {
+
+    background: #c62828;
+
+    transform: translateY(-2px);
+
+}
+
+
+#resetCardStats:active {
+
+    transform: scale(.96);
+
+}
+
+
+#cardShareButton,
+#cardShareButton i {
+    transition: color .25s ease, transform .2s ease;
+}
+

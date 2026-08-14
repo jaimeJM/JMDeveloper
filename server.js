@@ -902,16 +902,19 @@ function leerStats() {
 
         const inicial = {
 
-            views: 0,
+    views: 0,
 
-            likes: 0,
+    likes: 0,
 
-            viewDevices: {},
+    shares: 0,
 
-            likeDevices: {}
+    viewDevices: {},
 
-        };
+    likeDevices: {},
 
+    shareDevices: {}
+
+};
 
         fs.writeFileSync(
 
@@ -943,21 +946,27 @@ function leerStats() {
             );
 
 
-        return {
+return {
 
-            views:
-                Number(datos.views) || 0,
+    views:
+        Number(datos.views) || 0,
 
-            likes:
-                Number(datos.likes) || 0,
+    likes:
+        Number(datos.likes) || 0,
 
-            viewDevices:
-                datos.viewDevices || {},
+    shares:
+        Number(datos.shares) || 0,
 
-            likeDevices:
-                datos.likeDevices || {}
+    viewDevices:
+        datos.viewDevices || {},
 
-        };
+    likeDevices:
+        datos.likeDevices || {},
+
+    shareDevices:
+        datos.shareDevices || {}
+
+};
 
 
     } catch (error) {
@@ -968,17 +977,21 @@ function leerStats() {
         );
 
 
-        return {
+ return {
 
-            views: 0,
+    views: 0,
 
-            likes: 0,
+    likes: 0,
 
-            viewDevices: {},
+    shares: 0,
 
-            likeDevices: {}
+    viewDevices: {},
 
-        };
+    likeDevices: {},
+
+    shareDevices: {}
+
+};
 
     }
 
@@ -1310,6 +1323,408 @@ app.post(
 
     }
 );
+
+
+
+
+/*====================================================
+    ESTADO DE COMPARTIDOS
+====================================================*/
+
+app.get(
+    "/stats/share",
+    (req, res) => {
+
+        try {
+
+            const deviceId =
+                String(
+                    req.query.deviceId || ""
+                ).trim();
+
+
+            if (!deviceId) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "deviceId requerido."
+
+                });
+
+            }
+
+
+            const stats =
+                leerStats();
+
+
+            const shared =
+                !!stats.shareDevices[
+                    deviceId
+                ];
+
+
+            res.json({
+
+                ok: true,
+
+                shared: shared,
+
+                shares:
+                    stats.shares
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error GET /stats/share:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/*====================================================
+    REGISTRAR COMPARTIDO
+    UNA SOLA VEZ POR DISPOSITIVO
+====================================================*/
+
+app.post(
+    "/stats/share",
+    express.json(),
+    (req, res) => {
+
+        try {
+
+            const deviceId =
+                String(
+                    req.body.deviceId || ""
+                ).trim();
+
+
+            if (!deviceId) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "deviceId requerido."
+
+                });
+
+            }
+
+
+            const stats =
+                leerStats();
+
+
+            /*
+                YA COMPARTIÓ
+                NO VOLVER A CONTAR
+            */
+
+            if (
+                stats.shareDevices[deviceId]
+            ) {
+
+                return res.json({
+
+                    ok: true,
+
+                    compartida: false,
+
+                    shares:
+                        stats.shares
+
+                });
+
+            }
+
+
+            /*
+                NUEVO COMPARTIDO
+            */
+
+            stats.shares++;
+
+
+            stats.shareDevices[deviceId] =
+                true;
+
+
+            guardarStats(stats);
+
+
+            res.json({
+
+                ok: true,
+
+                compartida: true,
+
+                shares:
+                    stats.shares
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error POST /stats/share:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/*====================================================
+    ADMINISTRAR ESTADÍSTICAS
+====================================================*/
+
+app.post(
+    "/admin/stats",
+    express.json(),
+    requireAdmin,
+    (req, res) => {
+
+        try {
+
+            let views =
+                Number(req.body.views);
+
+            let likes =
+                Number(req.body.likes);
+
+            let shares =
+                Number(req.body.shares);
+
+
+            /*
+                VALIDACIONES
+            */
+
+            if (
+                !Number.isInteger(views) ||
+                views < 0 ||
+                views > 1000000000
+            ) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "El número de visualizaciones no es válido."
+
+                });
+
+            }
+
+
+            if (
+                !Number.isInteger(likes) ||
+                likes < 0 ||
+                likes > 1000000000
+            ) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "El número de likes no es válido."
+
+                });
+
+            }
+
+
+            if (
+                !Number.isInteger(shares) ||
+                shares < 0 ||
+                shares > 1000000000
+            ) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "El número de compartidos no es válido."
+
+                });
+
+            }
+
+
+            const stats =
+                leerStats();
+
+
+            /*
+                ACTUALIZAR CONTADORES
+            */
+
+            stats.views =
+                views;
+
+            stats.likes =
+                likes;
+
+            stats.shares =
+                shares;
+
+
+            /*
+                IMPORTANTE:
+
+                Al modificar manualmente los
+                contadores reiniciamos los
+                dispositivos que ya registraron
+                estas acciones.
+
+                Así el nuevo número se convierte
+                en la nueva base.
+            */
+
+            stats.viewDevices = {};
+
+            stats.likeDevices = {};
+
+            stats.shareDevices = {};
+
+
+            guardarStats(stats);
+
+
+            res.json({
+
+                ok: true,
+
+                views:
+                    stats.views,
+
+                likes:
+                    stats.likes,
+
+                shares:
+                    stats.shares
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error administrando estadísticas:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    "No se pudieron guardar las estadísticas."
+
+            });
+
+        }
+
+    }
+);
+
+
+
+/*====================================================
+    OBTENER ESTADÍSTICAS PARA ADMIN
+====================================================*/
+
+app.get(
+    "/admin/stats",
+    requireAdmin,
+    (req, res) => {
+
+        try {
+
+            const stats =
+                leerStats();
+
+
+            res.json({
+
+                ok: true,
+
+                views:
+                    stats.views,
+
+                likes:
+                    stats.likes,
+
+                shares:
+                    stats.shares
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Error obteniendo estadísticas admin:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    "No se pudieron obtener las estadísticas."
+
+            });
+
+        }
+
+    }
+);
+
+
+
 
 /*====================================================
     POSICIÓN DE CARDSTATS

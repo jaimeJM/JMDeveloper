@@ -3556,6 +3556,39 @@ if(fontFile && fontFileName){
 
 }
 
+
+
+
+/*====================================================
+    EDITOR DE ESTADÍSTICAS
+====================================================*/
+
+const adminViewsCounter =
+    document.getElementById(
+        "adminViewsCounter"
+    );
+
+const adminLikesCounter =
+    document.getElementById(
+        "adminLikesCounter"
+    );
+
+const adminSharesCounter =
+    document.getElementById(
+        "adminSharesCounter"
+    );
+
+const saveCardStats =
+    document.getElementById(
+        "saveCardStats"
+    );
+
+const resetCardStats =
+    document.getElementById(
+        "resetCardStats"
+    );
+
+
 const favicon = document.getElementById("favicon");
 
 const logoSize = document.getElementById("logoSize");
@@ -3610,6 +3643,9 @@ const pageTitle = document.querySelector("title");
 const iconColor = document.getElementById("iconColor");
 
 const linkTextColor = document.getElementById("linkTextColor");
+
+
+
 
 
 
@@ -3745,6 +3781,10 @@ vincularEditorUniversal({
     }
 
 });
+
+
+
+
 
 
 
@@ -7240,6 +7280,21 @@ const cardViewsIcon =
 
 
 
+    const cardShareButton =
+    document.getElementById("cardShareButton");
+
+const cardSharesCounter =
+    document.getElementById("cardSharesCounter");
+
+const cardStatsAdminButton =
+    document.getElementById("cardStatsAdminButton");
+
+const cardStatsModal =
+    document.getElementById("cardStatsModal");
+
+
+
+
 /*====================================================
     REGISTRAR VISUALIZACIÓN
 ====================================================*/
@@ -7345,8 +7400,69 @@ function animarOjo() {
 
 cargarVisualizaciones();
 cargarEstadoLike();
-
+cargarEstadoShare();
 actualizarColorIconosCardStats();
+
+
+/*====================================================
+    CARGAR ESTADO DE COMPARTIDOS
+====================================================*/
+
+async function cargarEstadoShare() {
+
+    if (!cardShareButton) {
+        return;
+    }
+
+
+    try {
+
+        const deviceId =
+            obtenerDeviceId();
+
+
+        const respuesta =
+            await fetch(
+                `/stats/share?deviceId=${encodeURIComponent(deviceId)}`,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                `HTTP ${respuesta.status}`
+            );
+
+        }
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (
+            typeof datos.shares === "number"
+        ) {
+
+            cardSharesCounter.textContent =
+                datos.shares;
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando compartidos:",
+            error
+        );
+
+    }
+
+}
 
 
 /*====================================================
@@ -7551,9 +7667,240 @@ if (cardLikeButton) {
 
 }
 
+if (cardShareButton) {
+
+    cardShareButton.addEventListener(
+        "click",
+        compartirPagina
+    );
+
+}
 
 
 
+/*====================================================
+    COMPARTIR URL
+====================================================*/
+
+async function compartirPagina() {
+
+    if (!cardShareButton) {
+        return;
+    }
+
+
+    if (
+        cardShareButton.dataset.procesando === "true"
+    ) {
+
+        return;
+
+    }
+
+
+    cardShareButton.dataset.procesando =
+        "true";
+
+
+    try {
+
+        const url =
+            window.location.href;
+
+
+        const shareData = {
+
+            title:
+                document.title,
+
+            text:
+                "Mira este perfil:",
+
+            url:
+                url
+
+        };
+
+
+        /*
+            NAVEGADOR CON WEB SHARE
+        */
+
+        if (
+            navigator.share &&
+            (
+                !navigator.canShare ||
+                navigator.canShare(shareData)
+            )
+        ) {
+
+            await navigator.share(
+                shareData
+            );
+
+
+            await registrarCompartido();
+
+
+            return;
+
+        }
+
+
+        /*
+            FALLBACK:
+            COPIAR URL
+        */
+
+        if (
+            navigator.clipboard &&
+            window.isSecureContext
+        ) {
+
+            await navigator.clipboard.writeText(
+                url
+            );
+
+
+            await registrarCompartido();
+
+
+            mostrarNotificacionGuardado(
+                "Enlace copiado",
+                "El enlace se copió correctamente."
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+            NAVEGADORES MUY ANTIGUOS
+        */
+
+        const textarea =
+            document.createElement("textarea");
+
+        textarea.value =
+            url;
+
+        textarea.style.position =
+            "fixed";
+
+        textarea.style.opacity =
+            "0";
+
+        document.body.appendChild(
+            textarea
+        );
+
+        textarea.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        textarea.remove();
+
+
+        await registrarCompartido();
+
+
+        mostrarNotificacionGuardado(
+            "Enlace copiado",
+            "El enlace se copió correctamente."
+        );
+
+
+    } catch (error) {
+
+        /*
+            Si el usuario cancela el
+            diálogo de compartir NO contamos.
+        */
+
+        if (
+            error &&
+            error.name === "AbortError"
+        ) {
+
+            return;
+
+        }
+
+
+        console.error(
+            "Error compartiendo:",
+            error
+        );
+
+
+    } finally {
+
+        cardShareButton.dataset.procesando =
+            "false";
+
+    }
+
+}
+
+/*====================================================
+    REGISTRAR COMPARTIDO EN SERVIDOR
+====================================================*/
+
+async function registrarCompartido() {
+
+    const deviceId =
+        obtenerDeviceId();
+
+
+    const respuesta =
+        await fetch(
+            "/stats/share",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        deviceId
+                    })
+            }
+        );
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            `HTTP ${respuesta.status}`
+        );
+
+    }
+
+
+    const datos =
+        await respuesta.json();
+
+
+    if (
+        typeof datos.shares === "number"
+    ) {
+
+        cardSharesCounter.textContent =
+            datos.shares;
+
+    }
+
+
+    return datos;
+
+}
 
 
 
@@ -7609,16 +7956,19 @@ function iniciarArrastre(e) {
     }
 
 
-    /*
-        El Like siempre debe funcionar.
-        No debe iniciar el movimiento.
-    */
+ 
+/*
+    Los botones no deben iniciar
+    el movimiento de cardStats.
+*/
 
-    if (
-        e.target.closest("#cardLikeButton")
-    ) {
-        return;
-    }   
+if (
+    e.target.closest("button")
+) {
+
+    return;
+
+} 
 
 
         const punto =
@@ -9483,4 +9833,351 @@ window.addEventListener(
 
     }
 );
+
+
+
+
+
+
+/*====================================================
+    ABRIR EDITOR DE ESTADÍSTICAS
+====================================================*/
+
+if (cardStatsAdminButton) {
+
+    cardStatsAdminButton.onclick =
+        async () => {
+
+            try {
+
+                /*
+                    Verificar nuevamente
+                    que realmente sea admin.
+                */
+
+                const respuesta =
+                    await fetch(
+                        "/admin/status",
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                if (!datos.admin) {
+
+                    alert(
+                        "No autorizado."
+                    );
+
+                    return;
+
+                }
+
+
+
+
+                /*
+                    Necesitamos los tres
+                    contadores, así que usamos
+                    una ruta administrativa.
+                */
+
+                const stats =
+                    await obtenerEstadisticasAdmin();
+
+
+                adminViewsCounter.value =
+                    stats.views;
+
+                adminLikesCounter.value =
+                    stats.likes;
+
+                adminSharesCounter.value =
+                    stats.shares;
+
+
+                cerrarTodosLosModales();
+
+
+                cardStatsModal.style.display =
+                    "flex";
+
+
+                guardarEstadoModal(
+                    cardStatsModal
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error abriendo editor de estadísticas:",
+                    error
+                );
+
+                alert(
+                    "No se pudieron cargar las estadísticas."
+                );
+
+            }
+
+        };
+
+}
+
+
+/*====================================================
+    OBTENER ESTADÍSTICAS ADMIN
+====================================================*/
+
+async function obtenerEstadisticasAdmin() {
+
+    const respuesta =
+        await fetch(
+            "/admin/stats",
+            {
+                cache: "no-store"
+            }
+        );
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            `HTTP ${respuesta.status}`
+        );
+
+    }
+
+
+    const datos =
+        await respuesta.json();
+
+
+    if (!datos.ok) {
+
+        throw new Error(
+            datos.error ||
+            "No se pudieron obtener estadísticas."
+        );
+
+    }
+
+
+    return datos;
+
+}
+
+/*====================================================
+    GUARDAR ESTADÍSTICAS
+====================================================*/
+
+if (saveCardStats) {
+
+    saveCardStats.onclick =
+        async () => {
+
+            const views =
+                Number(
+                    adminViewsCounter.value
+                );
+
+            const likes =
+                Number(
+                    adminLikesCounter.value
+                );
+
+            const shares =
+                Number(
+                    adminSharesCounter.value
+                );
+
+
+            /*
+                VALIDACIONES
+            */
+
+            if (
+                !Number.isInteger(views) ||
+                views < 0 ||
+                views > 1000000000
+            ) {
+
+                alert(
+                    "Las visualizaciones deben ser un número entero entre 0 y 1,000,000,000."
+                );
+
+                adminViewsCounter.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !Number.isInteger(likes) ||
+                likes < 0 ||
+                likes > 1000000000
+            ) {
+
+                alert(
+                    "Los likes deben ser un número entero entre 0 y 1,000,000,000."
+                );
+
+                adminLikesCounter.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !Number.isInteger(shares) ||
+                shares < 0 ||
+                shares > 1000000000
+            ) {
+
+                alert(
+                    "Los compartidos deben ser un número entero entre 0 y 1,000,000,000."
+                );
+
+                adminSharesCounter.focus();
+
+                return;
+
+            }
+
+
+            try {
+
+                const respuesta =
+                    await fetch(
+                        "/admin/stats",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    views,
+                                    likes,
+                                    shares
+                                })
+                        }
+                    );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                if (
+                    !respuesta.ok ||
+                    !datos.ok
+                ) {
+
+                    throw new Error(
+                        datos.error ||
+                        "No se pudieron guardar las estadísticas."
+                    );
+
+                }
+
+
+                /*
+                    ACTUALIZAR PANTALLA
+                */
+
+                cardViewsCounter.textContent =
+                    datos.views;
+
+                cardLikesCounter.textContent =
+                    datos.likes;
+
+                cardSharesCounter.textContent =
+                    datos.shares;
+
+
+                /*
+                    NOTIFICACIÓN
+                */
+
+                mostrarNotificacionGuardado(
+                    "Estadísticas guardadas",
+                    "Los contadores se actualizaron correctamente."
+                );
+
+
+                /*
+                    CERRAR SIN ADVERTENCIA
+                */
+
+                cerrarModalDefinitivamente(
+                    cardStatsModal
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error guardando estadísticas:",
+                    error
+                );
+
+
+                alert(
+                    error.message ||
+                    "No se pudieron guardar las estadísticas."
+                );
+
+            }
+
+        };
+
+}
+
+
+/*====================================================
+    REINICIAR ESTADÍSTICAS
+====================================================*/
+
+if (resetCardStats) {
+
+    resetCardStats.onclick =
+        () => {
+
+            const confirmar =
+                confirm(
+                    "¿Seguro que deseas reiniciar las visualizaciones, likes y compartidos a 0?"
+                );
+
+
+            if (!confirmar) {
+
+                return;
+
+            }
+
+
+            adminViewsCounter.value =
+                0;
+
+            adminLikesCounter.value =
+                0;
+
+            adminSharesCounter.value =
+                0;
+
+        };
+
+}
 
