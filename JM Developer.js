@@ -8357,7 +8357,7 @@ function animarAplausos() {
 
 
         aplauso.innerHTML =
-            "👏";
+            "👏🏼";
 
 
         aplauso.style.left =
@@ -11150,7 +11150,7 @@ function animarPulgares() {
 
 
         pulgar.innerHTML =
-            "👍";
+            "👍🏼";
 
 
         /*=================================
