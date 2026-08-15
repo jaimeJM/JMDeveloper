@@ -710,7 +710,7 @@ Jaime Martinez1
 
             </button>
 
-&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;
             <button
                 type="button"
                 class="btn-reset"
@@ -988,6 +988,128 @@ Jaime Martinez1
     </a>
 
 </footer> 
+
+<!--====================================================
+    BOTÓN ADMINISTRADOR DE MÚSICA
+====================================================-->
+
+<button
+    id="btnMusicAdmin"
+    class="admin-only music-admin-button"
+    title="Configurar música">
+
+    <i class="fa-solid fa-music"></i>
+
+</button>
+
+
+<!--====================================================
+    MODAL DE MÚSICA
+====================================================-->
+
+<div
+    class="modal"
+    id="musicModal">
+
+    <div
+        class="modal-content music-editor-modal">
+
+        <h2>
+
+            <i class="fa-solid fa-music"></i>
+
+            Música del sitio
+
+        </h2>
+
+
+        <p>
+
+            Sube una canción MP3.
+            La nueva canción reemplazará
+            automáticamente a la anterior.
+
+        </p>
+
+
+        <!--=========================================
+            ARCHIVO MP3
+        =========================================-->
+
+        <label
+            for="musicFile">
+
+            Archivo MP3
+
+        </label>
+
+
+        <input
+            type="file"
+            id="musicFile"
+            accept=".mp3,audio/mpeg">
+
+
+        <div
+            id="musicFileName"
+            class="file-name-preview">
+
+            Ningún archivo seleccionado
+
+        </div>
+
+
+        <!--=========================================
+            ACTIVAR / DESACTIVAR
+        =========================================-->
+
+        <label
+            class="checkbox-label">
+
+            <input
+                type="checkbox"
+                id="musicEnabled">
+
+            Activar música del sitio
+
+        </label>
+
+
+        <!--=========================================
+            BOTONES
+        =========================================-->
+
+        <div class="buttons">
+
+            <button
+                type="button"
+                id="saveMusic"
+                class="btn-save">
+
+                <i
+                    class="fa-solid fa-floppy-disk">
+                </i>
+
+                Guardar
+
+            </button>
+
+        </div>
+
+
+        <button
+            class="closeModal closeX"
+            title="Cerrar">
+
+            <i
+                class="fa-solid fa-xmark">
+            </i>
+
+        </button>
+
+    </div>
+
+</div>
     
 
 <!--==========================
@@ -1236,6 +1358,43 @@ Jaime Martinez1
 </div>
 
 
+
+
+
+
+<!--====================================================
+    PARLANTES DE MÚSICA
+    SOLO APARECEN CUANDO LA MÚSICA SUENA
+====================================================-->
+
+<div
+    id="musicSpeakers"
+    class="music-speakers">
+
+    <div class="music-speaker music-speaker-left">
+
+        <i class="fa-solid fa-volume-high"></i>
+
+    </div>
+
+
+    <div class="music-speaker music-speaker-right">
+
+        <i class="fa-solid fa-volume-high"></i>
+
+    </div>
+
+</div>
+
+<!--====================================================
+    REPRODUCTOR DE MÚSICA
+====================================================-->
+
+<audio
+    id="siteMusic"
+    preload="auto">
+
+</audio>
 
 <!-- JavaScript -->
     <script src="JM Developer.js"></script>

@@ -50,5 +50,7 @@
     "cardColor1": "#000000",
     "cardColor2": "#00eeff",
     "cardColor3": "#2b23a4",
-    "cardWatermark": "/uploads/card-watermark.svg"
+    "cardWatermark": "/uploads/card-watermark.svg",
+    "musicUrl": "/uploads/site-music.mp3",
+    "musicEnabled": true
 }

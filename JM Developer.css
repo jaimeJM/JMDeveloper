@@ -4068,7 +4068,7 @@ MÓVIL
     left: 50%;
     top: 230px;
 
-    transform: translateX(-50%);
+   
 
     display: flex;
     align-items: center;
@@ -4499,3 +4499,425 @@ MÓVIL
     transition: color .25s ease, transform .2s ease;
 }
 
+/*====================================================
+    ANIMACIÓN PULGARES
+====================================================*/
+
+.like-float {
+
+    position: fixed;
+
+    bottom: -60px;
+
+    z-index: 99999;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    animation-name:
+        likeFloatUp;
+
+    animation-timing-function:
+        ease-out;
+
+    animation-fill-mode:
+        forwards;
+
+    filter:
+        drop-shadow(
+            0 4px 8px
+            rgba(0,0,0,.35)
+        );
+
+}
+
+
+/*====================================================
+    ANIMACIÓN APLAUSOS
+====================================================*/
+
+.share-float {
+
+    position: fixed;
+
+    bottom: -60px;
+
+    z-index: 99999;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    animation-name:
+        shareFloatUp;
+
+    animation-timing-function:
+        ease-out;
+
+    animation-fill-mode:
+        forwards;
+
+    filter:
+        drop-shadow(
+            0 4px 8px
+            rgba(0,0,0,.35)
+        );
+
+}
+
+
+/*====================================================
+    SUBIR PULGARES
+====================================================*/
+
+@keyframes likeFloatUp {
+
+    0% {
+
+        transform:
+            translateY(0)
+            scale(.5)
+            rotate(0deg);
+
+        opacity: 0;
+
+    }
+
+
+    15% {
+
+        opacity: 1;
+
+    }
+
+
+    70% {
+
+        opacity: 1;
+
+    }
+
+
+    100% {
+
+        transform:
+            translateY(-100vh)
+            scale(1.15)
+            rotate(
+                360deg
+            );
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/*====================================================
+    SUBIR APLAUSOS
+====================================================*/
+
+@keyframes shareFloatUp {
+
+    0% {
+
+        transform:
+            translateY(0)
+            scale(.5)
+            rotate(0deg);
+
+        opacity: 0;
+
+    }
+
+
+    15% {
+
+        opacity: 1;
+
+    }
+
+
+    70% {
+
+        opacity: 1;
+
+    }
+
+
+    100% {
+
+        transform:
+            translateY(-100vh)
+            scale(1.15)
+            rotate(
+                -360deg
+            );
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/*====================================================
+    COMPARTIR REALIZADO
+====================================================*/
+
+#cardShareButton.shared {
+
+    color: #FFD700 !important;
+
+    transition:
+        color .3s ease,
+        transform .3s ease;
+
+}
+
+
+#cardShareButton.shared i {
+
+    color: #FFD700 !important;
+
+}
+
+
+#cardShareButton.shared {
+
+    transform:
+        scale(1.12);
+
+}
+
+
+
+
+/*====================================================
+    BOTÓN ADMINISTRADOR DE MÚSICA
+====================================================*/
+
+.music-admin-button {
+
+    position: fixed;
+
+    left: 20px;
+
+    bottom: 20px;
+
+    width: 52px;
+
+    height: 52px;
+
+    border-radius: 50%;
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 9998;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 20px;
+
+}
+
+/*====================================================
+    MODAL MÚSICA
+====================================================*/
+
+.music-editor-modal {
+
+    width:
+        min(520px, 94vw);
+
+}
+
+
+/*====================================================
+    NOMBRE DEL MP3
+====================================================*/
+
+#musicFileName {
+
+    margin-top: 10px;
+
+    margin-bottom: 20px;
+
+    color: white;
+
+    text-align: center;
+
+    word-break: break-word;
+
+}
+
+
+/*====================================================
+    CHECKBOX MÚSICA
+====================================================*/
+
+.music-editor-modal
+.checkbox-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 20px;
+
+    color: white;
+
+}
+
+
+/*====================================================
+    PARLANTES
+====================================================*/
+
+.music-speakers {
+
+    position: fixed;
+
+    top: 15px;
+
+    left: 0;
+
+    width: 100%;
+
+    z-index: 99997;
+
+    pointer-events: none;
+
+    display: none;
+
+}
+
+
+/*====================================================
+    PARLANTE INDIVIDUAL
+====================================================*/
+
+.music-speaker {
+
+    position: fixed;
+
+    top: 15px;
+
+    width: 46px;
+
+    height: 46px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 21px;
+
+    color: white;
+
+    animation:
+        speakerPulse
+        1s ease-in-out infinite;
+
+}
+
+
+/* IZQUIERDA */
+
+.music-speaker-left {
+
+    left: 15px;
+
+}
+
+
+/* DERECHA */
+
+.music-speaker-right {
+
+    right: 15px;
+    transform: scaleX(-1);
+    animation:
+        musicSpeakerPulseRight
+        1s ease-in-out infinite;
+
+}
+
+
+@keyframes musicSpeakerPulseRight {
+
+    0% {
+        transform: scaleX(-1) scale(1);
+    }
+
+    50% {
+        transform: scaleX(-1) scale(1.15);
+    }
+
+    100% {
+        transform: scaleX(-1) scale(1);
+    }
+}
+
+
+
+
+/*====================================================
+    PARPADEO
+====================================================*/
+
+@keyframes speakerPulse {
+
+    0% {
+
+        opacity: .35;
+
+        transform:
+            scale(.85);
+
+    }
+
+    50% {
+
+        opacity: 1;
+
+        transform:
+            scale(1.12);
+
+    }
+
+    100% {
+
+        opacity: .35;
+
+        transform:
+            scale(.85);
+
+    }
+
+}
+
+
+/*====================================================
+    MÚSICA ACTIVA
+====================================================*/
+
+.music-speakers.music-playing {
+
+    display: block;
+
+}

@@ -43,6 +43,18 @@ const CONFIG_FILE = "config.json";
 // Crear carpeta uploads automáticamente
 const uploadsDir = path.join(__dirname, "uploads");
 
+/*====================================================
+    ARCHIVO DE MÚSICA DEL SITIO
+====================================================*/
+
+const MUSIC_FILE =
+    path.join(
+        uploadsDir,
+        "site-music.mp3"
+    );
+
+
+
 if (!fs.existsSync(uploadsDir)) {
 
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -187,6 +199,98 @@ const upload = multer({
     }
 
 });
+
+
+/*====================================================
+    STORAGE PARA MÚSICA
+    SIEMPRE USA UN ARCHIVO TEMPORAL
+====================================================*/
+
+const musicStorage =
+    multer.diskStorage({
+
+        destination:
+            function(
+                req,
+                file,
+                cb
+            ){
+
+                cb(
+                    null,
+                    uploadsDir
+                );
+
+            },
+
+
+        filename:
+            function(
+                req,
+                file,
+                cb
+            ){
+
+                cb(
+                    null,
+                    "music-temp-" +
+                    Date.now() +
+                    ".mp3"
+                );
+
+            }
+
+    });
+
+
+const uploadMusic =
+    multer({
+
+        storage:
+            musicStorage,
+
+        limits: {
+
+            fileSize:
+                15 * 1024 * 1024
+
+        },
+
+        fileFilter:
+            function(
+                req,
+                file,
+                cb
+            ){
+
+                const extension =
+                    path.extname(
+                        file.originalname
+                    ).toLowerCase();
+
+
+                if (
+                    extension === ".mp3"
+                ){
+
+                    cb(
+                        null,
+                        true
+                    );
+
+                }else{
+
+                    cb(
+                        new Error(
+                            "Solo se permiten archivos MP3."
+                        )
+                    );
+
+                }
+
+            }
+
+    });
 
 
 
@@ -848,6 +952,263 @@ app.post(
     }
 );
 
+
+
+/*====================================================
+    SUBIR / REEMPLAZAR MÚSICA
+====================================================*/
+
+app.post(
+    "/uploadMusic",
+
+    requireAdmin,
+
+    uploadMusic.single("music"),
+
+    (req, res) => {
+
+        try {
+
+            if (!req.file) {
+
+                return res.status(400).json({
+
+                    ok: false,
+
+                    error:
+                        "No se recibió ningún archivo MP3."
+
+                });
+
+            }
+
+
+            /*=========================================
+                ELIMINAR MÚSICA ANTERIOR
+            =========================================*/
+
+            if (
+                fs.existsSync(
+                    MUSIC_FILE
+                )
+            ) {
+
+                fs.unlinkSync(
+                    MUSIC_FILE
+                );
+
+            }
+
+
+            /*=========================================
+                RENOMBRAR TEMPORAL
+                A ARCHIVO DEFINITIVO
+            =========================================*/
+
+            fs.renameSync(
+
+                req.file.path,
+
+                MUSIC_FILE
+
+            );
+
+
+            /*=========================================
+                ACTUALIZAR CONFIGURACIÓN
+            =========================================*/
+
+            const configuracion =
+                leerConfiguracion();
+
+
+            configuracion.musicUrl =
+                "/uploads/site-music.mp3";
+
+
+            /*=========================================
+                SI NO EXISTÍA CONFIGURACIÓN,
+                ACTIVAMOS POR DEFECTO
+            =========================================*/
+
+            if (
+                typeof
+                configuracion.musicEnabled
+                !== "boolean"
+            ){
+
+                configuracion.musicEnabled =
+                    true;
+
+            }
+
+
+            guardarConfiguracion(
+                configuracion
+            );
+
+
+            return res.json({
+
+                ok: true,
+
+                musicUrl:
+                    configuracion.musicUrl,
+
+                musicEnabled:
+                    configuracion.musicEnabled
+
+            });
+
+
+        } catch(error) {
+
+            console.error(
+                "Error subiendo música:",
+                error
+            );
+
+
+            /*=========================================
+                ELIMINAR TEMPORAL SI FALLÓ
+            =========================================*/
+
+            if (
+                req.file &&
+                req.file.path &&
+                fs.existsSync(
+                    req.file.path
+                )
+            ){
+
+                try {
+
+                    fs.unlinkSync(
+                        req.file.path
+                    );
+
+                } catch(e){}
+
+            }
+
+
+            return res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+
+);
+
+/*====================================================
+    ACTIVAR / DESACTIVAR MÚSICA
+====================================================*/
+
+app.post(
+    "/music/toggle",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        try {
+
+            const configuracion =
+                leerConfiguracion();
+
+
+            configuracion.musicEnabled =
+                req.body.enabled === true;
+
+
+            guardarConfiguracion(
+                configuracion
+            );
+
+
+            res.json({
+
+                ok: true,
+
+                musicEnabled:
+                    configuracion.musicEnabled
+
+            });
+
+
+        } catch(error) {
+
+            console.error(
+                "Error cambiando estado de música:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+
+);
+
+/*====================================================
+    OBTENER CONFIGURACIÓN DE MÚSICA
+====================================================*/
+
+app.get(
+    "/music/config",
+    (req, res) => {
+
+        try {
+
+            const configuracion =
+                leerConfiguracion();
+
+
+            res.json({
+
+                ok: true,
+
+                enabled:
+                    configuracion.musicEnabled === true,
+
+                url:
+                    configuracion.musicUrl || ""
+
+            });
+
+
+        } catch(error) {
+
+            res.status(500).json({
+
+                ok: false,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+
+);
 
 
 app.get("/botones", (req, res) => {
@@ -1735,11 +2096,12 @@ const CARD_STATS_POSITION_FILE =
 
 
 /*====================================================
-    OBTENER POSICIÓN
+    OBTENER POSICIÓN DE CARDSTATS
 ====================================================*/
 
 app.get(
     "/card-stats/position",
+
     (req, res) => {
 
         try {
@@ -1751,8 +2113,15 @@ app.get(
             ) {
 
                 return res.json({
+
                     left: 0,
-                    top: 230
+
+                    top: 230,
+
+                    leftPercent: null,
+
+                    topPercent: null
+
                 });
 
             }
@@ -1773,7 +2142,29 @@ app.get(
                     Number(datos.left) || 0,
 
                 top:
-                    Number(datos.top) || 230
+                    Number(datos.top) || 230,
+
+                leftPercent:
+                    Number.isFinite(
+                        Number(
+                            datos.leftPercent
+                        )
+                    )
+                        ? Number(
+                            datos.leftPercent
+                        )
+                        : null,
+
+                topPercent:
+                    Number.isFinite(
+                        Number(
+                            datos.topPercent
+                        )
+                    )
+                        ? Number(
+                            datos.topPercent
+                        )
+                        : null
 
             });
 
@@ -1800,44 +2191,100 @@ app.get(
     }
 );
 
-
 /*====================================================
-    GUARDAR POSICIÓN
+    GUARDAR POSICIÓN DE CARDSTATS
 ====================================================*/
 
 app.post(
     "/card-stats/position",
+
     express.json(),
+
     requireAdmin,
+
     (req, res) => {
-
-
-
-
 
         try {
 
+            /*=========================================
+                POSICIÓN EN PIXELES
+            =========================================*/
+
             let left =
-                Number(req.body.left);
+                Number(
+                    req.body.left
+                );
 
 
             let top =
-                Number(req.body.top);
+                Number(
+                    req.body.top
+                );
 
 
-            if (!Number.isFinite(left)) {
-                left = 100;
+            /*=========================================
+                POSICIÓN RESPONSIVE
+            =========================================*/
+
+            let leftPercent =
+                Number(
+                    req.body.leftPercent
+                );
+
+
+            let topPercent =
+                Number(
+                    req.body.topPercent
+                );
+
+
+            /*=========================================
+                VALORES POR DEFECTO
+            =========================================*/
+
+            if (
+                !Number.isFinite(left)
+            ) {
+
+                left = 0;
+
             }
 
 
-            if (!Number.isFinite(top)) {
-                top = 364;
+            if (
+                !Number.isFinite(top)
+            ) {
+
+                top = 230;
+
             }
 
 
-            /*
-                Evitar valores absurdos
-            */
+            if (
+                !Number.isFinite(
+                    leftPercent
+                )
+            ) {
+
+                leftPercent = null;
+
+            }
+
+
+            if (
+                !Number.isFinite(
+                    topPercent
+                )
+            ) {
+
+                topPercent = null;
+
+            }
+
+
+            /*=========================================
+                LIMITAR PIXELES
+            =========================================*/
 
             left =
                 Math.max(
@@ -1853,14 +2300,82 @@ app.post(
                 );
 
 
+            /*=========================================
+                LIMITAR PORCENTAJES
+            =========================================*/
+
+            if (
+                leftPercent !== null
+            ) {
+
+                leftPercent =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            leftPercent
+                        )
+                    );
+
+
+                leftPercent =
+                    Number(
+                        leftPercent.toFixed(4)
+                    );
+
+            }
+
+
+            if (
+                topPercent !== null
+            ) {
+
+                topPercent =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            topPercent
+                        )
+                    );
+
+
+                topPercent =
+                    Number(
+                        topPercent.toFixed(4)
+                    );
+
+            }
+
+
+            /*=========================================
+                OBJETO FINAL
+            =========================================*/
+
             const datos = {
 
-                left: left,
+                left:
 
-                top: top
+                    left,
+
+                top:
+
+                    top,
+
+                leftPercent:
+
+                    leftPercent,
+
+                topPercent:
+
+                    topPercent
 
             };
 
+
+            /*=========================================
+                GUARDAR
+            =========================================*/
 
             fs.writeFileSync(
 
@@ -1874,6 +2389,12 @@ app.post(
 
                 "utf8"
 
+            );
+
+
+            console.log(
+                "CARDSTATS posición guardada:",
+                datos
             );
 
 
@@ -1907,7 +2428,6 @@ app.post(
 
     }
 );
-
 
 
 

@@ -3589,6 +3589,648 @@ const resetCardStats =
     );
 
 
+
+    /*====================================================
+        SISTEMA DE MÚSICA
+====================================================*/
+
+const btnMusicAdmin =
+    document.getElementById(
+        "btnMusicAdmin"
+    );
+
+
+const musicModal =
+    document.getElementById(
+        "musicModal"
+    );
+
+
+const musicFile =
+    document.getElementById(
+        "musicFile"
+    );
+
+
+const musicFileName =
+    document.getElementById(
+        "musicFileName"
+    );
+
+
+const musicEnabled =
+    document.getElementById(
+        "musicEnabled"
+    );
+
+
+const saveMusic =
+    document.getElementById(
+        "saveMusic"
+    );
+
+
+const siteMusic =
+    document.getElementById(
+        "siteMusic"
+    );
+
+
+const musicSpeakers =
+    document.getElementById(
+        "musicSpeakers"
+    );
+
+
+/*====================================================
+    ABRIR MODAL
+====================================================*/
+
+if (btnMusicAdmin) {
+
+    btnMusicAdmin.onclick =
+        async () => {
+
+            await cargarConfiguracionMusica();
+
+            cerrarTodosLosModales();
+
+            musicModal.style.display =
+                "flex";
+
+        };
+
+}
+
+
+/*====================================================
+    MOSTRAR NOMBRE DEL ARCHIVO
+====================================================*/
+
+if (musicFile) {
+
+    musicFile.addEventListener(
+        "change",
+        () => {
+
+            if (
+                musicFile.files &&
+                musicFile.files.length
+            ) {
+
+                musicFileName.textContent =
+                    musicFile.files[0].name;
+
+            } else {
+
+                musicFileName.textContent =
+                    "Ningún archivo seleccionado";
+
+            }
+
+        }
+    );
+
+}
+
+
+/*====================================================
+    CARGAR CONFIGURACIÓN
+====================================================*/
+
+async function cargarConfiguracionMusica() {
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/music/config",
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+            return;
+        }
+
+
+        const datos =
+            await respuesta.json();
+
+
+        musicEnabled.checked =
+            datos.enabled === true;
+
+
+        if (datos.url) {
+
+            siteMusic.src =
+                datos.url;
+
+        }
+
+
+    } catch(error) {
+
+        console.error(
+            "Error cargando música:",
+            error
+        );
+
+    }
+
+}
+
+
+/*====================================================
+    GUARDAR MÚSICA
+====================================================*/
+
+if (saveMusic) {
+
+    saveMusic.onclick =
+        async () => {
+
+            try {
+
+                /*=====================================
+                    SUBIR MP3 SI EXISTE UNO NUEVO
+                =====================================*/
+
+                if (
+                    musicFile.files &&
+                    musicFile.files.length
+                ) {
+
+                    const archivo =
+                        musicFile.files[0];
+
+
+                    if (
+                        !archivo.name
+                            .toLowerCase()
+                            .endsWith(".mp3")
+                    ) {
+
+                        alert(
+                            "Selecciona un archivo MP3."
+                        );
+
+                        return;
+
+                    }
+
+
+                    const formulario =
+                        new FormData();
+
+
+                    formulario.append(
+                        "music",
+                        archivo
+                    );
+
+
+                    const respuesta =
+                        await fetch(
+                            "/uploadMusic",
+                            {
+
+                                method:
+                                    "POST",
+
+                                body:
+                                    formulario
+
+                            }
+                        );
+
+
+                    const datos =
+                        await respuesta.json();
+
+
+                    if (
+                        !respuesta.ok ||
+                        !datos.ok
+                    ) {
+
+                        throw new Error(
+                            datos.error ||
+                            "No se pudo subir la música."
+                        );
+
+                    }
+
+
+                    siteMusic.src =
+                        datos.musicUrl;
+
+                }
+
+
+                /*=====================================
+                    ACTIVAR / DESACTIVAR
+                =====================================*/
+
+                const respuestaEstado =
+                    await fetch(
+                        "/music/toggle",
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    enabled:
+                                        musicEnabled.checked
+
+                                })
+
+                        }
+                    );
+
+
+                const datosEstado =
+                    await respuestaEstado.json();
+
+
+                if (
+                    !respuestaEstado.ok ||
+                    !datosEstado.ok
+                ) {
+
+                    throw new Error(
+                        datosEstado.error ||
+                        "No se pudo guardar el estado."
+                    );
+
+                }
+
+
+                /*=====================================
+                    CERRAR MODAL
+                =====================================*/
+
+                cerrarModalDefinitivamente(
+                    musicModal
+                );
+
+
+                mostrarNotificacionGuardado(
+                    "Música guardada",
+                    musicEnabled.checked
+                        ? "La música está activada."
+                        : "La música está desactivada."
+                );
+
+
+                /*=====================================
+                    ACTUALIZAR USUARIO
+                =====================================*/
+
+                await iniciarMusicaUsuario();
+
+
+            } catch(error) {
+
+                console.error(
+                    "Error guardando música:",
+                    error
+                );
+
+
+                alert(
+                    error.message
+                );
+
+            }
+
+        };
+
+}
+
+/*====================================================
+    MOSTRAR PARLANTES
+====================================================*/
+
+function mostrarParlantesMusica() {
+
+    if (!musicSpeakers) {
+        return;
+    }
+
+
+    musicSpeakers.classList.add(
+        "music-playing"
+    );
+
+}
+
+
+/*====================================================
+    OCULTAR PARLANTES
+====================================================*/
+
+function ocultarParlantesMusica() {
+
+    if (!musicSpeakers) {
+        return;
+    }
+
+
+    musicSpeakers.classList.remove(
+        "music-playing"
+    );
+
+}
+
+/*====================================================
+    EVENTOS DEL AUDIO
+====================================================*/
+
+if (siteMusic) {
+
+    siteMusic.addEventListener(
+        "play",
+        () => {
+
+            mostrarParlantesMusica();
+
+        }
+    );
+
+
+    siteMusic.addEventListener(
+        "playing",
+        () => {
+
+            mostrarParlantesMusica();
+
+        }
+    );
+
+
+    siteMusic.addEventListener(
+        "pause",
+        () => {
+
+            ocultarParlantesMusica();
+
+        }
+    );
+
+
+    siteMusic.addEventListener(
+        "ended",
+        () => {
+
+            ocultarParlantesMusica();
+
+        }
+    );
+
+}
+
+
+/*====================================================
+    INICIAR MÚSICA DEL USUARIO
+====================================================*/
+
+async function iniciarMusicaUsuario() {
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/music/config",
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+            return;
+        }
+
+
+        const datos =
+            await respuesta.json();
+
+
+        /*=====================================
+            MÚSICA DESACTIVADA
+        =====================================*/
+
+        if (
+            datos.enabled !== true ||
+            !datos.url
+        ) {
+
+            ocultarParlantesMusica();
+
+            if (siteMusic) {
+
+                siteMusic.pause();
+
+                siteMusic.removeAttribute(
+                    "src"
+                );
+
+                siteMusic.load();
+
+            }
+
+            return;
+
+        }
+
+
+        /*=====================================
+            CARGAR AUDIO
+        =====================================*/
+
+        siteMusic.src =
+            datos.url;
+
+        siteMusic.loop =
+            true;
+
+
+        siteMusic.volume =
+            0.35;
+
+
+        /*
+            Intentamos reproducir.
+            El navegador puede bloquear
+            autoplay hasta que exista
+            interacción del usuario.
+        */
+
+        try {
+
+            await siteMusic.play();
+
+        } catch(error) {
+
+            console.log(
+                "Autoplay bloqueado. Esperando interacción del usuario."
+            );
+
+            esperarInteraccionParaMusica();
+
+        }
+
+
+    } catch(error) {
+
+        console.error(
+            "Error iniciando música:",
+            error
+        );
+
+    }
+
+}
+
+
+/*====================================================
+    ESPERAR INTERACCIÓN DEL USUARIO
+====================================================*/
+
+let musicaIntentoRealizado =
+    false;
+
+
+function esperarInteraccionParaMusica() {
+
+    if (musicaIntentoRealizado) {
+        return;
+    }
+
+
+    musicaIntentoRealizado =
+        true;
+
+
+    const iniciar =
+        async () => {
+
+            try {
+
+                const respuesta =
+                    await fetch(
+                        "/music/config",
+                        {
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                if (
+                    datos.enabled !== true ||
+                    !datos.url
+                ) {
+
+                    return;
+
+                }
+
+
+                siteMusic.src =
+                    datos.url;
+
+
+                siteMusic.loop =
+                    true;
+
+
+                siteMusic.volume =
+                    0.35;
+
+
+                await siteMusic.play();
+
+
+            } catch(error) {
+
+                console.log(
+                    "No se pudo iniciar la música:",
+                    error
+                );
+
+            }
+
+
+            document.removeEventListener(
+                "click",
+                iniciar
+            );
+
+
+            document.removeEventListener(
+                "touchstart",
+                iniciar
+            );
+
+
+            document.removeEventListener(
+                "keydown",
+                iniciar
+            );
+
+        };
+
+
+    document.addEventListener(
+        "click",
+        iniciar,
+        {
+            once: true
+        }
+    );
+
+
+    document.addEventListener(
+        "touchstart",
+        iniciar,
+        {
+            once: true
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        iniciar,
+        {
+            once: true
+        }
+    );
+
+}
+
+
 const favicon = document.getElementById("favicon");
 
 const logoSize = document.getElementById("logoSize");
@@ -7465,6 +8107,7 @@ async function cargarEstadoShare() {
 }
 
 
+
 /*====================================================
     CARGAR ESTADO DE LIKE
 ====================================================*/
@@ -7512,6 +8155,10 @@ async function cargarEstadoLike() {
         }
 
 
+        /*=========================================
+            SOLO ACTUALIZAR ESTADO VISUAL
+        =========================================*/
+
         if (datos.liked) {
 
             cardLikeButton.classList.add(
@@ -7537,6 +8184,8 @@ async function cargarEstadoLike() {
     }
 
 }
+
+
 
 /*====================================================
     TOGGLE LIKE
@@ -7603,43 +8252,44 @@ async function cambiarLike() {
         }
 
 
-        const datos =
-            await respuesta.json();
+ const datos =
+    await respuesta.json();
 
 
-        if (
-            typeof datos.likes === "number"
-        ) {
+if (
+    typeof datos.likes === "number"
+) {
 
-            cardLikesCounter.textContent =
-                datos.likes;
+    cardLikesCounter.textContent =
+        datos.likes;
 
-        }
+}
 
 
-        /*
-            LIKE ACTIVADO
-        */
+/*=========================================
+    ESTADO VISUAL
+=========================================*/
 
-        if (datos.liked) {
+if (datos.liked) {
 
-            cardLikeButton.classList.add(
-                "liked"
-            );
+    cardLikeButton.classList.add(
+        "liked"
+    );
 
-        }
 
-        /*
-            LIKE QUITADO
-        */
+    /*=====================================
+        ANIMACIÓN
+    =====================================*/
 
-        else {
+    animarPulgares();
 
-            cardLikeButton.classList.remove(
-                "liked"
-            );
+} else {
 
-        }
+    cardLikeButton.classList.remove(
+        "liked"
+    );
+
+}
 
 
     } catch (error) {
@@ -7677,6 +8327,79 @@ if (cardShareButton) {
 }
 
 
+
+
+
+
+/*====================================================
+    ANIMACIÓN DE APLAUSOS
+====================================================*/
+
+function animarAplausos() {
+
+    const cantidad = 18;
+
+
+    for (
+        let i = 0;
+        i < cantidad;
+        i++
+    ) {
+
+        const aplauso =
+            document.createElement(
+                "div"
+            );
+
+
+        aplauso.className =
+            "share-float";
+
+
+        aplauso.innerHTML =
+            "👏";
+
+
+        aplauso.style.left =
+            (
+                Math.random() * 100
+            ) + "%";
+
+
+        aplauso.style.fontSize =
+            (
+                18 +
+                Math.random() * 22
+            ) + "px";
+
+
+        aplauso.style.animationDuration =
+            (
+                1.8 +
+                Math.random() * 1.7
+            ) + "s";
+
+
+        aplauso.style.animationDelay =
+            (
+                Math.random() * 0.5
+            ) + "s";
+
+
+        document.body.appendChild(
+            aplauso
+        );
+
+
+        setTimeout(() => {
+
+            aplauso.remove();
+
+        }, 4000);
+
+    }
+
+}
 
 /*====================================================
     COMPARTIR URL
@@ -7741,6 +8464,9 @@ async function compartirPagina() {
 
             await registrarCompartido();
 
+            activarEstadoCompartido();
+            animarAplausos();
+
 
             return;
 
@@ -7764,6 +8490,8 @@ async function compartirPagina() {
 
             await registrarCompartido();
 
+           activarEstadoCompartido();
+            animarAplausos();
 
             mostrarNotificacionGuardado(
                 "Enlace copiado",
@@ -7806,6 +8534,9 @@ async function compartirPagina() {
 
 
         await registrarCompartido();
+
+                   activarEstadoCompartido();
+            animarAplausos();
 
 
         mostrarNotificacionGuardado(
@@ -7899,6 +8630,24 @@ async function registrarCompartido() {
 
 
     return datos;
+
+}
+
+
+/*====================================================
+    ANIMACIÓN DEL BOTÓN COMPARTIR
+====================================================*/
+
+function activarEstadoCompartido() {
+
+    if (!cardShareButton) {
+        return;
+    }
+
+
+    cardShareButton.classList.add(
+        "shared"
+    );
 
 }
 
@@ -8214,30 +8963,124 @@ if (
 }
 
 /*====================================================
-    GUARDAR POSICIÓN DE CARDSTATS EN SERVIDOR
+    GUARDAR POSICIÓN RESPONSIVE DE CARDSTATS
 ====================================================*/
 
 async function guardarPosicionCardStats() {
 
     const stats =
-        document.getElementById("cardStats");
+        document.getElementById(
+            "cardStats"
+        );
 
-    if (!stats) return;
 
+    if (!stats) {
+
+        return;
+
+    }
+
+
+    const card =
+        stats.parentElement;
+
+
+    if (!card) {
+
+        return;
+
+    }
+
+
+    /*=========================================
+        DIMENSIONES DE LA CARD
+    =========================================*/
+
+    const cardWidth =
+        card.clientWidth;
+
+
+    const cardHeight =
+        card.clientHeight;
+
+
+    if (
+        cardWidth <= 0 ||
+        cardHeight <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    /*=========================================
+        POSICIÓN ACTUAL
+    =========================================*/
+
+    const left =
+        Math.round(
+            stats.offsetLeft
+        );
+
+
+    const top =
+        Math.round(
+            stats.offsetTop
+        );
+
+
+    /*=========================================
+        CONVERTIR A PORCENTAJE
+    =========================================*/
+
+    const leftPercent =
+        Number(
+            (
+                (left / cardWidth) *
+                100
+            ).toFixed(4)
+        );
+
+
+    const topPercent =
+        Number(
+            (
+                (top / cardHeight) *
+                100
+            ).toFixed(4)
+        );
+
+
+    /*=========================================
+        DATOS FINALES
+    =========================================*/
 
     const posicion = {
 
         left:
-            Math.round(
-                stats.offsetLeft
-            ),
+
+            left,
 
         top:
-            Math.round(
-                stats.offsetTop
-            )
+
+            top,
+
+        leftPercent:
+
+            leftPercent,
+
+        topPercent:
+
+            topPercent
 
     };
+
+
+    console.log(
+        "CARDSTATS → guardando:",
+        posicion
+    );
 
 
     try {
@@ -8247,11 +9090,14 @@ async function guardarPosicionCardStats() {
                 "/card-stats/position",
                 {
 
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
@@ -8272,6 +9118,16 @@ async function guardarPosicionCardStats() {
         }
 
 
+        const datos =
+            await respuesta.json();
+
+
+        console.log(
+            "CARDSTATS → servidor confirmó:",
+            datos
+        );
+
+
     } catch (error) {
 
         console.error(
@@ -8280,20 +9136,27 @@ async function guardarPosicionCardStats() {
         );
 
     }
+
 }
 
 
-
 /*====================================================
-    RESTAURAR POSICIÓN DE CARDSTATS DESDE SERVIDOR
+    RESTAURAR POSICIÓN RESPONSIVE DE CARDSTATS
 ====================================================*/
 
 async function restaurarPosicionCardStats() {
 
     const stats =
-        document.getElementById("cardStats");
+        document.getElementById(
+            "cardStats"
+        );
 
-    if (!stats) return;
+
+    if (!stats) {
+
+        return;
+
+    }
 
 
     try {
@@ -8302,7 +9165,8 @@ async function restaurarPosicionCardStats() {
             await fetch(
                 "/card-stats/position",
                 {
-                    cache: "no-store"
+                    cache:
+                        "no-store"
                 }
             );
 
@@ -8320,27 +9184,95 @@ async function restaurarPosicionCardStats() {
             await respuesta.json();
 
 
-        if (
-            !posicion ||
-            typeof posicion.left !== "number" ||
-            typeof posicion.top !== "number"
-        ) {
+        if (!posicion) {
 
             return;
 
         }
 
 
+        /*=========================================
+            ELIMINAR TRANSFORMACIÓN
+        =========================================*/
+
         stats.style.transform =
             "none";
 
 
-        stats.style.left =
-            posicion.left + "px";
+        /*=========================================
+            NUEVA POSICIÓN RESPONSIVE
+        =========================================*/
+
+        if (
+
+            Number.isFinite(
+                Number(
+                    posicion.leftPercent
+                )
+            )
+
+            &&
+
+            Number.isFinite(
+                Number(
+                    posicion.topPercent
+                )
+            )
+
+        ) {
+
+            stats.style.left =
+                posicion.leftPercent +
+                "%";
 
 
-        stats.style.top =
-            posicion.top + "px";
+            stats.style.top =
+                posicion.topPercent +
+                "%";
+
+
+            console.log(
+                "CARDSTATS → posición responsive restaurada:",
+                posicion.leftPercent,
+                "%",
+                posicion.topPercent,
+                "%"
+            );
+
+
+        }
+
+        /*=========================================
+            COMPATIBILIDAD CON ARCHIVO ANTIGUO
+        =========================================*/
+
+        else if (
+
+            typeof posicion.left ===
+                "number"
+
+            &&
+
+            typeof posicion.top ===
+                "number"
+
+        ) {
+
+            stats.style.left =
+                posicion.left + "px";
+
+
+            stats.style.top =
+                posicion.top + "px";
+
+
+            console.log(
+                "CARDSTATS → posición antigua restaurada:",
+                posicion.left,
+                posicion.top
+            );
+
+        }
 
 
     } catch (error) {
@@ -8351,6 +9283,7 @@ async function restaurarPosicionCardStats() {
         );
 
     }
+
 }
 
 activarArrastreCardStats();
@@ -9498,6 +10431,12 @@ if (configuracion.titleFont) {
     
     await cargarEstadoAdmin();
 
+    /*----------------------------------
+    MÚSICA DEL SITIO
+----------------------------------*/
+
+await iniciarMusicaUsuario();
+
  }catch(error){
 
     console.error(
@@ -10181,3 +11120,92 @@ if (resetCardStats) {
 
 }
 
+
+
+
+
+/*====================================================
+    ANIMACIÓN DE MUCHOS PULGARES
+====================================================*/
+
+function animarPulgares() {
+
+    const cantidad = 18;
+
+
+    for (
+        let i = 0;
+        i < cantidad;
+        i++
+    ) {
+
+        const pulgar =
+            document.createElement(
+                "div"
+            );
+
+
+        pulgar.className =
+            "like-float";
+
+
+        pulgar.innerHTML =
+            "👍";
+
+
+        /*=================================
+            POSICIÓN HORIZONTAL ALEATORIA
+        =================================*/
+
+        pulgar.style.left =
+            (
+                Math.random() * 100
+            ) + "%";
+
+
+        /*=================================
+            TAMAÑO ALEATORIO
+        =================================*/
+
+        pulgar.style.fontSize =
+            (
+                18 +
+                Math.random() * 22
+            ) + "px";
+
+
+        /*=================================
+            DURACIÓN ALEATORIA
+        =================================*/
+
+        pulgar.style.animationDuration =
+            (
+                1.8 +
+                Math.random() * 1.7
+            ) + "s";
+
+
+        /*=================================
+            RETRASO
+        =================================*/
+
+        pulgar.style.animationDelay =
+            (
+                Math.random() * 0.5
+            ) + "s";
+
+
+        document.body.appendChild(
+            pulgar
+        );
+
+
+        setTimeout(() => {
+
+            pulgar.remove();
+
+        }, 4000);
+
+    }
+
+}
