@@ -2164,7 +2164,12 @@ app.get(
                         ? Number(
                             datos.topPercent
                         )
-                        : null
+                        : null,
+
+                responsiveVersion:
+                    Number(
+                        datos.responsiveVersion
+                    ) || 1
 
             });
 
@@ -2352,25 +2357,24 @@ app.post(
                 OBJETO FINAL
             =========================================*/
 
-            const datos = {
+                const datos = {
 
-                left:
+                    left:
+                        left,
 
-                    left,
+                    top:
+                        top,
 
-                top:
+                    leftPercent:
+                        leftPercent,
 
-                    top,
+                    topPercent:
+                        topPercent,
 
-                leftPercent:
+                    responsiveVersion:
+                        2
 
-                    leftPercent,
-
-                topPercent:
-
-                    topPercent
-
-            };
+                };
 
 
             /*=========================================

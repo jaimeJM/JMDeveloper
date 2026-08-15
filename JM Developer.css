@@ -4065,7 +4065,7 @@ MÓVIL
 #cardStats {
     position: absolute;
 
-    left: 50%;
+    left: 0;
     top: 230px;
 
    
@@ -4919,5 +4919,114 @@ MÓVIL
 .music-speakers.music-playing {
 
     display: block;
+
+}
+
+
+
+/*====================================================
+    BOTÓN FLOTANTE DE MÚSICA DEL USUARIO
+====================================================*/
+
+.music-user-button{
+
+    position:fixed;
+
+    right:20px;
+    bottom:20px;
+
+    width:46px;
+    height:46px;
+
+    border:none;
+    border-radius:50%;
+
+    background:#000;
+
+    color:#fff;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    z-index:99998;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.35);
+
+    transition:
+        transform .25s ease,
+        background .25s ease;
+
+}
+
+
+.music-user-button:hover{
+
+    transform:
+        scale(1.10);
+
+}
+
+
+.music-user-button:active{
+
+    transform:
+        scale(.92);
+
+}
+
+
+.music-user-button i{
+
+    color:#fff;
+
+}
+
+
+/*====================================================
+    MÚSICA DEL USUARIO VISIBLE
+====================================================*/
+
+.music-user-button.music-user-visible{
+
+    display:flex;
+
+}
+
+
+/*====================================================
+    MÚSICA REPRODUCIÉNDOSE
+====================================================*/
+
+.music-user-button.music-user-playing{
+
+    background:#000;
+
+}
+
+
+/*====================================================
+    MÓVIL
+====================================================*/
+
+@media(max-width:600px){
+
+    .music-user-button{
+
+        width:44px;
+        height:44px;
+
+        right:15px;
+        bottom:15px;
+
+        font-size:17px;
+
+    }
 
 }

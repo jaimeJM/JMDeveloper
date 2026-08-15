@@ -3642,6 +3642,29 @@ const musicSpeakers =
     );
 
 
+    const musicUserButton =
+    document.getElementById(
+        "musicUserButton"
+    );
+
+
+const musicUserIcon =
+    document.getElementById(
+        "musicUserIcon"
+    );
+
+
+let musicaUsuarioPermitida =
+    false;
+
+
+let musicaUsuarioBloqueada =
+    false;
+
+let administradorActivo =
+    false;
+
+
 /*====================================================
     ABRIR MODAL
 ====================================================*/
@@ -3957,17 +3980,208 @@ function ocultarParlantesMusica() {
 
 }
 
+
+/*====================================================
+    CONTROL DE MÚSICA DEL USUARIO
+====================================================*/
+
+function mostrarBotonMusicaUsuario(){
+
+    if(!musicUserButton){
+
+        return;
+
+    }
+
+
+    /*
+        EL ADMINISTRADOR NUNCA DEBE
+        VER EL BOTÓN DEL USUARIO.
+    */
+
+    if(administradorActivo){
+
+        musicUserButton.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    musicUserButton.classList.add(
+        "music-user-visible"
+    );
+
+    musicUserButton.style.display =
+        "flex";
+
+}
+
+
+function ocultarBotonMusicaUsuario(){
+
+    if(!musicUserButton){
+
+        return;
+
+    }
+
+
+    musicUserButton.classList.remove(
+        "music-user-visible"
+    );
+
+}
+
+
+function actualizarBotonMusicaUsuario(){
+
+
+    if(administradorActivo){
+
+    if(musicUserButton){
+
+        musicUserButton.style.display =
+            "none";
+
+    }
+
+    return;
+
+}
+
+    if(
+        !musicUserButton ||
+        !musicUserIcon
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        siteMusic &&
+        !siteMusic.paused
+    ){
+
+        musicUserIcon.className =
+            "fa-solid fa-volume-high";
+
+
+        musicUserButton.title =
+            "Apagar música";
+
+
+        musicUserButton.setAttribute(
+            "aria-label",
+            "Apagar música"
+        );
+
+
+        musicUserButton.classList.add(
+            "music-user-playing"
+        );
+
+    }else{
+
+        musicUserIcon.className =
+            "fa-solid fa-volume-xmark";
+
+
+        musicUserButton.title =
+            "Escuchar música";
+
+
+        musicUserButton.setAttribute(
+            "aria-label",
+            "Escuchar música"
+        );
+
+
+        musicUserButton.classList.remove(
+            "music-user-playing"
+        );
+
+    }
+
+}
+
+/*====================================================
+    CLICK DEL BOTÓN DE MÚSICA
+====================================================*/
+
+if(musicUserButton){
+
+    musicUserButton.addEventListener(
+        "click",
+        async () => {
+
+            if(!siteMusic){
+
+                return;
+
+            }
+
+
+            /*
+                SI ESTÁ REPRODUCIENDO
+                → APAGAR PARA ESTE USUARIO
+            */
+
+            if(!siteMusic.paused){
+
+                siteMusic.pause();
+
+                actualizarBotonMusicaUsuario();
+
+                ocultarParlantesMusica();
+
+                return;
+
+            }
+
+
+            /*
+                SI ESTÁ PAUSADA
+                → REPRODUCIR
+            */
+
+            try{
+
+                await siteMusic.play();
+
+                actualizarBotonMusicaUsuario();
+
+            }catch(error){
+
+                console.error(
+                    "No se pudo reproducir la música:",
+                    error
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
 /*====================================================
     EVENTOS DEL AUDIO
 ====================================================*/
 
-if (siteMusic) {
+if(siteMusic){
 
     siteMusic.addEventListener(
         "play",
         () => {
 
             mostrarParlantesMusica();
+
+            actualizarBotonMusicaUsuario();
 
         }
     );
@@ -3979,6 +4193,8 @@ if (siteMusic) {
 
             mostrarParlantesMusica();
 
+            actualizarBotonMusicaUsuario();
+
         }
     );
 
@@ -3988,6 +4204,8 @@ if (siteMusic) {
         () => {
 
             ocultarParlantesMusica();
+
+            actualizarBotonMusicaUsuario();
 
         }
     );
@@ -3999,11 +4217,12 @@ if (siteMusic) {
 
             ocultarParlantesMusica();
 
+            actualizarBotonMusicaUsuario();
+
         }
     );
 
 }
-
 
 /*====================================================
     INICIAR MÚSICA DEL USUARIO
@@ -4032,32 +4251,50 @@ async function iniciarMusicaUsuario() {
             await respuesta.json();
 
 
+
+            /*
+                Si el administrador está conectado,
+                no mostramos el botón del usuario.
+            */
+            if(administradorActivo){
+
+                ocultarBotonMusicaUsuario();
+
+            }
+
         /*=====================================
             MÚSICA DESACTIVADA
         =====================================*/
 
-        if (
-            datos.enabled !== true ||
-            !datos.url
-        ) {
+                if (
+                datos.enabled !== true ||
+                !datos.url
+            ){
 
-            ocultarParlantesMusica();
+                ocultarParlantesMusica();
 
-            if (siteMusic) {
+                ocultarBotonMusicaUsuario();
 
-                siteMusic.pause();
 
-                siteMusic.removeAttribute(
-                    "src"
-                );
+                if(siteMusic){
 
-                siteMusic.load();
+                    siteMusic.pause();
+
+                    siteMusic.removeAttribute(
+                        "src"
+                    );
+
+                    siteMusic.load();
+
+                }
+
+
+                musicaUsuarioPermitida =
+                    false;
+
+                return;
 
             }
-
-            return;
-
-        }
 
 
         /*=====================================
@@ -4082,19 +4319,66 @@ async function iniciarMusicaUsuario() {
             interacción del usuario.
         */
 
-        try {
+ try{
 
-            await siteMusic.play();
+    /*
+        El administrador dejó la música activa.
 
-        } catch(error) {
+        Intentamos reproducir inmediatamente.
+    */
 
-            console.log(
-                "Autoplay bloqueado. Esperando interacción del usuario."
-            );
+    await siteMusic.play();
 
-            esperarInteraccionParaMusica();
 
-        }
+    musicaUsuarioPermitida =
+        true;
+
+    musicaUsuarioBloqueada =
+        false;
+
+
+if(!administradorActivo){
+
+    mostrarBotonMusicaUsuario();
+
+}
+
+    actualizarBotonMusicaUsuario();
+
+
+}catch(error){
+
+    /*
+        El navegador bloqueó autoplay
+        con sonido.
+
+        NO apagamos la música del servidor.
+
+        Simplemente mostramos el botón
+        para que el usuario pueda activarla.
+    */
+
+    console.log(
+        "Autoplay bloqueado por el navegador."
+    );
+
+
+    musicaUsuarioPermitida =
+        true;
+
+    musicaUsuarioBloqueada =
+        true;
+
+
+if(!administradorActivo){
+
+    mostrarBotonMusicaUsuario();
+
+}
+
+    actualizarBotonMusicaUsuario();
+
+}
 
 
     } catch(error) {
@@ -4109,126 +4393,6 @@ async function iniciarMusicaUsuario() {
 }
 
 
-/*====================================================
-    ESPERAR INTERACCIÓN DEL USUARIO
-====================================================*/
-
-let musicaIntentoRealizado =
-    false;
-
-
-function esperarInteraccionParaMusica() {
-
-    if (musicaIntentoRealizado) {
-        return;
-    }
-
-
-    musicaIntentoRealizado =
-        true;
-
-
-    const iniciar =
-        async () => {
-
-            try {
-
-                const respuesta =
-                    await fetch(
-                        "/music/config",
-                        {
-                            cache:
-                                "no-store"
-                        }
-                    );
-
-
-                const datos =
-                    await respuesta.json();
-
-
-                if (
-                    datos.enabled !== true ||
-                    !datos.url
-                ) {
-
-                    return;
-
-                }
-
-
-                siteMusic.src =
-                    datos.url;
-
-
-                siteMusic.loop =
-                    true;
-
-
-                siteMusic.volume =
-                    0.35;
-
-
-                await siteMusic.play();
-
-
-            } catch(error) {
-
-                console.log(
-                    "No se pudo iniciar la música:",
-                    error
-                );
-
-            }
-
-
-            document.removeEventListener(
-                "click",
-                iniciar
-            );
-
-
-            document.removeEventListener(
-                "touchstart",
-                iniciar
-            );
-
-
-            document.removeEventListener(
-                "keydown",
-                iniciar
-            );
-
-        };
-
-
-    document.addEventListener(
-        "click",
-        iniciar,
-        {
-            once: true
-        }
-    );
-
-
-    document.addEventListener(
-        "touchstart",
-        iniciar,
-        {
-            once: true
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        iniciar,
-        {
-            once: true
-        }
-    );
-
-}
 
 
 const favicon = document.getElementById("favicon");
@@ -8966,15 +9130,15 @@ if (
     GUARDAR POSICIÓN RESPONSIVE DE CARDSTATS
 ====================================================*/
 
-async function guardarPosicionCardStats() {
+
+async function guardarPosicionCardStats(){
 
     const stats =
         document.getElementById(
             "cardStats"
         );
 
-
-    if (!stats) {
+    if(!stats){
 
         return;
 
@@ -8982,32 +9146,26 @@ async function guardarPosicionCardStats() {
 
 
     const card =
-        stats.parentElement;
+        stats.closest(".card");
 
-
-    if (!card) {
+    if(!card){
 
         return;
 
     }
 
 
-    /*=========================================
-        DIMENSIONES DE LA CARD
-    =========================================*/
-
     const cardWidth =
         card.clientWidth;
-
 
     const cardHeight =
         card.clientHeight;
 
 
-    if (
+    if(
         cardWidth <= 0 ||
         cardHeight <= 0
-    ) {
+    ){
 
         return;
 
@@ -9019,25 +9177,55 @@ async function guardarPosicionCardStats() {
     =========================================*/
 
     const left =
-        Math.round(
-            stats.offsetLeft
-        );
-
+        stats.offsetLeft;
 
     const top =
-        Math.round(
-            stats.offsetTop
-        );
+        stats.offsetTop;
 
 
     /*=========================================
-        CONVERTIR A PORCENTAJE
+        TAMAÑO DE CARDSTATS
+    =========================================*/
+
+    const statsWidth =
+        stats.offsetWidth;
+
+    const statsHeight =
+        stats.offsetHeight;
+
+
+    /*=========================================
+        CENTRO DEL ELEMENTO
+    =========================================*/
+
+    const centerX =
+        left +
+        (statsWidth / 2);
+
+    const centerY =
+        top +
+        (statsHeight / 2);
+
+
+    /*=========================================
+        CENTRO RESPONSIVO
+
+        IMPORTANTE:
+
+        Ya no guardamos el borde izquierdo.
+
+        Guardamos el CENTRO.
+
+        De esta manera si el elemento
+        cambia de tamaño en móvil,
+        su centro permanece en el mismo
+        punto relativo de la tarjeta.
     =========================================*/
 
     const leftPercent =
         Number(
             (
-                (left / cardWidth) *
+                (centerX / cardWidth) *
                 100
             ).toFixed(4)
         );
@@ -9046,44 +9234,39 @@ async function guardarPosicionCardStats() {
     const topPercent =
         Number(
             (
-                (top / cardHeight) *
+                (centerY / cardHeight) *
                 100
             ).toFixed(4)
         );
 
 
-    /*=========================================
-        DATOS FINALES
-    =========================================*/
-
     const posicion = {
 
         left:
-
-            left,
+            Math.round(left),
 
         top:
-
-            top,
+            Math.round(top),
 
         leftPercent:
-
             leftPercent,
 
         topPercent:
+            topPercent,
 
-            topPercent
+        responsiveVersion:
+            2
 
     };
 
 
     console.log(
-        "CARDSTATS → guardando:",
+        "CARDSTATS → guardando posición V2:",
         posicion
     );
 
 
-    try {
+    try{
 
         const respuesta =
             await fetch(
@@ -9093,11 +9276,9 @@ async function guardarPosicionCardStats() {
                     method:
                         "POST",
 
-                    headers: {
-
+                    headers:{
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
@@ -9109,7 +9290,7 @@ async function guardarPosicionCardStats() {
             );
 
 
-        if (!respuesta.ok) {
+        if(!respuesta.ok){
 
             throw new Error(
                 `HTTP ${respuesta.status}`
@@ -9128,7 +9309,7 @@ async function guardarPosicionCardStats() {
         );
 
 
-    } catch (error) {
+    }catch(error){
 
         console.error(
             "Error guardando posición:",
@@ -9144,22 +9325,32 @@ async function guardarPosicionCardStats() {
     RESTAURAR POSICIÓN RESPONSIVE DE CARDSTATS
 ====================================================*/
 
-async function restaurarPosicionCardStats() {
+
+async function restaurarPosicionCardStats(){
 
     const stats =
         document.getElementById(
             "cardStats"
         );
 
-
-    if (!stats) {
+    if(!stats){
 
         return;
 
     }
 
 
-    try {
+    const card =
+        stats.closest(".card");
+
+    if(!card){
+
+        return;
+
+    }
+
+
+    try{
 
         const respuesta =
             await fetch(
@@ -9171,7 +9362,7 @@ async function restaurarPosicionCardStats() {
             );
 
 
-        if (!respuesta.ok) {
+        if(!respuesta.ok){
 
             throw new Error(
                 `HTTP ${respuesta.status}`
@@ -9184,7 +9375,7 @@ async function restaurarPosicionCardStats() {
             await respuesta.json();
 
 
-        if (!posicion) {
+        if(!posicion){
 
             return;
 
@@ -9200,82 +9391,211 @@ async function restaurarPosicionCardStats() {
 
 
         /*=========================================
-            NUEVA POSICIÓN RESPONSIVE
+            ESPERAR A QUE EL ELEMENTO TENGA
+            SU TAMAÑO REAL
         =========================================*/
 
-        if (
+        requestAnimationFrame(()=>{
 
-            Number.isFinite(
-                Number(
-                    posicion.leftPercent
+            const cardWidth =
+                card.clientWidth;
+
+            const cardHeight =
+                card.clientHeight;
+
+
+            const statsWidth =
+                stats.offsetWidth;
+
+            const statsHeight =
+                stats.offsetHeight;
+
+
+            if(
+                cardWidth <= 0 ||
+                cardHeight <= 0
+            ){
+
+                return;
+
+            }
+
+
+            /*=====================================
+                POSICIÓN VERSIÓN 2
+
+                leftPercent y topPercent
+                representan EL CENTRO.
+            =====================================*/
+
+            if(
+                posicion.responsiveVersion >= 2 &&
+                Number.isFinite(
+                    Number(
+                        posicion.leftPercent
+                    )
+                ) &&
+                Number.isFinite(
+                    Number(
+                        posicion.topPercent
+                    )
                 )
-            )
+            ){
 
-            &&
-
-            Number.isFinite(
-                Number(
-                    posicion.topPercent
-                )
-            )
-
-        ) {
-
-            stats.style.left =
-                posicion.leftPercent +
-                "%";
+                const centerX =
+                    (
+                        Number(
+                            posicion.leftPercent
+                        ) / 100
+                    ) *
+                    cardWidth;
 
 
-            stats.style.top =
-                posicion.topPercent +
-                "%";
+                const centerY =
+                    (
+                        Number(
+                            posicion.topPercent
+                        ) / 100
+                    ) *
+                    cardHeight;
 
 
-            console.log(
-                "CARDSTATS → posición responsive restaurada:",
-                posicion.leftPercent,
-                "%",
-                posicion.topPercent,
-                "%"
-            );
+                let nuevaX =
+                    centerX -
+                    (statsWidth / 2);
 
 
-        }
-
-        /*=========================================
-            COMPATIBILIDAD CON ARCHIVO ANTIGUO
-        =========================================*/
-
-        else if (
-
-            typeof posicion.left ===
-                "number"
-
-            &&
-
-            typeof posicion.top ===
-                "number"
-
-        ) {
-
-            stats.style.left =
-                posicion.left + "px";
+                let nuevaY =
+                    centerY -
+                    (statsHeight / 2);
 
 
-            stats.style.top =
-                posicion.top + "px";
+                /*=================================
+                    LIMITES
+                =================================*/
+
+                const limiteDerecho =
+                    cardWidth -
+                    statsWidth;
 
 
-            console.log(
-                "CARDSTATS → posición antigua restaurada:",
-                posicion.left,
-                posicion.top
-            );
-
-        }
+                const limiteInferior =
+                    cardHeight -
+                    statsHeight;
 
 
-    } catch (error) {
+                nuevaX =
+                    Math.max(
+                        0,
+                        Math.min(
+                            nuevaX,
+                            limiteDerecho
+                        )
+                    );
+
+
+                nuevaY =
+                    Math.max(
+                        0,
+                        Math.min(
+                            nuevaY,
+                            limiteInferior
+                        )
+                    );
+
+
+                stats.style.left =
+                    nuevaX + "px";
+
+
+                stats.style.top =
+                    nuevaY + "px";
+
+
+                console.log(
+                    "CARDSTATS → posición V2 restaurada:",
+                    {
+                        centerX,
+                        centerY,
+                        left:nuevaX,
+                        top:nuevaY
+                    }
+                );
+
+
+                return;
+
+            }
+
+
+            /*=====================================
+                COMPATIBILIDAD CON POSICIÓN
+                ANTIGUA
+            =====================================*/
+
+            if(
+                typeof posicion.left ===
+                    "number" &&
+                typeof posicion.top ===
+                    "number"
+            ){
+
+                let nuevaX =
+                    posicion.left;
+
+
+                let nuevaY =
+                    posicion.top;
+
+
+                const limiteDerecho =
+                    cardWidth -
+                    statsWidth;
+
+
+                const limiteInferior =
+                    cardHeight -
+                    statsHeight;
+
+
+                nuevaX =
+                    Math.max(
+                        0,
+                        Math.min(
+                            nuevaX,
+                            limiteDerecho
+                        )
+                    );
+
+
+                nuevaY =
+                    Math.max(
+                        0,
+                        Math.min(
+                            nuevaY,
+                            limiteInferior
+                        )
+                    );
+
+
+                stats.style.left =
+                    nuevaX + "px";
+
+
+                stats.style.top =
+                    nuevaY + "px";
+
+
+                console.log(
+                    "CARDSTATS → posición antigua restaurada."
+                );
+
+            }
+
+        });
+
+
+    }catch(error){
 
         console.error(
             "Error restaurando posición:",
@@ -10207,6 +10527,9 @@ document
 
 function mostrarControles(){
 
+     administradorActivo =
+        true;
+
     document.querySelectorAll(".admin-only").forEach(el=>{
         el.style.display="";
     });
@@ -10230,30 +10553,74 @@ function mostrarControles(){
 
     cardStatsAdminPuedeMover = true;
 
+     /*
+        EL ADMINISTRADOR YA TIENE
+        SU PROPIO CONTROL DE MÚSICA.
+
+        NO MOSTRAR BOTÓN DEL USUARIO.
+    */
+
+   
+
+    /*=========================================
+        OCULTAR BOTÓN DE MÚSICA DEL USUARIO
+
+        EL ADMINISTRADOR YA TIENE
+        SU PROPIO BOTÓN DE MÚSICA.
+    =========================================*/
+
+    if(musicUserButton){
+
+    musicUserButton.style.display =
+        "none";
+
 }
 
+}
 
 
 
 function ocultarControles(){
 
+ administradorActivo =
+        false;
+
+
     document.querySelectorAll(".admin-only").forEach(el=>{
         el.style.display="none";
     });
 
-    // Ocultar cualquier botón de opciones que haya sido creado dinámicamente
+
     document.querySelectorAll(".options").forEach(btn=>{
         btn.style.display="none";
     });
 
-     /*
-        BLOQUEAR MOVIMIENTO DE CARDSTATS
-    */
 
-    cardStatsAdminPuedeMover = false;
+    cardStatsAdminPuedeMover =
+        false;
+
+
+    /*=========================================
+        BOTÓN DE MÚSICA DEL USUARIO
+
+        SOLO SE MUESTRA SI EL ADMINISTRADOR
+        TIENE LA MÚSICA ACTIVADA.
+    =========================================*/
+
+    if(
+        musicUserButton &&
+        musicaUsuarioPermitida
+    ){
+
+        musicUserButton.style.display =
+            "flex";
+
+
+        actualizarBotonMusicaUsuario();
+
+    }
 
 }
-
 
 
 
