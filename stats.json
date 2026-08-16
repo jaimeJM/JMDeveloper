@@ -1,10 +1,8 @@
 {
-  "views": 1,
+  "views": 0,
   "likes": 0,
   "shares": 0,
-  "viewDevices": {
-    "aeb0ff6a-cafd-4a53-9f54-1fd438ba02a4": true
-  },
+  "viewDevices": {},
   "likeDevices": {},
   "shareDevices": {}
 }
