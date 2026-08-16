@@ -2800,7 +2800,7 @@ input[type="range"]::-moz-range-thumb{
     #addLink{
         width: 40px !important;
         height: 40px !important;
-        bottom: 15px !important;
+        bottom: 10px !important;
         right: 15px !important;
         font-size: 16px !important;
     }
@@ -4729,6 +4729,9 @@ MÓVIL
 
 }
 
+
+
+
 /*====================================================
     MODAL MÚSICA
 ====================================================*/
@@ -5029,4 +5032,62 @@ MÓVIL
 
     }
 
+}
+
+
+
+/*====================================================
+    BOTÓN ADMINISTRADOR DE MÚSICA - ANIMACIÓN
+====================================================*/
+
+.music-admin-button {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+/* Animación al hacer clic */
+.music-admin-button:active {
+    transform: scale(0.82) rotate(-15deg);
+}
+
+/* Efecto al pasar el mouse */
+.music-admin-button:hover {
+    transform: scale(1.08);
+}
+
+
+/*====================================================
+    TAMAÑO PARA CELULARES Y DISPOSITIVOS PEQUEÑOS
+====================================================*/
+
+@media (max-width: 768px) {
+
+    .music-admin-button {
+        width: 42px;
+        height: 42px;
+        left: 12px;
+        bottom: 12px;
+        font-size: 16px;
+    }
+
+    .music-admin-button:active {
+        transform: scale(0.78) rotate(-15deg);
+    }
+}
+
+
+/*====================================================
+    CELULARES MUY PEQUEÑOS
+====================================================*/
+
+@media (max-width: 480px) {
+
+    .music-admin-button {
+        width: 38px;
+        height: 38px;
+        left: 10px;
+        bottom: 10px;
+        font-size: 14px;
+    }
 }

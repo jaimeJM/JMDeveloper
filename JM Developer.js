@@ -4614,21 +4614,21 @@ addButton.style.cssText=`
 
 position:fixed;
 
-bottom:30px;
+bottom:20px;
 
 right:30px;
 
-width:65px;
+width:60px;
 
-height:65px;
+height:60px;
 
 border:none;
 
 border-radius:50%;
 
-background:#111;
+background:#ffffff;
 
-color:white;
+color:#111;
 
 font-size:24px;
 
