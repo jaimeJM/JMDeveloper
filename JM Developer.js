@@ -3589,6 +3589,42 @@ const resetCardStats =
     );
 
 
+/*====================================================
+    POSICIONES WEB Y CELULAR
+====================================================*/
+
+const cardStatsWebX =
+    document.getElementById(
+        "cardStatsWebX"
+    );
+
+const cardStatsWebY =
+    document.getElementById(
+        "cardStatsWebY"
+    );
+
+const cardStatsWebLock =
+    document.getElementById(
+        "cardStatsWebLock"
+    );
+
+
+const cardStatsMobileX =
+    document.getElementById(
+        "cardStatsMobileX"
+    );
+
+const cardStatsMobileY =
+    document.getElementById(
+        "cardStatsMobileY"
+    );
+
+const cardStatsMobileLock =
+    document.getElementById(
+        "cardStatsMobileLock"
+    );
+
+
 
     /*====================================================
         SISTEMA DE MÚSICA
@@ -3663,6 +3699,7 @@ let musicaUsuarioBloqueada =
 
 let administradorActivo =
     false;
+
 
 
 /*====================================================
@@ -8859,6 +8896,35 @@ function activarArrastreCardStats() {
 
 function iniciarArrastre(e) {
 
+
+
+    
+
+
+ const tipo =
+        obtenerTipoDispositivoCardStats();
+
+    const posicion =
+        cardStatsPositions[tipo];
+
+
+    if(
+        posicion &&
+        posicion.locked
+    ){
+
+        return;
+
+    }
+
+
+    if(!cardStatsAdminPuedeMover){
+
+        return;
+
+    }
+
+
     /*
         SOLO EL ADMINISTRADOR
         PUEDE MOVER CARDSTATS
@@ -8952,6 +9018,8 @@ if (
 
         e.preventDefault();
     }
+
+
 
 
     /*================================================
@@ -9126,145 +9194,59 @@ if (
     );
 }
 
+
 /*====================================================
-    GUARDAR POSICIÓN RESPONSIVE DE CARDSTATS
+    POSICIONES INDEPENDIENTES DE CARDSTATS
+    WEB + CELULAR
 ====================================================*/
 
+let cardStatsPositions = {
 
-async function guardarPosicionCardStats(){
+    web: {
 
-    const stats =
-        document.getElementById(
-            "cardStats"
-        );
+        x: 0,
 
-    if(!stats){
+        y: 230,
 
-        return;
+        locked: false
 
-    }
+    },
 
+    mobile: {
 
-    const card =
-        stats.closest(".card");
+        x: 0,
 
-    if(!card){
+        y: 230,
 
-        return;
+        locked: false
 
     }
 
-
-    const cardWidth =
-        card.clientWidth;
-
-    const cardHeight =
-        card.clientHeight;
+};
 
 
-    if(
-        cardWidth <= 0 ||
-        cardHeight <= 0
-    ){
+/*====================================================
+    DETECTAR TIPO DE DISPOSITIVO
+====================================================*/
 
-        return;
+function obtenerTipoDispositivoCardStats(){
 
-    }
+    return window.matchMedia(
+        "(max-width: 600px)"
+    ).matches
 
+        ? "mobile"
 
-    /*=========================================
-        POSICIÓN ACTUAL
-    =========================================*/
+        : "web";
 
-    const left =
-        stats.offsetLeft;
-
-    const top =
-        stats.offsetTop;
+}
 
 
-    /*=========================================
-        TAMAÑO DE CARDSTATS
-    =========================================*/
+/*====================================================
+    CARGAR POSICIONES DESDE SERVIDOR
+====================================================*/
 
-    const statsWidth =
-        stats.offsetWidth;
-
-    const statsHeight =
-        stats.offsetHeight;
-
-
-    /*=========================================
-        CENTRO DEL ELEMENTO
-    =========================================*/
-
-    const centerX =
-        left +
-        (statsWidth / 2);
-
-    const centerY =
-        top +
-        (statsHeight / 2);
-
-
-    /*=========================================
-        CENTRO RESPONSIVO
-
-        IMPORTANTE:
-
-        Ya no guardamos el borde izquierdo.
-
-        Guardamos el CENTRO.
-
-        De esta manera si el elemento
-        cambia de tamaño en móvil,
-        su centro permanece en el mismo
-        punto relativo de la tarjeta.
-    =========================================*/
-
-    const leftPercent =
-        Number(
-            (
-                (centerX / cardWidth) *
-                100
-            ).toFixed(4)
-        );
-
-
-    const topPercent =
-        Number(
-            (
-                (centerY / cardHeight) *
-                100
-            ).toFixed(4)
-        );
-
-
-    const posicion = {
-
-        left:
-            Math.round(left),
-
-        top:
-            Math.round(top),
-
-        leftPercent:
-            leftPercent,
-
-        topPercent:
-            topPercent,
-
-        responsiveVersion:
-            2
-
-    };
-
-
-    console.log(
-        "CARDSTATS → guardando posición V2:",
-        posicion
-    );
-
+async function cargarPosicionesCardStats(){
 
     try{
 
@@ -9272,20 +9254,7 @@ async function guardarPosicionCardStats(){
             await fetch(
                 "/card-stats/position",
                 {
-
-                    method:
-                        "POST",
-
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            posicion
-                        )
-
+                    cache:"no-store"
                 }
             );
 
@@ -9303,16 +9272,100 @@ async function guardarPosicionCardStats(){
             await respuesta.json();
 
 
-        console.log(
-            "CARDSTATS → servidor confirmó:",
-            datos
-        );
+        /*=========================================
+            WEB
+        =========================================*/
+
+        if(datos.web){
+
+            cardStatsPositions.web = {
+
+                x:
+                    Number.isFinite(
+                        Number(
+                            datos.web.x
+                        )
+                    )
+                        ? Number(
+                            datos.web.x
+                        )
+                        : 0,
+
+                y:
+                    Number.isFinite(
+                        Number(
+                            datos.web.y
+                        )
+                    )
+                        ? Number(
+                            datos.web.y
+                        )
+                        : 230,
+
+                locked:
+                    datos.web.locked === true
+
+            };
+
+        }
+
+
+        /*=========================================
+            CELULAR
+        =========================================*/
+
+        if(datos.mobile){
+
+            cardStatsPositions.mobile = {
+
+                x:
+                    Number.isFinite(
+                        Number(
+                            datos.mobile.x
+                        )
+                    )
+                        ? Number(
+                            datos.mobile.x
+                        )
+                        : 0,
+
+                y:
+                    Number.isFinite(
+                        Number(
+                            datos.mobile.y
+                        )
+                    )
+                        ? Number(
+                            datos.mobile.y
+                        )
+                        : 230,
+
+                locked:
+                    datos.mobile.locked === true
+
+            };
+
+        }
+
+
+        /*=========================================
+            APLICAR LA POSICIÓN DEL DISPOSITIVO
+        =========================================*/
+
+        aplicarPosicionCardStats();
+
+
+        /*=========================================
+            ACTUALIZAR INPUTS DEL MODAL
+        =========================================*/
+
+        cargarPosicionesEnModal();
 
 
     }catch(error){
 
         console.error(
-            "Error guardando posición:",
+            "Error cargando posiciones de CardStats:",
             error
         );
 
@@ -9322,16 +9375,16 @@ async function guardarPosicionCardStats(){
 
 
 /*====================================================
-    RESTAURAR POSICIÓN RESPONSIVE DE CARDSTATS
+    APLICAR POSICIÓN SEGÚN DISPOSITIVO
 ====================================================*/
 
-
-async function restaurarPosicionCardStats(){
+function aplicarPosicionCardStats(){
 
     const stats =
         document.getElementById(
             "cardStats"
         );
+
 
     if(!stats){
 
@@ -9340,15 +9393,104 @@ async function restaurarPosicionCardStats(){
     }
 
 
-    const card =
-        stats.closest(".card");
+    const tipo =
+        obtenerTipoDispositivoCardStats();
 
-    if(!card){
+
+    const posicion =
+        cardStatsPositions[tipo];
+
+
+    if(!posicion){
 
         return;
 
     }
 
+
+    stats.style.transform =
+        "none";
+
+
+    stats.style.left =
+        posicion.x + "px";
+
+
+    stats.style.top =
+        posicion.y + "px";
+
+}
+
+
+/*====================================================
+    CARGAR LAS DOS POSICIONES EN EL MODAL
+====================================================*/
+
+function cargarPosicionesEnModal(){
+
+    if(cardStatsWebX){
+
+        cardStatsWebX.value =
+            Math.round(
+                cardStatsPositions.web.x
+            );
+
+    }
+
+
+    if(cardStatsWebY){
+
+        cardStatsWebY.value =
+            Math.round(
+                cardStatsPositions.web.y
+            );
+
+    }
+
+
+    if(cardStatsWebLock){
+
+        cardStatsWebLock.checked =
+            cardStatsPositions.web.locked;
+
+    }
+
+
+    if(cardStatsMobileX){
+
+        cardStatsMobileX.value =
+            Math.round(
+                cardStatsPositions.mobile.x
+            );
+
+    }
+
+
+    if(cardStatsMobileY){
+
+        cardStatsMobileY.value =
+            Math.round(
+                cardStatsPositions.mobile.y
+            );
+
+    }
+
+
+    if(cardStatsMobileLock){
+
+        cardStatsMobileLock.checked =
+            cardStatsPositions.mobile.locked;
+
+    }
+
+}
+
+
+/*====================================================
+    GUARDAR TODAS LAS POSICIONES
+====================================================*/
+
+async function guardarTodasLasPosicionesCardStats(){
 
     try{
 
@@ -9356,8 +9498,19 @@ async function restaurarPosicionCardStats(){
             await fetch(
                 "/card-stats/position",
                 {
-                    cache:
-                        "no-store"
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            cardStatsPositions
+                        )
+
                 }
             );
 
@@ -9371,234 +9524,10 @@ async function restaurarPosicionCardStats(){
         }
 
 
-        const posicion =
-            await respuesta.json();
-
-
-        if(!posicion){
-
-            return;
-
-        }
-
-
-        /*=========================================
-            ELIMINAR TRANSFORMACIÓN
-        =========================================*/
-
-        stats.style.transform =
-            "none";
-
-
-        /*=========================================
-            ESPERAR A QUE EL ELEMENTO TENGA
-            SU TAMAÑO REAL
-        =========================================*/
-
-        requestAnimationFrame(()=>{
-
-            const cardWidth =
-                card.clientWidth;
-
-            const cardHeight =
-                card.clientHeight;
-
-
-            const statsWidth =
-                stats.offsetWidth;
-
-            const statsHeight =
-                stats.offsetHeight;
-
-
-            if(
-                cardWidth <= 0 ||
-                cardHeight <= 0
-            ){
-
-                return;
-
-            }
-
-
-            /*=====================================
-                POSICIÓN VERSIÓN 2
-
-                leftPercent y topPercent
-                representan EL CENTRO.
-            =====================================*/
-
-            if(
-                posicion.responsiveVersion >= 2 &&
-                Number.isFinite(
-                    Number(
-                        posicion.leftPercent
-                    )
-                ) &&
-                Number.isFinite(
-                    Number(
-                        posicion.topPercent
-                    )
-                )
-            ){
-
-                const centerX =
-                    (
-                        Number(
-                            posicion.leftPercent
-                        ) / 100
-                    ) *
-                    cardWidth;
-
-
-                const centerY =
-                    (
-                        Number(
-                            posicion.topPercent
-                        ) / 100
-                    ) *
-                    cardHeight;
-
-
-                let nuevaX =
-                    centerX -
-                    (statsWidth / 2);
-
-
-                let nuevaY =
-                    centerY -
-                    (statsHeight / 2);
-
-
-                /*=================================
-                    LIMITES
-                =================================*/
-
-                const limiteDerecho =
-                    cardWidth -
-                    statsWidth;
-
-
-                const limiteInferior =
-                    cardHeight -
-                    statsHeight;
-
-
-                nuevaX =
-                    Math.max(
-                        0,
-                        Math.min(
-                            nuevaX,
-                            limiteDerecho
-                        )
-                    );
-
-
-                nuevaY =
-                    Math.max(
-                        0,
-                        Math.min(
-                            nuevaY,
-                            limiteInferior
-                        )
-                    );
-
-
-                stats.style.left =
-                    nuevaX + "px";
-
-
-                stats.style.top =
-                    nuevaY + "px";
-
-
-                console.log(
-                    "CARDSTATS → posición V2 restaurada:",
-                    {
-                        centerX,
-                        centerY,
-                        left:nuevaX,
-                        top:nuevaY
-                    }
-                );
-
-
-                return;
-
-            }
-
-
-            /*=====================================
-                COMPATIBILIDAD CON POSICIÓN
-                ANTIGUA
-            =====================================*/
-
-            if(
-                typeof posicion.left ===
-                    "number" &&
-                typeof posicion.top ===
-                    "number"
-            ){
-
-                let nuevaX =
-                    posicion.left;
-
-
-                let nuevaY =
-                    posicion.top;
-
-
-                const limiteDerecho =
-                    cardWidth -
-                    statsWidth;
-
-
-                const limiteInferior =
-                    cardHeight -
-                    statsHeight;
-
-
-                nuevaX =
-                    Math.max(
-                        0,
-                        Math.min(
-                            nuevaX,
-                            limiteDerecho
-                        )
-                    );
-
-
-                nuevaY =
-                    Math.max(
-                        0,
-                        Math.min(
-                            nuevaY,
-                            limiteInferior
-                        )
-                    );
-
-
-                stats.style.left =
-                    nuevaX + "px";
-
-
-                stats.style.top =
-                    nuevaY + "px";
-
-
-                console.log(
-                    "CARDSTATS → posición antigua restaurada."
-                );
-
-            }
-
-        });
-
-
     }catch(error){
 
         console.error(
-            "Error restaurando posición:",
+            "Error guardando posiciones de CardStats:",
             error
         );
 
@@ -9606,8 +9535,253 @@ async function restaurarPosicionCardStats(){
 
 }
 
+
+/*====================================================
+    GUARDAR POSICIÓN DESPUÉS DE ARRASTRAR
+====================================================*/
+
+async function guardarPosicionCardStats(){
+
+    const stats =
+        document.getElementById(
+            "cardStats"
+        );
+
+
+    if(!stats){
+
+        return;
+
+    }
+
+
+    const tipo =
+        obtenerTipoDispositivoCardStats();
+
+
+    const posicion =
+        cardStatsPositions[tipo];
+
+
+    if(!posicion){
+
+        return;
+
+    }
+
+
+    if(posicion.locked){
+
+        return;
+
+    }
+
+
+    posicion.x =
+        Math.round(
+            stats.offsetLeft
+        );
+
+
+    posicion.y =
+        Math.round(
+            stats.offsetTop
+        );
+
+
+    cargarPosicionesEnModal();
+
+
+    await guardarTodasLasPosicionesCardStats();
+
+}
+
+
+/*====================================================
+    INPUTS MANUALES DE POSICIÓN
+====================================================*/
+
+function conectarInputPosicionCardStats(
+    inputX,
+    inputY,
+    tipo
+){
+
+    if(!inputX || !inputY){
+
+        return;
+
+    }
+
+
+    function aplicar(){
+
+        const x =
+            Math.max(
+                0,
+                Number(inputX.value) || 0
+            );
+
+
+        const y =
+            Math.max(
+                0,
+                Number(inputY.value) || 0
+            );
+
+
+        cardStatsPositions[tipo].x =
+            x;
+
+
+        cardStatsPositions[tipo].y =
+            y;
+
+
+        if(
+            obtenerTipoDispositivoCardStats()
+            === tipo
+        ){
+
+            const stats =
+                document.getElementById(
+                    "cardStats"
+                );
+
+
+            if(stats){
+
+                stats.style.left =
+                    x + "px";
+
+
+                stats.style.top =
+                    y + "px";
+
+            }
+
+        }
+
+
+        guardarTodasLasPosicionesCardStats();
+
+    }
+
+
+    inputX.addEventListener(
+        "input",
+        aplicar
+    );
+
+
+    inputY.addEventListener(
+        "input",
+        aplicar
+    );
+
+}
+
+
+/*====================================================
+    BLOQUEAR POSICIÓN WEB
+====================================================*/
+
+if(cardStatsWebLock){
+
+    cardStatsWebLock.addEventListener(
+        "change",
+        () => {
+
+            cardStatsPositions.web.locked =
+                cardStatsWebLock.checked;
+
+
+            guardarTodasLasPosicionesCardStats();
+
+        }
+    );
+
+}
+
+
+/*====================================================
+    BLOQUEAR POSICIÓN CELULAR
+====================================================*/
+
+if(cardStatsMobileLock){
+
+    cardStatsMobileLock.addEventListener(
+        "change",
+        () => {
+
+            cardStatsPositions.mobile.locked =
+                cardStatsMobileLock.checked;
+
+
+            guardarTodasLasPosicionesCardStats();
+
+        }
+    );
+
+}
+
+
+/*====================================================
+    CONECTAR INPUTS WEB
+====================================================*/
+
+conectarInputPosicionCardStats(
+
+    cardStatsWebX,
+
+    cardStatsWebY,
+
+    "web"
+
+);
+
+
+/*====================================================
+    CONECTAR INPUTS CELULAR
+====================================================*/
+
+conectarInputPosicionCardStats(
+
+    cardStatsMobileX,
+
+    cardStatsMobileY,
+
+    "mobile"
+
+);
+
+
+/*====================================================
+    CAMBIAR ENTRE WEB Y CELULAR
+====================================================*/
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        aplicarPosicionCardStats();
+
+        cargarPosicionesEnModal();
+
+    }
+);
+
+
+/*====================================================
+    INICIALIZAR
+====================================================*/
+
 activarArrastreCardStats();
-restaurarPosicionCardStats();
+
+cargarPosicionesCardStats();
+
+
+
 
 
 
@@ -11205,6 +11379,10 @@ if (cardStatsAdminButton) {
 
                 adminSharesCounter.value =
                     stats.shares;
+
+                    await cargarPosicionesCardStats();
+
+                cargarPosicionesEnModal();
 
 
                 cerrarTodosLosModales();

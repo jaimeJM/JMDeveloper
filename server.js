@@ -2096,7 +2096,8 @@ const CARD_STATS_POSITION_FILE =
 
 
 /*====================================================
-    OBTENER POSICIÓN DE CARDSTATS
+    OBTENER POSICIONES DE CARDSTATS
+    WEB + CELULAR
 ====================================================*/
 
 app.get(
@@ -2106,6 +2107,11 @@ app.get(
 
         try {
 
+            /*
+                Si todavía no existe el archivo,
+                devolver posiciones iniciales.
+            */
+
             if (
                 !fs.existsSync(
                     CARD_STATS_POSITION_FILE
@@ -2114,18 +2120,34 @@ app.get(
 
                 return res.json({
 
-                    left: 0,
+                    web: {
 
-                    top: 230,
+                        x: 0,
 
-                    leftPercent: null,
+                        y: 230,
 
-                    topPercent: null
+                        locked: false
+
+                    },
+
+                    mobile: {
+
+                        x: 0,
+
+                        y: 230,
+
+                        locked: false
+
+                    }
 
                 });
 
             }
 
+
+            /*
+                Leer archivo
+            */
 
             const datos =
                 JSON.parse(
@@ -2136,40 +2158,83 @@ app.get(
                 );
 
 
+            /*
+                DEVOLVER WEB
+            */
+
+            const web = {
+
+                x:
+                    Number.isFinite(
+                        Number(
+                            datos.web?.x
+                        )
+                    )
+                        ? Number(
+                            datos.web.x
+                        )
+                        : 0,
+
+
+                y:
+                    Number.isFinite(
+                        Number(
+                            datos.web?.y
+                        )
+                    )
+                        ? Number(
+                            datos.web.y
+                        )
+                        : 230,
+
+
+                locked:
+                    datos.web?.locked === true
+
+            };
+
+
+            /*
+                DEVOLVER CELULAR
+            */
+
+            const mobile = {
+
+                x:
+                    Number.isFinite(
+                        Number(
+                            datos.mobile?.x
+                        )
+                    )
+                        ? Number(
+                            datos.mobile.x
+                        )
+                        : 0,
+
+
+                y:
+                    Number.isFinite(
+                        Number(
+                            datos.mobile?.y
+                        )
+                    )
+                        ? Number(
+                            datos.mobile.y
+                        )
+                        : 230,
+
+
+                locked:
+                    datos.mobile?.locked === true
+
+            };
+
+
             res.json({
 
-                left:
-                    Number(datos.left) || 0,
+                web: web,
 
-                top:
-                    Number(datos.top) || 230,
-
-                leftPercent:
-                    Number.isFinite(
-                        Number(
-                            datos.leftPercent
-                        )
-                    )
-                        ? Number(
-                            datos.leftPercent
-                        )
-                        : null,
-
-                topPercent:
-                    Number.isFinite(
-                        Number(
-                            datos.topPercent
-                        )
-                    )
-                        ? Number(
-                            datos.topPercent
-                        )
-                        : null,
-
-                responsiveVersion:
-                    Number(
-                        datos.responsiveVersion
-                    ) || 1
+                mobile: mobile
 
             });
 
@@ -2177,7 +2242,7 @@ app.get(
         } catch (error) {
 
             console.error(
-                "Error obteniendo posición de cardStats:",
+                "Error obteniendo posiciones de CardStats:",
                 error
             );
 
@@ -2197,7 +2262,8 @@ app.get(
 );
 
 /*====================================================
-    GUARDAR POSICIÓN DE CARDSTATS
+    GUARDAR POSICIONES DE CARDSTATS
+    WEB + CELULAR
 ====================================================*/
 
 app.post(
@@ -2211,182 +2277,88 @@ app.post(
 
         try {
 
-            /*=========================================
-                POSICIÓN EN PIXELES
-            =========================================*/
-
-            let left =
-                Number(
-                    req.body.left
-                );
+            const datos =
+                req.body;
 
 
-            let top =
-                Number(
-                    req.body.top
-                );
+            /*
+                LIMPIAR UNA POSICIÓN
+            */
 
-
-            /*=========================================
-                POSICIÓN RESPONSIVE
-            =========================================*/
-
-            let leftPercent =
-                Number(
-                    req.body.leftPercent
-                );
-
-
-            let topPercent =
-                Number(
-                    req.body.topPercent
-                );
-
-
-            /*=========================================
-                VALORES POR DEFECTO
-            =========================================*/
-
-            if (
-                !Number.isFinite(left)
+            function limpiarPosicion(
+                posicion
             ) {
 
-                left = 0;
-
-            }
-
-
-            if (
-                !Number.isFinite(top)
-            ) {
-
-                top = 230;
-
-            }
-
-
-            if (
-                !Number.isFinite(
-                    leftPercent
-                )
-            ) {
-
-                leftPercent = null;
-
-            }
-
-
-            if (
-                !Number.isFinite(
-                    topPercent
-                )
-            ) {
-
-                topPercent = null;
-
-            }
-
-
-            /*=========================================
-                LIMITAR PIXELES
-            =========================================*/
-
-            left =
-                Math.max(
-                    0,
-                    Math.round(left)
-                );
-
-
-            top =
-                Math.max(
-                    0,
-                    Math.round(top)
-                );
-
-
-            /*=========================================
-                LIMITAR PORCENTAJES
-            =========================================*/
-
-            if (
-                leftPercent !== null
-            ) {
-
-                leftPercent =
-                    Math.max(
-                        0,
-                        Math.min(
-                            100,
-                            leftPercent
-                        )
-                    );
-
-
-                leftPercent =
+                const x =
                     Number(
-                        leftPercent.toFixed(4)
-                    );
-
-            }
-
-
-            if (
-                topPercent !== null
-            ) {
-
-                topPercent =
-                    Math.max(
-                        0,
-                        Math.min(
-                            100,
-                            topPercent
-                        )
+                        posicion?.x
                     );
 
 
-                topPercent =
+                const y =
                     Number(
-                        topPercent.toFixed(4)
+                        posicion?.y
                     );
 
-            }
+
+                return {
+
+                    x:
+                        Number.isFinite(x)
+                            ? Math.max(
+                                0,
+                                Math.round(x)
+                            )
+                            : 0,
 
 
-            /*=========================================
-                OBJETO FINAL
-            =========================================*/
+                    y:
+                        Number.isFinite(y)
+                            ? Math.max(
+                                0,
+                                Math.round(y)
+                            )
+                            : 230,
 
-                const datos = {
 
-                    left:
-                        left,
-
-                    top:
-                        top,
-
-                    leftPercent:
-                        leftPercent,
-
-                    topPercent:
-                        topPercent,
-
-                    responsiveVersion:
-                        2
+                    locked:
+                        posicion?.locked === true
 
                 };
 
+            }
 
-            /*=========================================
-                GUARDAR
-            =========================================*/
+
+            /*
+                CREAR OBJETO FINAL
+            */
+
+            const posiciones = {
+
+                web:
+                    limpiarPosicion(
+                        datos.web
+                    ),
+
+
+                mobile:
+                    limpiarPosicion(
+                        datos.mobile
+                    )
+
+            };
+
+
+            /*
+                GUARDAR EN ARCHIVO
+            */
 
             fs.writeFileSync(
 
                 CARD_STATS_POSITION_FILE,
 
                 JSON.stringify(
-                    datos,
+                    posiciones,
                     null,
                     2
                 ),
@@ -2397,16 +2369,24 @@ app.post(
 
 
             console.log(
-                "CARDSTATS posición guardada:",
-                datos
+                "CARDSTATS → posiciones guardadas:",
+                posiciones
             );
 
+
+            /*
+                RESPUESTA
+            */
 
             res.json({
 
                 ok: true,
 
-                ...datos
+                web:
+                    posiciones.web,
+
+                mobile:
+                    posiciones.mobile
 
             });
 
@@ -2414,7 +2394,7 @@ app.post(
         } catch (error) {
 
             console.error(
-                "Error guardando posición de cardStats:",
+                "Error guardando posiciones de CardStats:",
                 error
             );
 
@@ -2432,7 +2412,6 @@ app.post(
 
     }
 );
-
 
 
 

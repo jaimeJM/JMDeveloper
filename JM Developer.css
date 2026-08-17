@@ -4451,6 +4451,192 @@ MÓVIL
 }
 
 
+
+/*====================================================
+    EDITOR DE POSICIONES DE CARDSTATS
+====================================================*/
+
+.card-stats-position-editor{
+
+    margin-top:25px;
+
+    padding-top:20px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.20);
+
+}
+
+
+.card-stats-position-editor h3{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-bottom:18px;
+
+    font-size:17px;
+
+}
+
+
+/*====================================================
+    GRUPO WEB / CELULAR
+====================================================*/
+
+.stats-position-group{
+
+    margin-top:18px;
+
+    padding:15px;
+
+    border-radius:14px;
+
+    background:
+        rgba(0,0,0,.12);
+
+    border:
+        1px solid
+        rgba(255,255,255,.15);
+
+}
+
+
+/*====================================================
+    TITULO DE POSICIÓN
+====================================================*/
+
+.stats-position-group > label:first-child{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:0 0 12px;
+
+}
+
+
+/*====================================================
+    INPUTS X Y
+====================================================*/
+
+.stats-position-inputs{
+
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:10px;
+
+}
+
+
+.stats-position-inputs > div{
+
+    position:relative;
+
+}
+
+
+.stats-position-inputs span{
+
+    position:absolute;
+
+    left:10px;
+
+    top:50%;
+
+    transform:
+        translateY(-50%);
+
+    font-weight:bold;
+
+    z-index:2;
+
+}
+
+
+.stats-position-inputs input{
+
+    width:100%;
+
+    padding:
+        11px
+        35px
+        11px
+        30px;
+
+    margin:0;
+
+    border-radius:10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.25);
+
+    box-sizing:border-box;
+
+}
+
+
+.stats-position-inputs small{
+
+    position:absolute;
+
+    right:10px;
+
+    top:50%;
+
+    transform:
+        translateY(-50%);
+
+    opacity:.65;
+
+}
+
+
+/*====================================================
+    CHECKBOX BLOQUEAR POSICIÓN
+====================================================*/
+
+.stats-position-lock{
+
+    display:flex !important;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:14px !important;
+
+    cursor:pointer;
+
+    font-weight:500 !important;
+
+}
+
+
+.stats-position-lock input{
+
+    width:18px !important;
+
+    height:18px !important;
+
+    margin:0 !important;
+
+    cursor:pointer;
+
+}
+
+
 /*====================================================
     BOTÓN REINICIAR
 ====================================================*/
@@ -4864,15 +5050,18 @@ MÓVIL
 @keyframes musicSpeakerPulseRight {
 
     0% {
-        transform: scaleX(-1) scale(1);
+        opacity: .35;
+        transform: scaleX(-1) scale(.85);
     }
 
     50% {
-        transform: scaleX(-1) scale(1.15);
+        opacity: 1;
+        transform: scaleX(-1) scale(1.12);
     }
 
     100% {
-        transform: scaleX(-1) scale(1);
+         opacity: .35;
+        transform: scaleX(-1) scale(.85);
     }
 }
 

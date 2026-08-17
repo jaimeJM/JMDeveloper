@@ -1,7 +1,12 @@
 {
-  "left": 263,
-  "top": 332,
-  "leftPercent": 54.1176,
-  "topPercent": 28.2062,
-  "responsiveVersion": 2
+  "web": {
+    "x": 258,
+    "y": 324,
+    "locked": true
+  },
+  "mobile": {
+    "x": 152,
+    "y": 301,
+    "locked": true
+  }
 }
