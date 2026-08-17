@@ -4564,12 +4564,11 @@ MÓVIL
 
     transform:none;
 
-    font-weight:bold;
+    opacity:.65;
 
-    color:inherit;
+    white-space:nowrap;
 
     flex-shrink:0;
-
 }
 
 
@@ -4579,9 +4578,9 @@ MÓVIL
 
 .stats-position-inputs input{
 
-    width:90px;
+    width:75px;
 
-    min-width:90px;
+    min-width:75px;
 
     max-width:90px;
 
