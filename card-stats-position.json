@@ -1,11 +1,11 @@
 {
   "web": {
     "x": 258,
-    "y": 324,
+    "y": 328,
     "locked": true
   },
   "mobile": {
-    "x": 108,
+    "x": 127,
     "y": 302,
     "locked": true
   }

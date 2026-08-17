@@ -4532,16 +4532,18 @@ MÓVIL
     display:grid;
 
     grid-template-columns:
-        1fr 1fr;
+        minmax(0, 1fr)
+        minmax(0, 1fr);
 
-    gap:10px;
+    gap:8px;
 
 }
-
 
 .stats-position-inputs > div{
 
     position:relative;
+
+    min-width:0;
 
 }
 
@@ -4550,9 +4552,11 @@ MÓVIL
 
     position:absolute;
 
-    left:10px;
+
+    left:8px;
 
     top:50%;
+    
 
     transform:
         translateY(-50%);
@@ -4563,16 +4567,17 @@ MÓVIL
 
 }
 
-
 .stats-position-inputs input{
 
     width:100%;
 
+    min-width:0;
+
     padding:
         11px
-        35px
+        32px
         11px
-        30px;
+        28px;
 
     margin:0;
 
@@ -4584,14 +4589,17 @@ MÓVIL
 
     box-sizing:border-box;
 
-}
+    text-align:center;
 
+    font-size:14px;
+
+}
 
 .stats-position-inputs small{
 
     position:absolute;
 
-    right:10px;
+    right:8px;
 
     top:50%;
 
@@ -4600,8 +4608,25 @@ MÓVIL
 
     opacity:.65;
 
+    white-space:nowrap;
+
 }
 
+
+
+/*====================================================
+    ANCHO DE LOS INPUTS DE POSICIÓN
+====================================================*/
+
+.stats-position-inputs input[type="number"]{
+
+    width:100%;
+
+    min-width:0;
+
+    font-size:14px;
+
+}
 
 /*====================================================
     CHECKBOX BLOQUEAR POSICIÓN
@@ -4684,6 +4709,9 @@ MÓVIL
 #cardShareButton i {
     transition: color .25s ease, transform .2s ease;
 }
+
+
+
 
 /*====================================================
     ANIMACIÓN PULGARES
