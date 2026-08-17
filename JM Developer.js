@@ -8387,6 +8387,41 @@ async function cargarEstadoLike() {
 }
 
 
+/*====================================================
+    SONIDO LIKE
+====================================================*/
+
+const sonidoLike = new Audio(
+    "/sounds/like.mp3"
+);
+
+
+function reproducirSonidoLike(){
+
+    sonidoLike.currentTime = 0;
+
+    sonidoLike.volume = 0.7;
+
+    sonidoLike.play().catch(
+        error => {
+
+            console.warn(
+                "No se pudo reproducir el sonido Like:",
+                error
+            );
+
+        }
+    );
+
+}
+
+
+
+
+
+
+
+
 
 /*====================================================
     TOGGLE LIKE
@@ -8478,6 +8513,14 @@ if (datos.liked) {
     );
 
 
+      /*=====================================
+        SONIDO LIKE
+    =====================================*/
+
+    reproducirSonidoLike();
+
+
+
     /*=====================================
         ANIMACIÓN
     =====================================*/
@@ -8556,9 +8599,15 @@ function animarAplausos() {
         aplauso.className =
             "share-float";
 
-
+/*
         aplauso.innerHTML =
-            "👏🏼";
+            "👏🏼"; */
+
+            aplauso.innerHTML = `
+    <span class="clap-bubble">
+        <i class="fa-solid fa-hands-clapping"></i>
+    </span>
+`;
 
 
         aplauso.style.left =
@@ -8835,6 +8884,37 @@ async function registrarCompartido() {
 }
 
 
+
+/*====================================================
+    SONIDOS  COMPARTIR
+====================================================*/
+
+
+const sonidoShare = new Audio(
+    "/sounds/share.mp3"
+);
+
+
+
+
+/*====================================================
+    REPRODUCIR SONIDO COMPARTIR
+====================================================*/
+
+function reproducirSonidoShare(){
+
+    sonidoShare.currentTime = 0;
+
+    sonidoShare.volume = 0.7;
+
+    sonidoShare.play().catch(
+        () => {}
+    );
+
+}
+
+
+
 /*====================================================
     ANIMACIÓN DEL BOTÓN COMPARTIR
 ====================================================*/
@@ -8849,6 +8929,8 @@ function activarEstadoCompartido() {
     cardShareButton.classList.add(
         "shared"
     );
+
+      reproducirSonidoShare();
 
 }
 
@@ -11693,9 +11775,19 @@ function animarPulgares() {
         pulgar.className =
             "like-float";
 
-
+/*
         pulgar.innerHTML =
-            "👍🏼";
+            "👍🏼"; */
+
+/*=========================================
+    ICONO PULGAR DENTRO DE BURBUJA
+=========================================*/
+
+pulgar.innerHTML = `
+    <span class="like-bubble">
+        <i class="fa-solid fa-thumbs-up"></i>
+    </span>
+`;
 
 
         /*=================================
@@ -11754,3 +11846,5 @@ function animarPulgares() {
     }
 
 }
+
+

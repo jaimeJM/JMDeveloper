@@ -1150,7 +1150,6 @@ Jaime Martinez1
 
 </button>
 
-
 <!--====================================================
     MODAL DE MÚSICA
 ====================================================-->
@@ -1162,11 +1161,12 @@ Jaime Martinez1
     <div
         class="modal-content music-editor-modal">
 
+
         <h2>
 
             <i class="fa-solid fa-music"></i>
 
-            Música del sitio
+            &nbsp;Música del sitio
 
         </h2>
 
@@ -1180,51 +1180,69 @@ Jaime Martinez1
         </p>
 
 
-        <!--=========================================
-            ARCHIVO MP3
-        =========================================-->
+<!--=========================================
+    ARCHIVO MP3
+=========================================-->
 
-        <label
-            for="musicFile">
+<label class="music-file-label">
 
-            Archivo MP3
+    <i class="fa-solid fa-music"></i>
 
-        </label>
+    Archivo MP3
 
+</label>
+
+
+<div class="music-file-selector">
+
+    <label
+        for="musicFile"
+        class="music-file-button">
+
+        <i class="fa-solid fa-music"></i>
+
+        Seleccionar canción
+
+    </label>
+
+
+    <input
+        type="file"
+        id="musicFile"
+        accept=".mp3,audio/mpeg">
+
+
+    <div
+        id="musicFileName"
+        class="file-name-preview">
+
+        Ningún archivo seleccionado
+
+    </div>
+
+</div>
+
+<!--=========================================
+    ACTIVAR / DESACTIVAR
+=========================================-->
+
+<div class="music-enable-row">
+
+    <label class="music-enable-control">
 
         <input
-            type="file"
-            id="musicFile"
-            accept=".mp3,audio/mpeg">
+            type="checkbox"
+            id="musicEnabled">
 
+        <span class="music-switch"></span>
 
-        <div
-            id="musicFileName"
-            class="file-name-preview">
+        <span class="music-enable-text">
+            Activar música del sitio
+        </span>
 
-            Ningún archivo seleccionado
+    </label>
 
-        </div>
-
-
-        <!--=========================================
-            ACTIVAR / DESACTIVAR
-        =========================================-->
-
-
-        <label class="stats-position-lock">
-
-    <input 
-        type="checkbox" 
-        id="musicEnabled">
-
-    <span class="stats-position-switch"></span>
-
-    <span class="stats-position-lock-text">
-        Activar música del sitio
-    </span> <br>
-
-
+</div>
 
         <!--=========================================
             BOTONES
@@ -1237,9 +1255,7 @@ Jaime Martinez1
                 id="saveMusic"
                 class="btn-save">
 
-                <i
-                    class="fa-solid fa-floppy-disk">
-                </i>
+                <i class="fa-solid fa-floppy-disk"></i>
 
                 Guardar
 
@@ -1252,11 +1268,10 @@ Jaime Martinez1
             class="closeModal closeX"
             title="Cerrar">
 
-            <i
-                class="fa-solid fa-xmark">
-            </i>
+            <i class="fa-solid fa-xmark"></i>
 
         </button>
+
 
     </div>
 
