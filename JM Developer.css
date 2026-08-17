@@ -4522,64 +4522,77 @@ MÓVIL
 
 }
 
-
 /*====================================================
-    INPUTS X Y
+    INPUTS DE POSICIÓN X / Y
 ====================================================*/
 
 .stats-position-inputs{
 
-    display:grid;
+    display:flex;
 
-    grid-template-columns:
-        minmax(0, 1fr)
-        minmax(0, 1fr);
+    align-items:center;
 
     gap:8px;
 
 }
 
+
+/*====================================================
+    CONTENEDOR DE CADA POSICIÓN
+====================================================*/
+
 .stats-position-inputs > div{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:5px;
 
     position:relative;
 
-    min-width:0;
-
 }
 
+
+/*====================================================
+    X / Y FUERA DE LA CAJA
+====================================================*/
 
 .stats-position-inputs span{
 
-    position:absolute;
+    position:static;
 
-
-    left:8px;
-
-    top:50%;
-    
-
-    transform:
-        translateY(-50%);
+    transform:none;
 
     font-weight:bold;
 
-    z-index:2;
+    color:inherit;
+
+    flex-shrink:0;
 
 }
 
+
+/*====================================================
+    CAJA DEL NÚMERO
+====================================================*/
+
 .stats-position-inputs input{
 
-    width:100%;
+    width:100px;
 
-    min-width:0;
+    min-width:100px;
+
+    max-width:58px;
+
+    height:40px;
 
     padding:
-        11px
-        32px
-        11px
-        28px;
+        5px;
 
     margin:0;
+
+    box-sizing:border-box;
 
     border-radius:10px;
 
@@ -4587,80 +4600,30 @@ MÓVIL
         1px solid
         rgba(255,255,255,.25);
 
-    box-sizing:border-box;
-
     text-align:center;
 
     font-size:14px;
 
 }
 
+
+/*====================================================
+    PX FUERA DE LA CAJA
+====================================================*/
+
 .stats-position-inputs small{
 
-    position:absolute;
+    position:static;
 
-    right:8px;
-
-    top:50%;
-
-    transform:
-        translateY(-50%);
+    transform:none;
 
     opacity:.65;
 
     white-space:nowrap;
 
-}
-
-
-
-/*====================================================
-    ANCHO DE LOS INPUTS DE POSICIÓN
-====================================================*/
-
-.stats-position-inputs input[type="number"]{
-
-    width:100%;
-
-    min-width:0;
-
-    font-size:14px;
+    flex-shrink:0;
 
 }
-
-/*====================================================
-    CHECKBOX BLOQUEAR POSICIÓN
-====================================================*/
-
-.stats-position-lock{
-
-    display:flex !important;
-
-    align-items:center;
-
-    gap:8px;
-
-    margin-top:14px !important;
-
-    cursor:pointer;
-
-    font-weight:500 !important;
-
-}
-
-
-.stats-position-lock input{
-
-    width:18px !important;
-
-    height:18px !important;
-
-    margin:0 !important;
-
-    cursor:pointer;
-
-}
-
 
 /*====================================================
     BOTÓN REINICIAR
