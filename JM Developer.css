@@ -5877,3 +5877,1290 @@ input[type="checkbox"]:checked
     line-height:1;
 
 }
+
+/*====================================================
+    BOTÓN FIJO + PANEL DE INFORMACIÓN DETRÁS
+====================================================*/
+
+#linksContainer .link-card{
+    position:relative;
+    display:block;
+    overflow:visible;
+    padding:0;
+    background:transparent;
+    border:none;
+    box-shadow:none;
+}
+
+#linksContainer .link-card:hover{
+    transform:translateY(-3px);
+    box-shadow:none;
+}
+
+#linksContainer .link-main{
+    position:relative;
+    z-index:3;
+    min-height:80px;
+    display:grid;
+    grid-template-columns:60px minmax(0,1fr) 60px;
+    align-items:center;
+    gap:10px;
+    padding:18px 22px;
+    background:var(--button);
+    border:4px solid var(--border);
+    border-radius:50px;
+    box-shadow:8px 8px 0 var(--shadow);
+    cursor:pointer;
+    transition:transform .25s ease, box-shadow .25s ease;
+}
+
+#linksContainer .link-card:hover .link-main{
+    transform:translateY(-3px) scale(1.01);
+    box-shadow:12px 12px 20px rgba(0,0,0,.25);
+}
+
+#linksContainer .link-main .left{
+    width:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+}
+
+#linksContainer .link-main .center{
+    min-width:0;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    transform:none;
+}
+
+#linksContainer .link-main .center span,
+#linksContainer .link-main .center small{
+    width:100%;
+    overflow-wrap:anywhere;
+}
+
+#linksContainer .link-actions{
+    width:60px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:3px;
+}
+
+#linksContainer .link-actions button{
+    width:42px;
+    height:42px;
+    border:0;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    background:rgba(0,0,0,.08);
+    color:var(--icon-color);
+    transition:transform .25s ease, background .25s ease;
+}
+
+#linksContainer .link-actions button:hover{
+    transform:scale(1.08);
+    background:rgba(0,0,0,.15);
+}
+
+#linksContainer .user-info-toggle{
+    display:none;
+}
+
+body:not(.admin-mode) #linksContainer .user-info-toggle,
+.user-mode #linksContainer .user-info-toggle{
+    display:flex;
+}
+
+#linksContainer .social-info-panel{
+    position:relative;
+    z-index:1;
+    width:calc(100% - 28px);
+    margin:-10px auto 0;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transform:translateY(-24px) scale(.97);
+    transform-origin:top center;
+    padding:0 20px;
+    background:var(--button);
+    border:3px solid var(--border);
+    border-top:0;
+    border-radius:0 0 34px 34px;
+    box-shadow:0 14px 28px rgba(0,0,0,.20);
+    transition:max-height .48s cubic-bezier(.22,.61,.36,1), opacity .28s ease, transform .48s cubic-bezier(.22,.61,.36,1), padding .48s ease;
+}
+
+#linksContainer .link-card.social-info-open .social-info-panel{
+    max-height:390px;
+    opacity:1;
+    transform:translateY(0) scale(1);
+    padding:30px 20px 18px;
+}
+
+#linksContainer .social-info-inner{
+    width:100%;
+    min-height:120px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    text-align:center;
+    animation:socialInfoReveal .42s ease both;
+}
+
+@keyframes socialInfoReveal{
+    from{opacity:0; transform:translateY(-14px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+#linksContainer .social-info-avatar,
+#linksContainer .social-placeholder{
+    width:74px;
+    height:74px;
+    border-radius:50%;
+    object-fit:cover;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:3px solid rgba(255,255,255,.7);
+    box-shadow:0 7px 20px rgba(0,0,0,.22);
+    font-size:28px;
+}
+
+#linksContainer .social-info-name{
+    font-size:18px;
+    font-weight:700;
+    color:var(--text);
+}
+
+#linksContainer .social-info-user{
+    font-size:13px;
+    opacity:.72;
+}
+
+#linksContainer .social-info-url{
+    margin-top:5px;
+    font-size:12px;
+    opacity:.7;
+}
+
+#linksContainer .social-info-stats{
+    width:min(520px,100%);
+    margin-top:12px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+
+#linksContainer .social-info-stats > div{
+    padding:10px 5px;
+    border-radius:14px;
+    background:rgba(255,255,255,.12);
+}
+
+#linksContainer .social-info-stats i{
+    display:block;
+    margin-bottom:4px;
+    font-size:15px;
+}
+
+#linksContainer .social-info-stats strong{
+    display:block;
+    font-size:15px;
+}
+
+#linksContainer .social-info-stats span{
+    display:block;
+    font-size:10px;
+    opacity:.68;
+}
+
+#linksContainer .youtube-thumbnail-wrap{
+    position:relative;
+    width:min(360px,100%);
+    aspect-ratio:16/9;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+
+#linksContainer .youtube-thumbnail{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+#linksContainer .youtube-play{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:58px;
+    height:42px;
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,0,0,.92);
+    color:#fff;
+    font-size:22px;
+}
+
+/*====================================================
+    CAMPOS MANUALES EN EDITOR
+====================================================*/
+
+.link-social-editor{
+    margin:20px 0 10px;
+    padding:18px;
+    border-radius:20px;
+    background:rgba(0,0,0,.07);
+    border:1px solid rgba(0,0,0,.08);
+}
+
+.link-social-editor h3{
+    margin:0 0 7px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:16px;
+}
+
+.link-social-help{
+    margin:0 0 15px;
+    font-size:12px;
+    line-height:1.5;
+    opacity:.72;
+}
+
+.link-social-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.link-social-grid > div{
+    min-width:0;
+}
+
+/*====================================================
+    PORCENTAJE DEL LÍMITE
+====================================================*/
+
+.warning-percentage{
+    margin-top:-10px;
+    margin-bottom:12px;
+    text-align:center;
+    font-size:13px;
+    opacity:.8;
+}
+
+.warning-percentage strong{
+    font-size:20px;
+    opacity:1;
+}
+
+@media(max-width:600px){
+    #linksContainer .link-main{
+        grid-template-columns:42px minmax(0,1fr) 42px;
+        min-height:72px;
+        padding:14px 15px;
+        border-radius:38px;
+    }
+    #linksContainer .link-main .left{
+        width:42px;
+        font-size:28px;
+    }
+    #linksContainer .link-actions{
+        width:42px;
+    }
+    #linksContainer .link-actions button{
+        width:36px;
+        height:36px;
+    }
+    #linksContainer .social-info-panel{
+        width:calc(100% - 18px);
+    }
+    #linksContainer .social-info-stats{
+        gap:5px;
+    }
+    .link-social-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+
+/*====================================================
+    AJUSTES FINALES DE INFORMACIÓN DEL BOTÓN
+====================================================*/
+
+/* El color elegido en "Color de los iconos" afecta
+   únicamente al icono principal de cada botón. */
+#linksContainer .link-card .left i{
+    color:var(--link-icon-color, var(--icon-color));
+}
+
+/* Los controles de administración conservan su propio color. */
+#linksContainer .link-card .options i{
+    color:var(--icon-color);
+}
+
+/* El panel se abre hacia ARRIBA, por detrás de la tarjeta.
+   Nunca usa el color configurado para el fondo de los botones. */
+#linksContainer .link-card{
+    position:relative;
+    z-index:2;
+}
+
+#linksContainer .social-info-panel{
+    position:absolute;
+    left:14px;
+    right:14px;
+    bottom:calc(100% + 8px);
+    width:auto;
+    margin:0;
+    max-height:0;
+    padding:0 20px;
+    overflow:hidden;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(24px) scale(.97);
+    transform-origin:bottom center;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:24px;
+    box-shadow:0 14px 35px rgba(0,0,0,.22);
+    color:#fff;
+    z-index:20;
+    pointer-events:none;
+    transition:
+        max-height .48s cubic-bezier(.22,.61,.36,1),
+        opacity .28s ease,
+        visibility .28s ease,
+        transform .48s cubic-bezier(.22,.61,.36,1),
+        padding .48s ease;
+}
+
+#linksContainer .link-card.social-info-open .social-info-panel{
+    max-height:430px;
+    padding:18px 20px;
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+}
+
+#linksContainer .social-info-inner{
+    min-height:100px;
+    color:#fff;
+}
+
+#linksContainer .social-info-name,
+#linksContainer .social-info-user,
+#linksContainer .social-info-url,
+#linksContainer .social-info-inner strong,
+#linksContainer .social-info-inner span{
+    color:#fff;
+    opacity:1;
+}
+
+#linksContainer .social-info-avatar,
+#linksContainer .social-placeholder{
+    border-color:rgba(255,255,255,.75);
+    color:#fff;
+}
+
+#linksContainer .social-info-stats > div{
+    background:rgba(255,255,255,.10);
+    color:#fff;
+}
+
+#linksContainer .social-info-stats i,
+#linksContainer .social-info-stats strong,
+#linksContainer .social-info-stats span{
+    color:#fff;
+}
+
+#linksContainer .youtube-info-inner{
+    gap:8px;
+}
+
+#linksContainer .youtube-thumbnail-wrap{
+    width:100%;
+    max-width:280px;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    position:relative;
+    border-radius:18px;
+    background:rgba(0,0,0,.25);
+    box-shadow:0 8px 22px rgba(0,0,0,.24);
+}
+
+#linksContainer .youtube-thumbnail{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+}
+
+#linksContainer .youtube-play{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:42px;
+    color:#fff !important;
+    text-shadow:0 3px 15px rgba(0,0,0,.55);
+}
+
+#linksContainer .youtube-info-inner .social-info-name{
+    display:none;
+}
+
+#linksContainer .youtube-info-inner .social-info-user,
+#linksContainer .youtube-info-inner .social-info-url{
+    display:none;
+}
+
+/* Vista previa PDF */
+#linksContainer .pdf-info-inner{
+    gap:8px;
+}
+
+#linksContainer .pdf-preview-wrap{
+    width:100%;
+    max-width:280px;
+    height:250px;
+    overflow:hidden;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 8px 22px rgba(0,0,0,.25);
+}
+
+#linksContainer .pdf-preview{
+    width:100%;
+    height:100%;
+    display:block;
+    border:0;
+    background:#fff;
+}
+
+/* Campos dinámicos del editor */
+.link-social-editor .social-field,
+.link-social-editor .social-field-socials{
+    display:none;
+}
+
+.link-social-editor.social-type-whatsapp .social-field-whatsapp,
+.link-social-editor.social-type-whatsapp .social-field-photo{
+    display:block;
+}
+
+.link-social-editor.social-type-social .social-field-photo,
+.link-social-editor.social-type-social .social-field-socials{
+    display:block;
+}
+
+.link-social-editor.social-type-youtube .social-field-photo{
+    display:block;
+}
+
+.link-social-editor.social-type-pdf{
+    display:none;
+}
+
+.link-social-photo-upload{
+    width:220px !important;
+    height:100px !important;
+}
+
+.link-social-photo-upload .file-preview-box{
+    width:100px !important;
+    height:100px !important;
+    overflow:hidden;
+    border-radius:14px;
+}
+
+.link-social-photo-upload .file-preview-box img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+.link-social-file-help{
+    display:block;
+    margin-top:5px;
+    color:rgba(255,255,255,.75);
+    font-size:11px;
+}
+
+/* La vista previa no depende del color del botón. */
+#linksContainer .social-info-panel,
+#linksContainer .social-info-panel *{
+    --button:transparent;
+}
+
+@media(max-width:600px){
+    #linksContainer .social-info-panel{
+        left:9px;
+        right:9px;
+    }
+
+    #linksContainer .pdf-preview-wrap{
+        max-width:100%;
+        height:220px;
+    }
+}
+
+:root{--link-icon-color:#ffffff;}
+
+#linksContainer .social-info-description{
+    display:block;
+    width:100%;
+    text-align:center;
+    color:#fff !important;
+    font-size:13px;
+    line-height:1.4;
+    margin-top:4px;
+}
+
+.link-social-editor.social-type-generic{
+    display:none;
+}
+
+
+/*====================================================
+   AJUSTES DEFINITIVOS DEL EDITOR Y PANEL INFORMATIVO
+====================================================*/
+
+/* El radio se aplica al contenedor visual real del botón. */
+#linksContainer .link-main{
+    border-radius:var(--button-radius, 50px);
+}
+
+/* Color de iconos: botón principal + control que abre el panel. */
+#linksContainer .link-main .left i,
+#linksContainer .link-main .user-info-toggle i{
+    color:var(--link-icon-color, var(--icon-color, #ffffff));
+}
+
+/* En modo oscuro, los iconos del control informativo siempre son blancos. */
+body.dark #linksContainer .link-main .user-info-toggle i{
+    color:#ffffff !important;
+}
+
+/* En modo administrador el control de información no existe visualmente. */
+body.admin-mode #linksContainer .user-info-toggle,
+body.admin-mode.user-mode #linksContainer .user-info-toggle{
+    display:none !important;
+}
+
+/*
+   El panel forma parte del flujo de la tarjeta.
+   Al abrirse aumenta la altura de la tarjeta y empuja
+   las siguientes tarjetas hacia abajo: no se superponen.
+*/
+#linksContainer .link-card{
+    overflow:visible;
+}
+
+#linksContainer .social-info-panel{
+    position:relative !important;
+    left:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    top:auto !important;
+    width:calc(100% - 28px) !important;
+    margin:-2px auto 0 !important;
+    box-sizing:border-box;
+    max-height:0;
+    padding:0 20px !important;
+    overflow:hidden;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-18px) scale(.97);
+    transform-origin:top center;
+    background:var(--social-panel-bg, rgba(32,32,32,.82)) !important;
+    border:1px solid rgba(255,255,255,.18) !important;
+    border-top:0 !important;
+    border-radius:0 0 24px 24px !important;
+    box-shadow:0 14px 35px rgba(0,0,0,.22);
+    color:var(--social-panel-text, #ffffff) !important;
+    z-index:1;
+    pointer-events:none;
+    transition:
+        max-height .48s cubic-bezier(.22,.61,.36,1),
+        opacity .28s ease,
+        visibility .28s ease,
+        transform .48s cubic-bezier(.22,.61,.36,1),
+        padding .48s ease,
+        margin .48s ease;
+}
+
+#linksContainer .link-card.social-info-open .social-info-panel{
+    max-height:430px;
+    padding:18px 20px !important;
+    margin:-2px auto 16px !important;
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+}
+
+/* El color del panel es independiente del color de los botones. */
+#linksContainer .social-info-panel,
+#linksContainer .social-info-panel *{
+    --button:transparent;
+    color:var(--social-panel-text, #ffffff) !important;
+}
+
+#linksContainer .social-info-panel .social-info-stats > div{
+    background:rgba(255,255,255,.12);
+}
+
+/* YouTube: miniatura cuadrada/compacta con esquinas redondeadas. */
+#linksContainer .youtube-thumbnail-wrap{
+    width:min(360px,100%);
+    aspect-ratio:16/9;
+    border-radius:16px;
+    overflow:hidden;
+}
+
+/* Vista previa del editor: mismo efecto de ampliación que los demás modales. */
+.link-social-photo-upload .file-preview-box{
+    cursor:pointer;
+    transition:
+        width .25s ease,
+        height .25s ease,
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+.link-social-photo-upload .file-preview-box.preview-ampliada{
+    width:200px !important;
+    height:200px !important;
+    min-width:200px !important;
+    min-height:200px !important;
+    flex:0 0 200px !important;
+    z-index:50;
+    transform:scale(1.02);
+    box-shadow:0 12px 32px rgba(0,0,0,.38);
+}
+
+/* Selectores de color del panel. */
+.social-panel-colors{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin:14px 0 16px;
+}
+
+.social-panel-color-field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.social-panel-color-field input[type="color"]{
+    width:100%;
+    height:42px;
+    min-height:42px;
+    padding:3px;
+    border-radius:10px;
+}
+
+/* El campo de miniatura no se muestra para YouTube:
+   la miniatura procede exclusivamente del enlace. */
+.link-social-editor.social-type-youtube .social-field-photo{
+    display:none !important;
+}
+
+@media(max-width:600px){
+    .social-panel-colors{
+        grid-template-columns:1fr;
+    }
+
+    #linksContainer .social-info-panel{
+        width:calc(100% - 18px) !important;
+    }
+}
+
+
+/*====================================================
+    AJUSTES FINALES - PANEL INFORMATIVO
+    El panel conserva espacio en el flujo para empujar
+    los botones siguientes, pero visualmente se abre
+    hacia ARRIBA del botón.
+====================================================*/
+
+#linksContainer .link-card{
+    overflow:visible !important;
+}
+
+#linksContainer .social-info-panel{
+    position:relative !important;
+    left:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+
+    width:calc(100% - 28px) !important;
+    margin:8px auto 0 !important;
+
+    max-height:0 !important;
+    padding:0 20px !important;
+
+    overflow:hidden !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+
+    transform:translateY(0) scale(.97) !important;
+    transform-origin:bottom center !important;
+
+    background:var(
+        --social-panel-bg,
+        rgba(255,255,255,.08)
+    ) !important;
+
+    color:var(
+        --social-panel-text,
+        #ffffff
+    ) !important;
+
+    border:1px solid rgba(255,255,255,.18) !important;
+    border-radius:24px !important;
+
+    z-index:20 !important;
+    pointer-events:none !important;
+
+    transition:
+        max-height .45s cubic-bezier(.22,.61,.36,1),
+        opacity .25s ease,
+        visibility .25s ease,
+        transform .45s cubic-bezier(.22,.61,.36,1),
+        padding .45s ease,
+        margin .45s ease !important;
+}
+
+/*
+    El espacio ocupado por el panel permanece en el flujo.
+    La transformación lo lleva visualmente por encima
+    del botón principal.
+*/
+#linksContainer .link-card.social-info-open .social-info-panel{
+    max-height:430px !important;
+    padding:18px 20px !important;
+
+    opacity:1 !important;
+    visibility:visible !important;
+
+    transform:
+        translateY(calc(-100% - 8px))
+        scale(1) !important;
+
+    pointer-events:auto !important;
+}
+
+/* El contenido conserva el color elegido en el editor. */
+#linksContainer .social-info-panel,
+#linksContainer .social-info-panel *{
+    color:var(
+        --social-panel-text,
+        #ffffff
+    ) !important;
+}
+
+/*====================================================
+    DESCRIPCIÓN EXCLUSIVA DE YOUTUBE
+====================================================*/
+
+.link-social-editor .social-field-youtube{
+    display:none;
+}
+
+.link-social-editor.social-type-youtube .social-field-youtube{
+    display:block;
+}
+
+.youtube-description-counter{
+    display:block;
+    margin-top:5px;
+    text-align:right;
+    font-size:11px;
+    opacity:.7;
+}
+
+/*====================================================
+    CHECKBOX NUEVA PESTAÑA
+    Usa exactamente el mismo switch que los demás
+    controles del proyecto.
+====================================================*/
+
+.link-new-tab-control{
+    margin-top:14px !important;
+}
+
+/*====================================================
+    MINIATURA Y DESCRIPCIÓN DE YOUTUBE
+====================================================*/
+
+#linksContainer .youtube-info-inner{
+    gap:8px;
+}
+
+#linksContainer .youtube-thumbnail-wrap{
+    position:relative;
+    width:100%;
+    max-width:280px;
+    aspect-ratio:16 / 9;
+    overflow:hidden;
+    border-radius:18px;
+}
+
+#linksContainer .youtube-thumbnail{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+}
+
+/*====================================================
+    MÓVIL
+====================================================*/
+
+@media(max-width:600px){
+
+    #linksContainer .social-info-panel{
+        width:calc(100% - 18px) !important;
+        padding-left:14px !important;
+        padding-right:14px !important;
+    }
+
+    #linksContainer .link-card.social-info-open .social-info-panel{
+        padding:14px !important;
+    }
+
+}
+
+
+/*====================================================
+    AJUSTES SOLICITADOS - EDITOR UNIVERSAL DE COLOR
+====================================================*/
+
+.universal-color-workspace{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    width:100%;
+    margin:4px 0 14px;
+}
+
+.universal-color-preview-wrap,
+.universal-color-picker-wrap{
+    flex:1 1 0;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.universal-color-workspace label{
+    margin-top:0 !important;
+    margin-bottom:8px;
+}
+
+#colorPickerModal #previewColor{
+    width:100% !important;
+    max-width:190px;
+    height:62px !important;
+    min-height:62px !important;
+    display:flex !important;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    box-sizing:border-box;
+}
+
+#previewColorText{
+    display:block;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    text-shadow:0 1px 3px rgba(0,0,0,.75);
+    pointer-events:none;
+}
+
+.universal-color-picker-wrap{
+    position:relative;
+}
+
+#colorPickerModal #pickerColor{
+    width:72px !important;
+    height:62px !important;
+    min-height:62px !important;
+    padding:0 !important;
+    margin:0 !important;
+    border-radius:12px;
+    overflow:hidden;
+    cursor:pointer;
+    box-sizing:border-box;
+}
+
+.universal-color-picker-wrap::after{
+    content:"Cambiar color";
+    position:absolute;
+    left:50%;
+    top:calc(50% + 12px);
+    transform:translate(-50%,-50%);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    white-space:nowrap;
+    pointer-events:none;
+    text-shadow:0 1px 3px rgba(0,0,0,.85);
+    z-index:2;
+}
+
+.universal-color-history-section{
+    width:100%;
+    margin-top:8px;
+}
+
+.universal-color-history-section label{
+    margin-bottom:8px;
+}
+
+#universalColorHistory{
+    display:flex !important;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    min-height:32px;
+}
+
+#resetRecentUniversalColors,
+#saveUniversalColor{
+    width:42px !important;
+    height:42px !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center;
+    justify-content:center;
+    border:0;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+#resetRecentUniversalColors{
+    background:#555 !important;
+    color:#fff !important;
+}
+
+#saveUniversalColor{
+    background:#016308 !important;
+    color:#fff !important;
+}
+
+#resetRecentUniversalColors:hover,
+#saveUniversalColor:hover{
+    transform:translateY(-2px);
+}
+
+/*====================================================
+    MODO OSCURO - ICONOS DE LOS BOTONES DE LAS CARDS
+====================================================*/
+
+body.dark #linksContainer .link-main .left i,
+body.dark #linksContainer .link-main .link-actions i,
+body.dark #linksContainer .link-main .user-info-toggle i{
+    color:#fff !important;
+}
+
+/*====================================================
+    YOUTUBE - FOTO MANUAL COMO MINIATURA
+====================================================*/
+
+.link-social-editor.social-type-youtube-manual-photo
+    .social-field-photo{
+    display:block !important;
+}
+
+.link-social-editor.social-type-youtube-manual-photo
+    .social-field-photo .link-social-file-help{
+    color:rgba(255,255,255,.8);
+}
+
+/*====================================================
+    VISTAS PREVIAS - MOSTRAR SIEMPRE LA IMAGEN ACTUAL
+====================================================*/
+
+#logoFilePreview[src=""],
+#backgroundImagePreview[src=""],
+#cardWatermarkLogoPreview[src=""]{
+    display:none;
+}
+
+@media(max-width:600px){
+    .universal-color-workspace{
+        gap:10px;
+    }
+
+    #colorPickerModal #previewColor{
+        max-width:150px;
+    }
+
+    #colorPickerModal #pickerColor{
+        width:64px !important;
+    }
+}
+
+
+/*====================================================
+    PANEL INFORMATIVO - APERTURA HACIA ARRIBA
+====================================================*/
+
+#linksContainer .link-card{
+    position:relative !important;
+    overflow:visible !important;
+    transition:margin-top .55s cubic-bezier(.22,.61,.36,1) !important;
+}
+
+#linksContainer .social-info-panel{
+    position:absolute !important;
+    left:14px !important;
+    right:14px !important;
+    bottom:calc(100% + 8px) !important;
+    top:auto !important;
+    width:calc(100% - 28px) !important;
+    margin:0 !important;
+
+    max-height:0 !important;
+    padding:0 20px !important;
+    overflow:hidden !important;
+
+    opacity:0 !important;
+    visibility:hidden !important;
+    transform:translateY(10px) scale(.985) !important;
+    transform-origin:bottom center !important;
+
+    z-index:30 !important;
+    pointer-events:none !important;
+
+    transition:
+        max-height .55s cubic-bezier(.22,.61,.36,1),
+        opacity .35s ease,
+        visibility .35s ease,
+        transform .55s cubic-bezier(.22,.61,.36,1),
+        padding .55s cubic-bezier(.22,.61,.36,1) !important;
+}
+
+#linksContainer .link-card.social-info-open .social-info-panel{
+    max-height:430px !important;
+    padding:18px 20px !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    transform:translateY(0) scale(1) !important;
+    pointer-events:auto !important;
+}
+
+/*====================================================
+    EDITOR UNIVERSAL DE COLOR
+====================================================*/
+
+#colorPickerModal .universal-color-workspace{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:18px !important;
+    width:100% !important;
+    margin:4px auto 12px !important;
+}
+
+#colorPickerModal .universal-color-preview-wrap,
+#colorPickerModal .universal-color-picker-wrap{
+    flex:0 0 120px !important;
+    width:120px !important;
+    min-width:120px !important;
+    height:120px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    margin:0 !important;
+    padding:0 !important;
+}
+
+#colorPickerModal #previewColor,
+#colorPickerModal .universal-color-picker-box{
+    width:120px !important;
+    height:120px !important;
+    min-width:120px !important;
+    min-height:120px !important;
+    box-sizing:border-box !important;
+    border-radius:14px !important;
+    position:relative !important;
+    overflow:hidden !important;
+}
+
+#colorPickerModal #previewColor{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:0 !important;
+}
+
+#colorPickerModal #previewColorText,
+#colorPickerModal .pickerColorText{
+    position:absolute !important;
+    inset:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    color:#fff !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+    line-height:1.2 !important;
+    text-shadow:0 1px 4px rgba(0,0,0,.85) !important;
+    pointer-events:none !important;
+    z-index:3 !important;
+}
+
+#colorPickerModal .universal-color-picker-box{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+}
+
+#colorPickerModal #pickerColor{
+    position:absolute !important;
+    inset:0 !important;
+    width:120px !important;
+    height:120px !important;
+    min-height:120px !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:2px solid rgba(255,255,255,.25) !important;
+    border-radius:14px !important;
+    box-sizing:border-box !important;
+    cursor:pointer !important;
+}
+
+#colorPickerModal .pickerColorText{
+    z-index:4 !important;
+}
+
+/* Rango de colores: siempre debajo de los dos cuadros y centrado. */
+#colorPickerModal #hueColor{
+    display:block !important;
+    width:258px !important;
+    max-width:100% !important;
+    height:18px !important;
+    margin:4px auto 18px !important;
+    cursor:pointer !important;
+    box-sizing:border-box !important;
+}
+
+/* RGB compacto y uniforme. */
+#colorPickerModal #rgbColor{
+    letter-spacing:0 !important;
+    word-spacing:0 !important;
+    font-variant-numeric:tabular-nums !important;
+}
+
+/* El botón de restaurar limpia los colores anteriores
+   y conserva únicamente el color actualmente seleccionado. */
+#colorPickerModal #resetRecentUniversalColors{
+    background:#016308 !important;
+    color:#fff !important;
+}
+
+/*====================================================
+    MÓVIL
+====================================================*/
+
+@media(max-width:600px){
+    #colorPickerModal .universal-color-workspace{
+        gap:10px !important;
+    }
+
+    #colorPickerModal .universal-color-preview-wrap,
+    #colorPickerModal .universal-color-picker-wrap,
+    #colorPickerModal #previewColor,
+    #colorPickerModal .universal-color-picker-box{
+        width:100px !important;
+        height:100px !important;
+        min-width:100px !important;
+        min-height:100px !important;
+        flex-basis:100px !important;
+    }
+
+    #colorPickerModal #pickerColor{
+        width:100px !important;
+        height:100px !important;
+        min-height:100px !important;
+    }
+
+    #colorPickerModal #hueColor{
+        width:210px !important;
+    }
+}
+
+/*====================================================
+    AJUSTES SOLICITADOS - RANGOS Y PANEL INFORMATIVO
+====================================================*/
+
+#colorPickerModal #hueColor,
+#colorPickerModal #alphaColor{
+    width:258px !important;
+    max-width:258px !important;
+    height:18px !important;
+    min-height:18px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    box-sizing:border-box !important;
+}
+
+/*
+    Separación entre el panel informativo y el botón que queda arriba.
+    Cambia 5px por el valor que prefieras.
+*/
+#linksContainer{
+    --social-info-gap:70px;
+}
+
+#linksContainer .link-card{
+    transition:
+        margin-top .45s cubic-bezier(.22,.61,.36,1) !important;
+}
+
+#linksContainer .social-info-panel{
+    transition:
+        max-height .45s cubic-bezier(.22,.61,.36,1),
+        opacity .28s ease,
+        visibility .28s ease,
+        transform .45s cubic-bezier(.22,.61,.36,1),
+        padding .45s cubic-bezier(.22,.61,.36,1) !important;
+}
+
+@media(max-width:600px){
+    #colorPickerModal #hueColor,
+    #colorPickerModal #alphaColor{
+        width:210px !important;
+        max-width:210px !important;
+    }
+}

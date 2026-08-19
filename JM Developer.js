@@ -272,7 +272,7 @@ function actualizarTextoColor(
 
         texto.value =
 
-            `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            `rgb( ${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
     }
 
@@ -1057,6 +1057,37 @@ if(configuracion.shadow){
 
 }
 
+    /*====================================================
+        RESTAURAR COLOR DE LOS ICONOS DE LOS BOTONES
+    ====================================================*/
+
+    const colorIconosGuardado =
+        configuracion.iconColor ||
+        "#ffffff";
+
+    document.documentElement.style.setProperty(
+        "--link-icon-color",
+        colorIconosGuardado
+    );
+
+    const inputColorIconos =
+        document.getElementById("iconColor");
+
+    if(inputColorIconos){
+
+        inputColorIconos.dataset.colorFinal =
+            colorIconosGuardado;
+
+        inputColorIconos.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(
+                    colorIconosGuardado
+                )
+            );
+
+    }
+
+
     /* Color del título */
 
 if(configuracion.text){
@@ -1257,9 +1288,14 @@ hueColor.style.outline =
         COLOCAR DEBAJO DEL SELECTOR
 ====================================================*/
 
-if(pickerColor){
+const colorWorkspace =
+    document.querySelector(
+        "#colorPickerModal .universal-color-workspace"
+    );
 
-    pickerColor.insertAdjacentElement(
+if(colorWorkspace){
+
+    colorWorkspace.insertAdjacentElement(
         "afterend",
         hueColor
     );
@@ -1358,11 +1394,27 @@ function obtenerHistorialColores(){
 
     try{
 
-        return JSON.parse(
-            localStorage.getItem(
-                HISTORIAL_COLORES
-            )
-        ) || [];
+        const historial =
+            JSON.parse(
+                localStorage.getItem(
+                    HISTORIAL_COLORES
+                )
+            ) || [];
+
+        const recientes =
+            Array.isArray(historial)
+                ? historial.slice(0, 6)
+                : [];
+
+        // Migrar automáticamente historiales antiguos de 10 colores a 6.
+        if(recientes.length !== historial.length){
+            localStorage.setItem(
+                HISTORIAL_COLORES,
+                JSON.stringify(recientes)
+            );
+        }
+
+        return recientes;
 
     }catch(error){
 
@@ -1389,7 +1441,7 @@ function guardarColorEnHistorial(color){
 
 
     historial =
-        historial.slice(0,10);
+        historial.slice(0,6);
 
 
     localStorage.setItem(
@@ -1531,41 +1583,41 @@ if(hueColor){
 
 
 
-const universalColorHistory =
-    document.createElement("div");
-
-universalColorHistory.id =
-    "universalColorHistory";
-
-
-universalColorHistory.style.display =
-    "flex";
-
-
-universalColorHistory.style.flexWrap =
-    "wrap";
-
-
-universalColorHistory.style.gap =
-    "8px";
-
-
-const previewParent =
-    previewColor.parentElement;
-
-
-if(previewParent){
-
-
-
-    previewParent.appendChild(
-        universalColorHistory
-    );
-
-}
-
-
 mostrarHistorialColores();
+
+const resetRecentUniversalColors =
+    document.getElementById("resetRecentUniversalColors");
+
+if(resetRecentUniversalColors){
+    resetRecentUniversalColors.onclick = (e) => {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        /*
+            Restaurar recientes ahora limpia el historial antiguo
+            y conserva únicamente el color actualmente seleccionado.
+            El historial normal nunca supera los 6 colores.
+        */
+        const colorActual =
+            typeof obtenerColorFinal === "function"
+                ? obtenerColorFinal()
+                : (pickerColor?.value || "#000000");
+
+        localStorage.setItem(
+            HISTORIAL_COLORES,
+            JSON.stringify([colorActual])
+        );
+
+        mostrarHistorialColores();
+
+        mostrarNotificacionGuardado(
+            "Colores recientes",
+            "Se limpiaron los colores anteriores y se conservó el color actual."
+        );
+
+    };
+}
 
 
 const closeUniversalColor =
@@ -2080,11 +2132,7 @@ const rgbActual =
     -----------------------------------------*/
 
     rgbColor.value =
-        `rgb(
-            ${nuevoRGB.r},
-            ${nuevoRGB.g},
-            ${nuevoRGB.b}
-        )`;
+        `rgb( ${nuevoRGB.r}, ${nuevoRGB.g}, ${nuevoRGB.b})`;
 
 
     /*-----------------------------------------
@@ -2341,7 +2389,7 @@ hexColor.value =
 =========================================*/
 
 rgbColor.value =
-    `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    `rgb( ${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
 
 /*=========================================
@@ -2815,7 +2863,7 @@ pickerColor.oninput = ()=>{
     =========================================*/
 
     rgbColor.value =
-        `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        `rgb( ${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
 
     /*=========================================
@@ -3055,22 +3103,28 @@ function restaurarFuente(){
 
 function restaurarRadius() {
 
-    const valor = configuracion.radius || 28;
+    const valor = Number(
+        configuracion.radius ?? 50
+    );
 
-    // Restaurar Slider
-    if (radius) {
-
+    if (typeof radius !== "undefined" && radius) {
         radius.value = valor;
-
     }
 
-    // Restaurar todos los botones
-    document.querySelectorAll(".link-card").forEach(card => {
-
-        card.style.borderRadius = valor + "px";
-
+    document.querySelectorAll(
+        "#linksContainer .link-main"
+    ).forEach(main => {
+        main.style.setProperty(
+            "border-radius",
+            valor + "px",
+            "important"
+        );
     });
 
+    document.documentElement.style.setProperty(
+        "--button-radius",
+        valor + "px"
+    );
 }
 
 
@@ -3148,6 +3202,33 @@ document.getElementById(
 
         configuracion.card =
             configuracion.cardColor1;
+
+
+        /*====================================================
+            GUARDAR ESQUINAS DE LOS BOTONES
+        ====================================================*/
+
+        if(typeof radius !== "undefined" && radius){
+
+            configuracion.radius =
+                Number(radius.value);
+
+            document.documentElement.style.setProperty(
+                "--button-radius",
+                configuracion.radius + "px"
+            );
+
+            document
+                .querySelectorAll("#linksContainer .link-main")
+                .forEach(main => {
+                    main.style.setProperty(
+                        "border-radius",
+                        configuracion.radius + "px",
+                        "important"
+                    );
+                });
+
+        }
 
 
         /*====================================================
@@ -3481,6 +3562,47 @@ activarVistaPreviaArchivo(
     "cardWatermarkLogo",
     "cardWatermarkLogoPreview"
 );
+
+/*====================================================
+    RESTAURAR VISTAS PREVIAS CON LAS IMÁGENES ACTUALES
+====================================================*/
+
+function restaurarVistasPreviasActuales(){
+
+    const logoPreview =
+        document.getElementById("logoFilePreview");
+
+    if(logoPreview){
+        const logoActual =
+            configuracion.logo || "";
+        logoPreview.src = logoActual;
+        logoPreview.style.display =
+            logoActual ? "block" : "none";
+    }
+
+    const cardPreview =
+        document.getElementById("backgroundImagePreview");
+
+    if(cardPreview){
+        const imagenActual =
+            configuracion.cardImage || "";
+        cardPreview.src = imagenActual;
+        cardPreview.style.display =
+            imagenActual ? "block" : "none";
+    }
+
+    const watermarkPreview =
+        document.getElementById("cardWatermarkLogoPreview");
+
+    if(watermarkPreview){
+        const watermarkActual =
+            configuracion.cardWatermark || "";
+        watermarkPreview.src = watermarkActual;
+        watermarkPreview.style.display =
+            watermarkActual ? "block" : "none";
+    }
+
+}
 
 
 
@@ -4701,51 +4823,23 @@ const LIMITE_BOTONES = 10;
 /*   botón flotante  */
 
 
-addButton.onclick = async () => {
+function abrirDialogoCrearBoton(){
 
     const totalBotones =
         document.querySelectorAll(
             "#linksContainer .link-card"
         ).length;
 
+    mostrarEstadoLimiteBotones(
+        totalBotones,
+        totalBotones < LIMITE_BOTONES
+    );
 
-    if(totalBotones >= LIMITE_BOTONES){
+}
 
-        alert(
-            "Solo puedes crear un máximo de " +
-            LIMITE_BOTONES +
-            " botones."
-        );
+addButton.onclick = () => {
 
-        return;
-
-    }
-
-
-    /*
-        Crear botón
-    */
-
-    agregarBoton();
-
-
-    /*
-        Guardar y ESPERAR
-        a que termine el servidor.
-    */
-
-    await guardarBotones();
-
-
-    /*
-        Activar eventos
-    */
-
-    activarBotones();
-
-    activarLinks();
-
-    activarDragDrop();
+    abrirDialogoCrearBoton();
 
 };
 
@@ -4782,7 +4876,7 @@ radius.min=10;
 
 radius.max=60;
 
-radius.value=50;
+radius.value=Number(configuracion.radius ?? 50);
 
 radius.style.width="100%";
 
@@ -4797,24 +4891,30 @@ document.querySelector("#colorModal .modal-content")
 ==================================================*/
 radius.oninput = ()=>{
 
-    document.querySelectorAll(".link-card").forEach(card=>{
-
-        card.style.borderRadius =
-        radius.value + "px";
-
-    });
+    const valor =
+        Number(radius.value);
 
     configuracion.radius =
-    Number(radius.value);
+        valor;
 
-   
+    document.documentElement.style.setProperty(
+        "--button-radius",
+        valor + "px"
+    );
 
+    document
+        .querySelectorAll("#linksContainer .link-main")
+        .forEach(main => {
 
+            main.style.setProperty(
+                "border-radius",
+                valor + "px",
+                "important"
+            );
 
-}
+        });
 
-
-
+} 
 
 
 /*==================================================
@@ -5406,6 +5506,16 @@ function restaurarEstadoModal(){
 
     crearEditorGradienteLogo();
 
+    restaurarVistasPreviasActuales();
+
+    const logoURLInput =
+        document.getElementById("logoURL");
+
+    if(logoURLInput){
+        logoURLInput.value =
+            configuracion.logo || "";
+    }
+
     cerrarTodosLosModales();
 
     logoModal.style.display = "flex";
@@ -5572,6 +5682,8 @@ document.getElementById("btnBackground").onclick = () => {
 
     restaurarColores();
 
+    restaurarVistasPreviasActuales();
+
     restaurarVelocidadAnimaciones();
 
 
@@ -5619,11 +5731,24 @@ document.getElementById(
     "#303030";
 
 
-document.getElementById(
-    "cardColor3"
-).value =
+    document.getElementById(
+        "cardColor3"
+    ).value =
     configuracion.cardColor3 ||
     "#101010";
+
+    /* Restaurar esquinas de los botones */
+    if(typeof radius !== "undefined" && radius){
+        const valorRadius =
+            Number(configuracion.radius ?? 50);
+
+        radius.value = valorRadius;
+
+        document.documentElement.style.setProperty(
+            "--button-radius",
+            valorRadius + "px"
+        );
+    }
 
 
     /*=========================================
@@ -7408,13 +7533,13 @@ vincularEditorUniversal({
 
     propiedad: "iconColor",
 
-    variableCSS: "--icon-color",
+    variableCSS: "--link-icon-color",
 
     despuesDeAplicar:(valor)=>{
 
         document.documentElement.style.setProperty(
 
-            "--icon-color",
+            "--link-icon-color",
 
             valor
 
@@ -7456,6 +7581,139 @@ if (linkIcon && linkTitle) {
 
 
 
+/*====================================================
+    CAMPOS DINÁMICOS DEL EDITOR DE BOTONES
+====================================================*/
+
+activarCamposDinamicosEditor();
+
+
+/*====================================================
+    ESTADO DEL LÍMITE DE BOTONES
+====================================================*/
+
+
+function mostrarEstadoLimiteBotones(totalBotones, puedeCrear = true){
+
+    const modal =
+        document.getElementById("warningModal");
+
+    if(!modal){
+        return;
+    }
+
+    const disponibles =
+        Math.max(LIMITE_BOTONES - totalBotones, 0);
+
+    const porcentaje =
+        Math.min(
+            Math.round((totalBotones / LIMITE_BOTONES) * 100),
+            100
+        );
+
+    const titulo = modal.querySelector("h2");
+    const parrafos = modal.querySelectorAll("p");
+    const icono = modal.querySelector(".warning-icon i");
+    const barra = modal.querySelector(".warning-progress span");
+    const botones = modal.querySelector(".warning-buttons");
+
+    if(icono){
+        icono.className = puedeCrear
+            ? "fa-solid fa-circle-info"
+            : "fa-solid fa-triangle-exclamation";
+    }
+
+    if(titulo){
+        titulo.textContent = puedeCrear
+            ? "Estado de tus botones"
+            : "Límite de botones alcanzado";
+    }
+
+    if(parrafos[0]){
+        parrafos[0].innerHTML =
+            `Tienes <strong>${totalBotones}</strong> de <strong>${LIMITE_BOTONES}</strong> botones creados.`;
+    }
+
+    if(parrafos[1]){
+        parrafos[1].innerHTML = puedeCrear
+            ? `Te quedan <strong>${disponibles}</strong> botón(es) disponibles. Máximo permitido: <strong>${LIMITE_BOTONES}</strong>.`
+            : `Ya utilizaste los <strong>${LIMITE_BOTONES}</strong> botones permitidos. No puedes crear otro hasta eliminar uno.`;
+    }
+
+    if(barra){
+        barra.style.width = porcentaje + "%";
+        barra.style.background = porcentaje >= 100 ? "#ff3b30" : "#ffb300";
+    }
+
+    let porcentajeEl = modal.querySelector(".warning-percentage");
+    if(!porcentajeEl){
+        porcentajeEl = document.createElement("div");
+        porcentajeEl.className = "warning-percentage";
+        const progress = modal.querySelector(".warning-progress");
+        if(progress){
+            progress.insertAdjacentElement("afterend", porcentajeEl);
+        }
+    }
+    porcentajeEl.innerHTML = `<strong>${porcentaje}%</strong> del límite utilizado`;
+
+    if(botones){
+        botones.innerHTML = puedeCrear
+            ? `
+                <button type="button" id="warningCancel" class="warning-continue">
+                    <i class="fa-solid fa-xmark"></i>
+                    Cancelar
+                </button>
+                <button type="button" id="warningConfirm" class="warning-exit">
+                    <i class="fa-solid fa-plus"></i>
+                    Crear botón
+                </button>
+            `
+            : `
+                <button type="button" id="warningCancel" class="warning-continue">
+                    <i class="fa-solid fa-check"></i>
+                    Entendido
+                </button>
+                <button type="button" id="warningConfirm" class="warning-exit" style="display:none;">
+                    Cerrar
+                </button>
+            `;
+    }
+
+    modal.style.display = "flex";
+
+    const cancelar = document.getElementById("warningCancel");
+    const confirmar = document.getElementById("warningConfirm");
+
+    if(cancelar){
+        cancelar.onclick = () => {
+            modal.style.display = "none";
+        };
+    }
+
+    if(confirmar && puedeCrear){
+        confirmar.onclick = async () => {
+            modal.style.display = "none";
+
+            const totalActual = document.querySelectorAll(
+                "#linksContainer .link-card"
+            ).length;
+
+            if(totalActual >= LIMITE_BOTONES){
+                mostrarEstadoLimiteBotones(totalActual, false);
+                return;
+            }
+
+            agregarBoton();
+            await guardarBotones();
+            activarBotones();
+            activarLinks();
+            activarDragDrop();
+            activarBotonesInfoUsuario();
+        };
+    }
+}
+
+
     /*====================================================
                 EDITOR DE BOTONES
     ====================================================*/
@@ -7463,7 +7721,1042 @@ if (linkIcon && linkTitle) {
     let botonSeleccionado = null;
 
 
-    /*====================================================
+/*====================================================
+    INFORMACIÓN MANUAL DEL BOTÓN / RED SOCIAL
+====================================================*/
+
+let socialPhotoPendingFile = null;
+
+function detectarTipoEnlace(url = "", icono = ""){
+    const valor = `${url} ${icono}`.toLowerCase();
+
+    if(
+        valor.includes("whatsapp") ||
+        valor.includes("wa.me")
+    ){
+        return "whatsapp";
+    }
+
+    if(
+        valor.includes("facebook") ||
+        valor.includes("fb.com")
+    ){
+        return "facebook";
+    }
+
+    if(valor.includes("instagram")){
+        return "instagram";
+    }
+
+    if(valor.includes("tiktok")){
+        return "tiktok";
+    }
+
+    if(
+        valor.includes("youtube") ||
+        valor.includes("youtu.be")
+    ){
+        return "youtube";
+    }
+
+    if(
+        valor.includes("fa-file-pdf") ||
+        /\.pdf(?:[?#].*)?$/i.test(url)
+    ){
+        return "pdf";
+    }
+
+    return "generic";
+}
+
+function obtenerYouTubeThumbnail(url = ""){
+    try{
+
+        const u = new URL(url);
+
+        /*
+            La miniatura automática se obtiene exclusivamente
+            desde la URL de YouTube del campo superior.
+            Se utiliza el formato estándar:
+            https://www.youtube.com/watch?v=VIDEO_ID
+        */
+
+        const esYouTube =
+            u.hostname === "youtube.com" ||
+            u.hostname === "www.youtube.com" ||
+            u.hostname.endsWith(".youtube.com");
+
+        if(!esYouTube || u.pathname !== "/watch"){
+            return "";
+        }
+
+        const id =
+            u.searchParams.get("v") || "";
+
+        if(!id){
+            return "";
+        }
+
+        return `https://img.youtube.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`;
+
+    }catch(error){
+
+        return "";
+
+    }
+}
+
+function escaparHTML(valor = ""){
+    return String(valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function obtenerIconoActualEditor(){
+    return document.getElementById("linkIcon")?.value || "";
+}
+
+function actualizarVistaPreviaFotoEditor(url = ""){
+    const preview = document.getElementById("linkSocialPhotoPreview");
+    const box = preview?.closest(".file-preview-box");
+
+    if(!preview){
+        return;
+    }
+
+    preview.src = url || "";
+    preview.style.display = url ? "block" : "none";
+
+    if(box){
+        box.classList.toggle(
+            "has-image",
+            Boolean(url)
+        );
+    }
+}
+
+function limpiarFotoPendienteEditor(){
+    socialPhotoPendingFile = null;
+
+    const input = document.getElementById("linkSocialPhoto");
+
+    if(input){
+        input.value = "";
+    }
+}
+
+function actualizarCamposSocialesEditor(){
+    const editor = document.getElementById("linkSocialEditor");
+
+    if(!editor){
+        return;
+    }
+
+    const tipo = detectarTipoEnlace(
+        document.getElementById("linkURL")?.value || "",
+        obtenerIconoActualEditor()
+    );
+
+    editor.classList.remove(
+        "social-type-whatsapp",
+        "social-type-social",
+        "social-type-youtube",
+        "social-type-pdf",
+        "social-type-generic"
+    );
+
+    editor.classList.add(
+        `social-type-${tipo === "facebook" ||
+        tipo === "instagram" ||
+        tipo === "tiktok"
+            ? "social"
+            : tipo}`
+    );
+
+    const help = document.getElementById("linkSocialHelp");
+    const photoHelp = document.getElementById("linkSocialPhotoHelp");
+
+    if(help){
+        if(tipo === "whatsapp"){
+            help.textContent =
+                "Esta información aparecerá al pulsar la flecha ↑ del botón de WhatsApp.";
+        }else if(
+            tipo === "facebook" ||
+            tipo === "instagram" ||
+            tipo === "tiktok"
+        ){
+            help.textContent =
+                "Esta información aparecerá al pulsar la flecha ↑ del botón.";
+         }else if(tipo === "youtube"){
+            help.textContent =
+                "Puedes utilizar una fotografía subida manualmente para sustituir la miniatura de YouTube.";
+        }else if(tipo === "pdf"){
+            help.textContent =
+                "El PDF se mostrará con su primera página y debajo aparecerá únicamente la descripción.";
+        }else{
+            help.textContent = "";
+        }
+    }
+
+    if(photoHelp){
+        photoHelp.textContent =
+            "Selecciona una imagen desde tu computadora.";
+    }
+
+    const photoField =
+        document.getElementById("linkSocialPhotoField");
+
+    if(photoField){
+        photoField.querySelector("label[for='linkSocialPhoto']").textContent =
+            tipo === "youtube"
+                ? "Fotografía manual para miniatura de YouTube"
+                : "Foto / imagen";
+    }
+
+    if(editor){
+        editor.classList.toggle(
+            "social-type-youtube-manual-photo",
+            tipo === "youtube"
+        );
+    }
+
+    const panelColors =
+        document.getElementById("socialPanelColors");
+
+    if(panelColors){
+        panelColors.style.display =
+            tipo === "generic"
+                ? "none"
+                : "grid";
+    }
+
+    if(tipo === "pdf" || tipo === "generic"){
+        limpiarFotoPendienteEditor();
+        actualizarVistaPreviaFotoEditor("");
+    }
+}
+
+function renderizarInformacionBoton(card){
+    if(!card) return;
+
+    const panel = card.querySelector(".social-info-panel");
+
+    if(!panel) return;
+
+    const url = card.dataset.url || "";
+
+    const tipo = detectarTipoEnlace(
+        url,
+        card.querySelector(".left i")?.className || ""
+    );
+
+    const nombre = card.dataset.socialName || "";
+    const usuario = card.dataset.socialUsername || "";
+    const telefono = card.dataset.socialPhone || "";
+    const foto = card.dataset.socialPhoto || "";
+    const siguiendo = card.dataset.socialFollowing || "";
+    const seguidores = card.dataset.socialFollowers || "";
+    const meGusta = card.dataset.socialLikes || "";
+    const descripcion = card.dataset.description || "";
+    const youtubeDescription =
+        card.dataset.youtubeDescription || "";
+
+    const youtube = obtenerYouTubeThumbnail(url);
+
+    let contenido = "";
+
+    if(tipo === "youtube"){
+        // Si existe una foto subida manualmente, esta sustituye la miniatura de YouTube.
+        const thumb = foto || youtube;
+
+        contenido = `
+            <div class="social-info-inner youtube-info-inner">
+                ${
+                    thumb
+                    ? `
+                        <div class="youtube-thumbnail-wrap">
+                            <img
+                                class="youtube-thumbnail"
+                                src="${escaparHTML(thumb)}"
+                                alt="Miniatura de YouTube">
+                            <span class="youtube-play">
+                                <i class="fab fa-youtube"></i>
+                            </span>
+                        </div>
+                    `
+                    : `
+                        <div class="youtube-thumbnail-wrap">
+                            <div class="social-placeholder">
+                                <i class="fab fa-youtube"></i>
+                            </div>
+                        </div>
+                    `
+                }
+
+                ${
+                    youtubeDescription
+                    ? `<span class="social-info-description">${escaparHTML(youtubeDescription)}</span>`
+                    : ""
+                }
+            </div>
+        `;
+
+    }else if(tipo === "pdf"){
+
+        contenido = `
+            <div class="social-info-inner pdf-info-inner">
+                <div class="pdf-preview-wrap">
+                    <iframe
+                        class="pdf-preview"
+                        src="${escaparHTML(url)}#page=1&toolbar=0&navpanes=0&scrollbar=0"
+                        title="Primera página del PDF">
+                    </iframe>
+                </div>
+
+                ${
+                    descripcion
+                    ? `<span class="social-info-description">${escaparHTML(descripcion)}</span>`
+                    : ""
+                }
+            </div>
+        `;
+
+    }else if(tipo === "whatsapp"){
+
+        contenido = `
+            <div class="social-info-inner whatsapp-info-inner">
+                ${
+                    foto
+                    ? `
+                        <img
+                            class="social-info-avatar"
+                            src="${escaparHTML(foto)}"
+                            alt="Foto de WhatsApp">
+                    `
+                    : `
+                        <div class="social-info-avatar social-placeholder">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                    `
+                }
+
+                <strong class="social-info-name">
+                    ${escaparHTML(nombre || "WhatsApp")}
+                </strong>
+
+                <span class="social-info-user">
+                    ${escaparHTML(telefono || "Número no registrado")}
+                </span>
+
+                <span class="social-info-url">
+                    <i class="fab fa-whatsapp"></i>
+                    WhatsApp
+                </span>
+            </div>
+        `;
+
+    }else if(
+        ["facebook","instagram","tiktok"].includes(tipo)
+    ){
+
+        const icon =
+            tipo === "facebook"
+                ? "fab fa-facebook-f"
+                : tipo === "instagram"
+                    ? "fab fa-instagram"
+                    : "fab fa-tiktok";
+
+        const avatar = foto
+            ? `
+                <img
+                    class="social-info-avatar"
+                    src="${escaparHTML(foto)}"
+                    alt="Foto de perfil">
+            `
+            : `
+                <div class="social-info-avatar social-placeholder">
+                    <i class="${icon}"></i>
+                </div>
+            `;
+
+        contenido = `
+            <div class="social-info-inner">
+                ${avatar}
+
+                <strong class="social-info-name">
+                    ${escaparHTML(nombre || "Sin nombre")}
+                </strong>
+
+                ${
+                    usuario
+                    ? `<span class="social-info-user">${escaparHTML(usuario)}</span>`
+                    : ""
+                }
+
+                <div class="social-info-stats">
+                    <div>
+                        <i class="fa-solid fa-user-group"></i>
+                        <strong>${escaparHTML(siguiendo || "—")}</strong>
+                        <span>Siguiendo</span>
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-users"></i>
+                        <strong>${escaparHTML(seguidores || "—")}</strong>
+                        <span>Seguidores</span>
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-heart"></i>
+                        <strong>${escaparHTML(meGusta || "—")}</strong>
+                        <span>Me gusta</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+    }else{
+        contenido = "";
+    }
+
+    panel.innerHTML = contenido;
+}
+
+function actualizarContadorDescripcionYouTube(){
+
+    const input =
+        document.getElementById("linkYoutubeDescription");
+
+    const contador =
+        document.getElementById("youtubeDescriptionCounter");
+
+    if(!input || !contador){
+        return;
+    }
+
+    input.value =
+        input.value.slice(0,100);
+
+    contador.textContent =
+        `${input.value.length} / 100`;
+}
+
+function cargarCamposSocialesEditor(card){
+
+    const fotoActual =
+        card?.dataset.socialPhoto || "";
+
+    actualizarVistaPreviaFotoEditor(
+        fotoActual
+    );
+
+
+
+    const map = {
+        linkSocialName: "socialName",
+        linkSocialUsername: "socialUsername",
+        linkSocialPhone: "socialPhone",
+        linkSocialFollowing: "socialFollowing",
+        linkSocialFollowers: "socialFollowers",
+        linkSocialLikes: "socialLikes"
+    };
+
+    Object.entries(map).forEach(([id, data]) => {
+        const el = document.getElementById(id);
+
+        if(el){
+            el.value =
+                card.dataset[data] || "";
+        }
+    });
+
+    limpiarFotoPendienteEditor();
+
+    actualizarVistaPreviaFotoEditor(
+        card.dataset.socialPhoto || ""
+    );
+
+    const youtubeDescription =
+        document.getElementById("linkYoutubeDescription");
+
+    if(youtubeDescription){
+        youtubeDescription.value =
+            card.dataset.youtubeDescription || "";
+        actualizarContadorDescripcionYouTube();
+    }
+
+    const panelColor =
+        document.getElementById("linkPanelColor");
+
+    const panelTextColor =
+        document.getElementById("linkPanelTextColor");
+
+    if(panelColor){
+        panelColor.value =
+            card.dataset.socialPanelColor ||
+            "#202020";
+    }
+
+    if(panelTextColor){
+        panelTextColor.value =
+            card.dataset.socialPanelTextColor ||
+            "#ffffff";
+    }
+
+    actualizarCamposSocialesEditor();
+}
+
+function guardarCamposSocialesEditor(card){
+
+    const map = {
+        linkSocialName: "socialName",
+        linkSocialUsername: "socialUsername",
+        linkSocialPhone: "socialPhone",
+        linkSocialFollowing: "socialFollowing",
+        linkSocialFollowers: "socialFollowers",
+        linkSocialLikes: "socialLikes"
+    };
+
+    Object.entries(map).forEach(([id, data]) => {
+
+        const el =
+            document.getElementById(id);
+
+        if(el){
+            card.dataset[data] =
+                el.value.trim();
+        }
+
+    });
+
+    const youtubeDescription =
+        document.getElementById("linkYoutubeDescription");
+
+    if(youtubeDescription){
+        card.dataset.youtubeDescription =
+            youtubeDescription.value.trim().slice(0,100);
+    }
+
+    const panelColor =
+        document.getElementById("linkPanelColor");
+
+    const panelTextColor =
+        document.getElementById("linkPanelTextColor");
+
+    card.dataset.socialPanelColor =
+        panelColor?.value ||
+        card.dataset.socialPanelColor ||
+        "#202020";
+
+    card.dataset.socialPanelTextColor =
+        panelTextColor?.value ||
+        card.dataset.socialPanelTextColor ||
+        "#ffffff";
+
+    aplicarColoresPanelInformacion(card);
+}
+
+async function subirFotoSocialEditor(){
+
+    if(!socialPhotoPendingFile){
+        return null;
+    }
+
+    const datos = new FormData();
+
+    datos.append(
+        "socialImage",
+        socialPhotoPendingFile
+    );
+
+    const respuesta = await fetch(
+        "/uploadSocialImage",
+        {
+            method:"POST",
+            body:datos
+        }
+    );
+
+    const resultado =
+        await respuesta.json();
+
+    if(!respuesta.ok || !resultado.ok){
+        throw new Error(
+            resultado.error ||
+            "No se pudo subir la imagen."
+        );
+    }
+
+    socialPhotoPendingFile = null;
+
+    const input =
+        document.getElementById("linkSocialPhoto");
+
+    if(input){
+        input.value = "";
+    }
+
+    return resultado.socialPhoto;
+}
+
+function activarEditorFotoSocial(){
+
+    const input =
+        document.getElementById("linkSocialPhoto");
+
+    if(!input || input.dataset.bound === "true"){
+        return;
+    }
+
+    input.dataset.bound = "true";
+
+    input.addEventListener("change", () => {
+
+        const archivo =
+            input.files?.[0];
+
+        if(!archivo){
+            return;
+        }
+
+        if(!archivo.type.startsWith("image/")){
+            input.value = "";
+
+            mostrarNotificacionGuardado(
+                "Archivo no válido",
+                "Selecciona una imagen."
+            );
+
+            return;
+        }
+
+        if(archivo.size > 5 * 1024 * 1024){
+            input.value = "";
+
+            mostrarNotificacionGuardado(
+                "Imagen demasiado grande",
+                "El tamaño máximo permitido es 5 MB."
+            );
+
+            return;
+        }
+
+        socialPhotoPendingFile =
+            archivo;
+
+        const lector =
+            new FileReader();
+
+        lector.onload = () => {
+            actualizarVistaPreviaFotoEditor(
+                lector.result
+            );
+        };
+
+        lector.readAsDataURL(archivo);
+    });
+}
+
+function aplicarColoresPanelInformacion(card){
+
+    if(!card){
+        return;
+    }
+
+    const fondo =
+        card.dataset.socialPanelColor ||
+        "#202020";
+
+    const texto =
+        card.dataset.socialPanelTextColor ||
+        "#ffffff";
+
+    card.style.setProperty(
+        "--social-panel-bg",
+        fondo
+    );
+
+    card.style.setProperty(
+        "--social-panel-text",
+        texto
+    );
+}
+
+function activarCamposDinamicosEditor(){
+
+    const linkIcon =
+        document.getElementById("linkIcon");
+
+    const linkURL =
+        document.getElementById("linkURL");
+
+    if(linkIcon){
+        linkIcon.addEventListener(
+            "change",
+            actualizarCamposSocialesEditor
+        );
+    }
+
+    if(linkURL){
+        linkURL.addEventListener(
+            "input",
+            actualizarCamposSocialesEditor
+        );
+    }
+
+    activarEditorFotoSocial();
+    activarColoresPanelEditor();
+
+    const youtubeDescription =
+        document.getElementById("linkYoutubeDescription");
+
+    if(
+        youtubeDescription &&
+        youtubeDescription.dataset.bound !== "true"
+    ){
+        youtubeDescription.dataset.bound = "true";
+        youtubeDescription.addEventListener(
+            "input",
+            actualizarContadorDescripcionYouTube
+        );
+    }
+
+    actualizarCamposSocialesEditor();
+}
+
+function activarColoresPanelEditor(){
+
+    const fondo =
+        document.getElementById("linkPanelColor");
+
+    const texto =
+        document.getElementById("linkPanelTextColor");
+
+    const aplicar = () => {
+
+        if(!botonSeleccionado){
+            return;
+        }
+
+        if(fondo){
+            botonSeleccionado.dataset.socialPanelColor =
+                fondo.value;
+        }
+
+        if(texto){
+            botonSeleccionado.dataset.socialPanelTextColor =
+                texto.value;
+        }
+
+        aplicarColoresPanelInformacion(
+            botonSeleccionado
+        );
+
+        if(
+            botonSeleccionado.classList.contains(
+                "social-info-open"
+            )
+        ){
+            renderizarInformacionBoton(
+                botonSeleccionado
+            );
+        }
+
+    };
+
+    /*
+        Estos dos controles utilizan el mismo Editor Universal
+        de colores que el resto de los colores del proyecto.
+    */
+    [fondo,texto].forEach(input => {
+
+        if(!input || input.dataset.universalColorBound === "true"){
+            return;
+        }
+
+        input.dataset.universalColorBound = "true";
+
+        vincularEditorUniversal({
+            boton: input,
+            picker: input,
+            propiedad: null,
+            variableCSS: null,
+            despuesDeAplicar: (valor) => {
+
+                input.dataset.colorFinal = valor;
+
+                if(!botonSeleccionado){
+                    return;
+                }
+
+                if(input === fondo){
+                    botonSeleccionado.dataset.socialPanelColor =
+                        valor;
+                }
+
+                if(input === texto){
+                    botonSeleccionado.dataset.socialPanelTextColor =
+                        valor;
+                }
+
+                aplicarColoresPanelInformacion(
+                    botonSeleccionado
+                );
+
+                if(
+                    botonSeleccionado.classList.contains(
+                        "social-info-open"
+                    )
+                ){
+                    renderizarInformacionBoton(
+                        botonSeleccionado
+                    );
+
+                    ajustarEspacioPanelInformacion(
+                        botonSeleccionado
+                    );
+                }
+
+            }
+        });
+
+    });
+
+    [fondo,texto].forEach(input => {
+
+        if(!input || input.dataset.panelColorBound === "true"){
+            return;
+        }
+
+        input.dataset.panelColorBound = "true";
+
+        input.addEventListener(
+            "input",
+            aplicar
+        );
+
+    });
+}
+
+/*====================================================
+    AJUSTAR ESPACIO DEL PANEL INFORMATIVO
+====================================================*/
+
+function ajustarEspacioPanelInformacion(card){
+
+    if(!card) return;
+
+    const panel =
+        card.querySelector(".social-info-panel");
+
+    if(!panel) return;
+
+    if(!card.classList.contains("social-info-open")){
+
+        card.style.removeProperty("margin-top");
+        return;
+
+    }
+
+    /*
+        El panel se dibuja por encima del botón, pero la tarjeta
+        se desplaza solo lo necesario para que el panel no tape
+        el botón anterior. Los botones siguientes quedan debajo
+        de forma natural porque la tarjeta conserva su espacio en el flujo.
+
+        Puedes ajustar la separación desde CSS con:
+        --social-info-gap: 5px;
+    */
+    requestAnimationFrame(() => {
+
+        const alturaPanel =
+            Math.min(
+                panel.scrollHeight,
+                430
+            );
+
+        const links =
+            document.getElementById(
+                "linksContainer"
+            );
+
+        const gapConfigurado =
+            links
+                ? parseFloat(
+                    getComputedStyle(links)
+                        .getPropertyValue("--social-info-gap")
+                ) || 5
+                : 5;
+
+        const cardRect =
+            card.getBoundingClientRect();
+
+        const panelTopActual =
+            cardRect.top -
+            alturaPanel -
+            8;
+
+        let desplazamiento =
+            alturaPanel + 8;
+
+        const tarjetas =
+            Array.from(
+                document.querySelectorAll(
+                    "#linksContainer .link-card"
+                )
+            );
+
+        const indice =
+            tarjetas.indexOf(card);
+
+        if(indice > 0){
+
+            const tarjetaAnterior =
+                tarjetas[indice - 1];
+
+            const anteriorRect =
+                tarjetaAnterior.getBoundingClientRect();
+
+            const panelTopDeseado =
+                anteriorRect.bottom +
+                gapConfigurado;
+
+            const desplazamientoNecesario =
+                panelTopDeseado -
+                panelTopActual;
+
+            desplazamiento =
+                Math.max(0, desplazamientoNecesario);
+
+        }else if(links){
+
+            const linksRect =
+                links.getBoundingClientRect();
+
+            const panelTopDeseado =
+                linksRect.top +
+                gapConfigurado;
+
+            const desplazamientoNecesario =
+                panelTopDeseado -
+                panelTopActual;
+
+            desplazamiento =
+                Math.max(0, desplazamientoNecesario);
+
+        }
+
+        card.style.setProperty(
+            "margin-top",
+            `${Math.ceil(desplazamiento)}px`,
+            "important"
+        );
+
+    });
+
+}
+
+
+function activarBotonesInfoUsuario(){
+
+    document.querySelectorAll(
+        ".user-info-toggle"
+    ).forEach(btn => {
+
+        if(btn.dataset.infoBound === "true"){
+            return;
+        }
+
+        btn.dataset.infoBound = "true";
+
+        btn.onclick = (e) => {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const card =
+                btn.closest(".link-card");
+
+            if(!card){
+                return;
+            }
+
+            const abierto =
+                card.classList.toggle(
+                    "social-info-open"
+                );
+
+            const icono =
+                btn.querySelector("i");
+
+            if(icono){
+
+                icono.className =
+                    abierto
+                    ? "fa-solid fa-chevron-down"
+                    : "fa-solid fa-chevron-up";
+
+            }
+
+            if(abierto){
+                renderizarInformacionBoton(card);
+
+                ajustarEspacioPanelInformacion(card);
+
+                if(card._infoAutoHideTimer){
+                    clearTimeout(
+                        card._infoAutoHideTimer
+                    );
+                }
+
+                card._infoAutoHideTimer =
+                    setTimeout(() => {
+
+                        if(!card.classList.contains(
+                            "social-info-open"
+                        )){
+                            return;
+                        }
+
+                        card.classList.remove(
+                            "social-info-open"
+                        );
+
+                        card.style.removeProperty(
+                            "margin-top"
+                        );
+
+                        if(icono){
+                            icono.className =
+                                "fa-solid fa-chevron-up";
+                        }
+
+                    }, 4000);
+
+            }else{
+
+                card.style.removeProperty("margin-top");
+
+                if(card._infoAutoHideTimer){
+                    clearTimeout(
+                        card._infoAutoHideTimer
+                    );
+
+                    card._infoAutoHideTimer = null;
+                }
+
+            }
+
+        };
+
+    });
+
+}
+
+/*====================================================
             ABRIR MODAL DESDE LOS TRES PUNTOS
     ====================================================*/
 
@@ -7539,6 +8832,10 @@ linkTextColor.value =
                 document.getElementById("linkNewTab").checked =
                     botonSeleccionado.dataset.newTab === "true";
 
+                cargarCamposSocialesEditor(
+                    botonSeleccionado
+                );
+
 
 
 
@@ -7608,6 +8905,52 @@ document.getElementById("linkModal")
         const nuevaPestana =
             document.getElementById("linkNewTab")
             .checked;
+
+        /*=========================================
+            SUBIR FOTO / MINIATURA
+        =========================================*/
+
+        const tipoEnlace =
+            detectarTipoEnlace(
+                url,
+                icono
+            );
+
+        if(
+            socialPhotoPendingFile &&
+            (
+                tipoEnlace === "whatsapp" ||
+                tipoEnlace === "facebook" ||
+                tipoEnlace === "instagram" ||
+                tipoEnlace === "tiktok" ||
+                tipoEnlace === "youtube"
+            )
+        ){
+            try{
+
+                const nuevaFoto =
+                    await subirFotoSocialEditor();
+
+                if(nuevaFoto){
+                    botonSeleccionado.dataset.socialPhoto =
+                        nuevaFoto;
+                }
+
+            }catch(error){
+
+                console.error(
+                    "Error subiendo foto del botón:",
+                    error
+                );
+
+                mostrarNotificacionGuardado(
+                    "No se pudo subir la imagen",
+                    error.message
+                );
+
+                return;
+            }
+        }
 
 
         /* ACTUALIZAR TEXTO */
@@ -7693,6 +9036,18 @@ document.getElementById("linkModal")
         botonSeleccionado.dataset.newTab =
             nuevaPestana;
 
+        guardarCamposSocialesEditor(
+            botonSeleccionado
+        );
+
+        aplicarColoresPanelInformacion(
+            botonSeleccionado
+        );
+
+        renderizarInformacionBoton(
+            botonSeleccionado
+        );
+
 
  /*=========================================
         GUARDAR BOTONES
@@ -7730,115 +9085,86 @@ ELIMINAR BOTÓN
 ====================================================*/
 
 document.getElementById(
-"deleteLink"
+    "deleteLink"
 ).onclick = () => {
 
-
-if(!botonSeleccionado){
-
-    return;
-
-}
-
-
-/*=========================================
-    MOSTRAR CONFIRMACIÓN PERSONALIZADA
-=========================================*/
-
-mostrarAdvertenciaCambios(
-
-    async () => {
-
-        /*=====================================
-            GUARDAR REFERENCIA
-        =====================================*/
-
-        const botonEliminado =
-            botonSeleccionado;
-
-
-        /*=====================================
-            ELIMINAR DE LA VISTA
-        =====================================*/
-
-        botonEliminado.remove();
-
-
-        /*=====================================
-            LIMPIAR SELECCIÓN
-        =====================================*/
-
-        botonSeleccionado =
-            null;
-
-
-        /*=====================================
-            GUARDAR CAMBIOS
-        =====================================*/
-
-        await guardarBotones();
-
-
-        /*=====================================
-            LIMPIAR ESTADO DEL MODAL
-        =====================================*/
-
-        modalActivo =
-            null;
-
-        estadoInicialModal =
-            null;
-
-
-        /*=====================================
-            CERRAR EDITOR DEL BOTÓN
-        =====================================*/
-
-        const linkModal =
-            document.getElementById(
-                "linkModal"
-            );
-
-        if(linkModal){
-
-            linkModal.style.display =
-                "none";
-
-        }
-
-
-        /*=====================================
-            MOSTRAR NOTIFICACIÓN
-        =====================================*/
-
-        mostrarNotificacionGuardado(
-            "Botón eliminado",
-            "El botón fue eliminado correctamente."
-        );
-
-    },
-
-    {
-
-        titulo:
-            "¿Deseas eliminar este botón?",
-
-        mensaje:
-            "Esta acción eliminará el botón seleccionado.",
-
-        detalle:
-            "El botón será eliminado y este cambio se guardará.",
-
-        textoConfirmar:
-            "Eliminar botón"
-
+    if(!botonSeleccionado){
+        return;
     }
 
-);
+    const botonAEliminar =
+        botonSeleccionado;
 
+    mostrarAdvertenciaCambios(
+        async () => {
+
+            try{
+
+                if(botonAEliminar._infoAutoHideTimer){
+                    clearTimeout(
+                        botonAEliminar._infoAutoHideTimer
+                    );
+                    botonAEliminar._infoAutoHideTimer = null;
+                }
+
+                botonAEliminar.classList.remove(
+                    "social-info-open"
+                );
+
+                botonAEliminar.remove();
+
+                botonSeleccionado = null;
+                modalActivo = null;
+                estadoInicialModal = null;
+
+                const linkModal =
+                    document.getElementById("linkModal");
+
+                if(linkModal){
+                    linkModal.style.display = "none";
+                }
+
+                cerrarTodosLosModales();
+
+                await guardarBotones();
+
+                mostrarNotificacionGuardado(
+                    "Botón eliminado",
+                    "El botón fue eliminado correctamente."
+                );
+
+            }catch(error){
+
+                console.error(
+                    "Error eliminando botón:",
+                    error
+                );
+
+                mostrarNotificacionGuardado(
+                    "Error al eliminar",
+                    "No se pudo guardar la eliminación."
+                );
+
+            }
+
+        },
+        {
+            titulo:
+                "¿Deseas eliminar este botón?",
+
+            mensaje:
+                "Esta acción eliminará el botón seleccionado.",
+
+            detalle:
+                "El botón se quitará y el cambio se guardará inmediatamente.",
+
+            textoConfirmar:
+                "Eliminar botón"
+
+        }
+    );
 
 };
-
 
 
 /*====================================================
@@ -7879,6 +9205,22 @@ document.getElementById("duplicateLink").onclick = () => {
     const nuevaPestana =
         botonSeleccionado.dataset.newTab === "true";
 
+    const socialData = {
+        socialName: botonSeleccionado.dataset.socialName || "",
+        socialUsername: botonSeleccionado.dataset.socialUsername || "",
+        socialPhone: botonSeleccionado.dataset.socialPhone || "",
+        socialPhoto: botonSeleccionado.dataset.socialPhoto || "",
+        socialFollowing: botonSeleccionado.dataset.socialFollowing || "",
+        socialFollowers: botonSeleccionado.dataset.socialFollowers || "",
+        socialLikes: botonSeleccionado.dataset.socialLikes || "",
+        youtubeDescription:
+            botonSeleccionado.dataset.youtubeDescription || "",
+        socialPanelColor:
+            botonSeleccionado.dataset.socialPanelColor || "#202020",
+        socialPanelTextColor:
+            botonSeleccionado.dataset.socialPanelTextColor || "#ffffff"
+    };
+
 
     agregarBoton(
 
@@ -7892,7 +9234,9 @@ document.getElementById("duplicateLink").onclick = () => {
 
         descripcion,
 
-        nuevaPestana
+        nuevaPestana,
+
+        socialData
 
     );
 
@@ -7905,6 +9249,8 @@ activarBotones();
 activarLinks();
 
 activarDragDrop();
+
+activarBotonesInfoUsuario();
 
 };
 
@@ -7923,8 +9269,11 @@ function activarLinks(){
         card.onclick = (e) => {
 
 
-            if(e.target.closest(".options"))
-
+            if(
+                e.target.closest(".options") ||
+                e.target.closest(".user-info-toggle") ||
+                e.target.closest(".social-info-panel")
+            )
                 return;
 
 
@@ -7981,7 +9330,9 @@ function agregarBoton(
 
     descripcion = "",
 
-    nuevaPestana = false
+    nuevaPestana = false,
+
+    socialData = {}
 
 ){
 
@@ -8012,40 +9363,68 @@ function agregarBoton(
     div.dataset.newTab =
         nuevaPestana;
 
+    div.dataset.socialName =
+        socialData.socialName || "";
+    div.dataset.socialUsername =
+        socialData.socialUsername || "";
+    div.dataset.socialPhone =
+        socialData.socialPhone || "";
+    div.dataset.socialPhoto =
+        socialData.socialPhoto || "";
+    div.dataset.socialFollowing =
+        socialData.socialFollowing || "";
+    div.dataset.socialFollowers =
+        socialData.socialFollowers || "";
+    div.dataset.socialLikes =
+        socialData.socialLikes || "";
+
+    div.dataset.youtubeDescription =
+        socialData.youtubeDescription || "";
+
+    div.dataset.socialPanelColor =
+        socialData.socialPanelColor ||
+        "#202020";
+
+    div.dataset.socialPanelTextColor =
+        socialData.socialPanelTextColor ||
+        "#ffffff";
+
+    aplicarColoresPanelInformacion(div);
+
 
     div.innerHTML = `
 
-        <div class="left">
+        <div class="link-main">
 
-            <i class="${icono}"></i>
+            <div class="left">
+                <i class="${icono}"></i>
+            </div>
+
+            <div class="center">
+                <span style="color:${colorTexto};">
+                    ${escaparHTML(texto)}
+                </span>
+
+                ${
+                    descripcion
+                    ? `<small style="color:${colorTexto};">${escaparHTML(descripcion)}</small>`
+                    : ""
+                }
+            </div>
+
+            <div class="link-actions">
+                <button class="options admin-only" type="button" aria-label="Editar botón">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+
+                <button class="user-info-toggle" type="button" aria-label="Mostrar información">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+            </div>
 
         </div>
 
-
-                <div class="center">
-
-                    <span style="color:${colorTexto};">
-
-                        ${texto}
-
-                    </span>
-
-                    ${
-                        descripcion
-                        ? `<small style="color:${colorTexto};">
-${descripcion}
-</small>`
-                        : ""
-                    }
-
-                </div>
-
-
-        <button class="options admin-only">
-
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-
-        </button>
+        <div class="social-info-panel"></div>
 
     `;
 
@@ -8053,12 +9432,40 @@ ${descripcion}
  
 contenedor.appendChild(div);
 
-div.style.borderRadius =
-(configuracion.radius || 28) + "px";
+const infoToggleNuevo =
+    div.querySelector(".user-info-toggle");
+
+if(infoToggleNuevo){
+    infoToggleNuevo.style.display =
+        administradorActivo
+            ? "none"
+            : "flex";
+}
+
+const radioBoton =
+    Number(configuracion.radius ?? 50);
+
+div.style.setProperty(
+    "--button-radius",
+    radioBoton + "px"
+);
+
+const mainVisual =
+    div.querySelector(".link-main");
+
+if(mainVisual){
+    mainVisual.style.setProperty(
+        "border-radius",
+        radioBoton + "px",
+        "important"
+    );
+}
 
 div.style.fontFamily =
 configuracion.font ||
 "'Segoe UI',sans-serif";
+
+aplicarColoresPanelInformacion(div);
 
 // Mantener ocultos los controles si no es administrador
 
@@ -10255,7 +11662,39 @@ async function guardarBotones(){
                             "",
 
                         newTab:
-                            card.dataset.newTab === "true"
+                            card.dataset.newTab === "true",
+
+                        socialName:
+                            card.dataset.socialName || "",
+
+                        socialUsername:
+                            card.dataset.socialUsername || "",
+
+                        socialPhone:
+                            card.dataset.socialPhone || "",
+
+                        socialPhoto:
+                            card.dataset.socialPhoto || "",
+
+                        socialFollowing:
+                            card.dataset.socialFollowing || "",
+
+                        socialFollowers:
+                            card.dataset.socialFollowers || "",
+
+                        socialLikes:
+                            card.dataset.socialLikes || "",
+
+                        youtubeDescription:
+                            card.dataset.youtubeDescription || "",
+
+                        socialPanelColor:
+                            card.dataset.socialPanelColor ||
+                            "#202020",
+
+                        socialPanelTextColor:
+                            card.dataset.socialPanelTextColor ||
+                            "#ffffff"
 
                     });
 
@@ -10357,7 +11796,22 @@ async function cargarBotones() {
                 btn.url,
                 btn.textColor,
                 btn.description,
-                btn.newTab
+                btn.newTab,
+                {
+                    socialName: btn.socialName || "",
+                    socialUsername: btn.socialUsername || "",
+                    socialPhone: btn.socialPhone || "",
+                    socialPhoto: btn.socialPhoto || "",
+                    socialFollowing: btn.socialFollowing || "",
+                    socialFollowers: btn.socialFollowers || "",
+                    socialLikes: btn.socialLikes || "",
+                    youtubeDescription:
+                        btn.youtubeDescription || "",
+                    socialPanelColor:
+                        btn.socialPanelColor || "#202020",
+                    socialPanelTextColor:
+                        btn.socialPanelTextColor || "#ffffff"
+                }
 
             );
 
@@ -10380,6 +11834,8 @@ async function cargarBotones() {
        
 
     }
+
+    activarBotonesInfoUsuario();
 
 }
 
@@ -10786,6 +12242,9 @@ function mostrarControles(){
      administradorActivo =
         true;
 
+    document.body.classList.add("admin-mode");
+    document.body.classList.remove("user-mode");
+
     document.querySelectorAll(".admin-only").forEach(el=>{
         el.style.display="";
     });
@@ -10794,6 +12253,11 @@ function mostrarControles(){
         btn.style.display="flex";
     });
 
+    document.querySelectorAll(".user-info-toggle").forEach(btn=>{
+        btn.style.display="none";
+    });
+
+    activarBotonesInfoUsuario();
 
     activarBotones();
 
@@ -10841,6 +12305,9 @@ function ocultarControles(){
  administradorActivo =
         false;
 
+    document.body.classList.remove("admin-mode");
+    document.body.classList.add("user-mode");
+
 
     document.querySelectorAll(".admin-only").forEach(el=>{
         el.style.display="none";
@@ -10850,6 +12317,12 @@ function ocultarControles(){
     document.querySelectorAll(".options").forEach(btn=>{
         btn.style.display="none";
     });
+
+    document.querySelectorAll(".user-info-toggle").forEach(btn=>{
+        btn.style.display="flex";
+    });
+
+    activarBotonesInfoUsuario();
 
 
     cardStatsAdminPuedeMover =

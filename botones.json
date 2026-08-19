@@ -5,7 +5,17 @@
         "url": "https://api.whatsapp.com/send?phone=51960722146&text=hola%20buenas.%20necesito%20orientaci%C3%B3n%20t%C3%A9cnica",
         "textColor": "#FFFFFF",
         "description": "",
-        "newTab": false
+        "newTab": true,
+        "socialName": "",
+        "socialUsername": "",
+        "socialPhone": "",
+        "socialPhoto": "/uploads/1787096820471.jpeg",
+        "socialFollowing": "",
+        "socialFollowers": "",
+        "socialLikes": "",
+        "youtubeDescription": "",
+        "socialPanelColor": "#202020",
+        "socialPanelTextColor": "#ffffff"
     },
     {
         "texto": "Facebook",
@@ -13,7 +23,17 @@
         "url": "https://www.facebook.com/profile.php?id=61588687977605",
         "textColor": "#fffefe",
         "description": "",
-        "newTab": false
+        "newTab": true,
+        "socialName": "jaime sd",
+        "socialUsername": "asdasdad",
+        "socialPhone": "+51 999 999 999",
+        "socialPhoto": "/uploads/1787096837711.jpeg",
+        "socialFollowing": "250",
+        "socialFollowers": "3.5k",
+        "socialLikes": "12.4k",
+        "youtubeDescription": "",
+        "socialPanelColor": "#202020",
+        "socialPanelTextColor": "#ffffff"
     },
     {
         "texto": "TikTok",
@@ -21,7 +41,17 @@
         "url": "https://www.tiktok.com/@jaime_abraham_martinez",
         "textColor": "#fffefe",
         "description": "",
-        "newTab": false
+        "newTab": true,
+        "socialName": "",
+        "socialUsername": "",
+        "socialPhone": "",
+        "socialPhoto": "/uploads/1787164622768.jpeg",
+        "socialFollowing": "",
+        "socialFollowers": "",
+        "socialLikes": "",
+        "youtubeDescription": "",
+        "socialPanelColor": "#202020",
+        "socialPanelTextColor": "#ffffff"
     },
     {
         "texto": "Instagram",
@@ -29,6 +59,34 @@
         "url": "https://www.instagram.com/jaime_abraham_martinez",
         "textColor": "#fffefe",
         "description": "",
-        "newTab": false
+        "newTab": true,
+        "socialName": "",
+        "socialUsername": "",
+        "socialPhone": "",
+        "socialPhoto": "/uploads/1787160406248.jpeg",
+        "socialFollowing": "",
+        "socialFollowers": "",
+        "socialLikes": "",
+        "youtubeDescription": "",
+        "socialPanelColor": "#202020",
+        "socialPanelTextColor": "#ffffff"
+    },
+    {
+        "texto": "YouTube",
+        "icono": "fab fa-youtube",
+        "url": "https://www.youtube.com/@JaimeMartinezQA",
+        "textColor": "#fffefe",
+        "description": "",
+        "newTab": true,
+        "socialName": "",
+        "socialUsername": "jaime",
+        "socialPhone": "",
+        "socialPhoto": "/uploads/1787167487658.png",
+        "socialFollowing": "",
+        "socialFollowers": "",
+        "socialLikes": "",
+        "youtubeDescription": "Muros infinitos",
+        "socialPanelColor": "#202020",
+        "socialPanelTextColor": "#ffffff"
     }
 ]

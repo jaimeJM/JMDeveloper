@@ -766,6 +766,51 @@ app.post(
 // SUBIR / REEMPLAZAR LOGO SVG COMO MARCA DE AGUA
 // =========================================================
 
+
+/*====================================================
+    SUBIR FOTO / MINIATURA DE LOS BOTONES
+====================================================*/
+
+app.post(
+    "/uploadSocialImage",
+    requireAdmin,
+    upload.single("socialImage"),
+    (req, res) => {
+
+        try{
+
+            if(!req.file){
+
+                return res.status(400).json({
+                    ok:false,
+                    error:"No se recibió ninguna imagen."
+                });
+
+            }
+
+            return res.json({
+                ok:true,
+                socialPhoto:
+                    "/uploads/" + req.file.filename
+            });
+
+        }catch(error){
+
+            console.error(
+                "Error subiendo imagen del botón:",
+                error
+            );
+
+            return res.status(500).json({
+                ok:false,
+                error:error.message
+            });
+
+        }
+
+    }
+);
+
 app.post(
     "/uploadCardWatermark",
     requireAdmin,

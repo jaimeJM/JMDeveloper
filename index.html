@@ -578,14 +578,128 @@ Jaime Martinez1
 </small>
 
 
+        <!--==================================================
+            INFORMACIÓN MANUAL DEL BOTÓN / RED SOCIAL
+        ===================================================-->
+
+        <div class="link-social-editor" id="linkSocialEditor">
+
+            <h3>
+                <i class="fa-solid fa-address-card"></i>
+                Información que verá el usuario
+            </h3>
+
+            <p class="link-social-help" id="linkSocialHelp">
+                Estos datos se guardan junto al botón y aparecerán al pulsar la flecha ↑.
+            </p>
+
+            <div class="social-field social-field-youtube">
+                <label for="linkYoutubeDescription">
+                    Descripción del video
+                </label>
+                <input
+                    type="text"
+                    id="linkYoutubeDescription"
+                    maxlength="100"
+                    placeholder="Descripción breve del video">
+                <small class="youtube-description-counter" id="youtubeDescriptionCounter">
+                    0 / 100
+                </small>
+            </div>
+
+            <!-- COLORES DEL PANEL INFORMATIVO -->
+            <div class="social-panel-colors" id="socialPanelColors">
+                <div class="social-panel-color-field">
+                    <label for="linkPanelColor">
+                        Color del panel informativo
+                    </label>
+                    <input
+                        type="color"
+                        id="linkPanelColor"
+                        value="#202020">
+                </div>
+
+                <div class="social-panel-color-field">
+                    <label for="linkPanelTextColor">
+                        Color de letras e iconos
+                    </label>
+                    <input
+                        type="color"
+                        id="linkPanelTextColor"
+                        value="#ffffff">
+                </div>
+            </div>
+
+            <div class="social-field social-field-whatsapp">
+                <label for="linkSocialName">Nombre</label>
+                <input type="text" id="linkSocialName" maxlength="80" placeholder="Nombre de la persona">
+            </div>
+
+            <div class="social-field social-field-whatsapp">
+                <label for="linkSocialUsername">Usuario / @usuario</label>
+                <input type="text" id="linkSocialUsername" maxlength="80" placeholder="@usuario">
+            </div>
+
+            <div class="social-field social-field-whatsapp">
+                <label for="linkSocialPhone">Número de WhatsApp</label>
+                <input type="text" id="linkSocialPhone" maxlength="30" placeholder="+51 999 999 999">
+            </div>
+
+            <div class="social-field social-field-photo" id="linkSocialPhotoField">
+                <label for="linkSocialPhoto">Foto / imagen / miniatura de YouTube</label>
+
+                <div class="file-upload-preview link-social-photo-upload">
+                    <label
+                        for="linkSocialPhoto"
+                        class="file-camera-button"
+                        title="Seleccionar imagen">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+
+                    <input
+                        type="file"
+                        id="linkSocialPhoto"
+                        accept="image/*">
+
+                    <div class="file-preview-box">
+                        <img id="linkSocialPhotoPreview" alt="Vista previa">
+                    </div>
+                </div>
+
+                <small class="link-social-file-help" id="linkSocialPhotoHelp">
+                    Selecciona una imagen desde tu computadora.
+                </small>
+            </div>
+
+            <div class="link-social-grid social-field-socials">
+                <div>
+                    <label for="linkSocialFollowing">Siguiendo</label>
+                    <input type="text" id="linkSocialFollowing" maxlength="20" placeholder="250">
+                </div>
+                <div>
+                    <label for="linkSocialFollowers">Seguidores</label>
+                    <input type="text" id="linkSocialFollowers" maxlength="20" placeholder="3.5K">
+                </div>
+                <div>
+                    <label for="linkSocialLikes">Me gusta</label>
+                    <input type="text" id="linkSocialLikes" maxlength="20" placeholder="12.4K">
+                </div>
+            </div>
+
+        </div>
+
         <!-- NUEVA PESTAÑA -->
-        <label class="checkbox-label">
+        <label class="stats-position-lock link-new-tab-control">
 
             <input
                 type="checkbox"
                 id="linkNewTab">
 
-            Abrir en nueva pestaña
+            <span class="stats-position-switch"></span>
+
+            <span class="stats-position-lock-text">
+                Abrir en nueva pestaña
+            </span>
 
         </label>
 
@@ -1285,9 +1399,9 @@ Jaime Martinez1
     <div class="modal-content">
         <h2>Administrador</h2>
 
-        <input id="adminUser" type="text" maxlength="30" placeholder="Nombre">
+        <input id="adminUser" name="username" type="text" maxlength="30" placeholder="Nombre" autocomplete="username">
 
-        <input id="adminPass" type="password" maxlength="30" placeholder="Contraseña">
+        <input id="adminPass" name="password" type="password" maxlength="30" placeholder="Contraseña" autocomplete="current-password">
 
        <div class="admin-buttons">
 
@@ -1324,21 +1438,45 @@ Jaime Martinez1
                 VISTA PREVIA
         ======================================-->
 
-        <label>Vista previa</label>
+        <div class="universal-color-workspace">
 
-        <div id="previewColor"></div>
+            <div class="universal-color-preview-wrap">
+                <div id="previewColor" aria-label="Vista previa">
+                    <span id="previewColorText">Vista previa</span>
+                </div>
+            </div>
 
+            <div class="universal-color-picker-wrap">
+                <div class="universal-color-picker-box">
+                    <input
+                        type="color"
+                        id="pickerColor"
+                        aria-label="Cambiar color"
+                    >
+                    <span class="pickerColorText">Cambiar color</span>
+                </div>
+            </div>
+
+        </div>
 
         <!--=====================================
-                SELECTOR
+                TRANSPARENCIA
         ======================================-->
 
-        <label>Selector</label>
+        <label>Transparencia</label>
 
         <input
-            type="color"
-            id="pickerColor"
+            type="range"
+            id="alphaColor"
+            min="0"
+            max="100"
+            value="100"
         >
+
+        <span id="alphaValue">
+            100%
+        </span>
+
 &nbsp;&nbsp;
  <a style="color: white;" href="https://htmlcolorcodes.com/es/selector-de-color/"  target="_blank"> <i class="fa-solid fa-hand-point-right"></i>&nbsp;&nbsp;
         Codigo de colores &nbsp;&nbsp;<i class="fa-solid fa-hand-point-left"></i></a>
@@ -1366,36 +1504,20 @@ Jaime Martinez1
         <input
             type="text"
             id="rgbColor"
-            placeholder="rgb(255,255,255)"
+            placeholder="rgb( 255, 255, 255)"
         >
 
 
-        <!--=====================================
-                TRANSPARENCIA
-        ======================================-->
-
-        <label>Transparencia</label>
-
-        <input
-            type="range"
-            id="alphaColor"
-            min="0"
-            max="100"
-            value="100"
-        >
-
-        <span id="alphaValue">
-            100%
-        </span>
 
 
         <!--=====================================
                 COLORES RECIENTES
         ======================================-->
 
-        <label>Colores recientes</label>
-
-        <div id="universalColorHistory"></div>
+        <div class="universal-color-history-section">
+            <label>Colores recientes</label>
+            <div id="universalColorHistory"></div>
+        </div>
 
 
         <!--=====================================
@@ -1405,12 +1527,21 @@ Jaime Martinez1
         <div class="modal-buttons">
 
             <button
+                id="resetRecentUniversalColors"
+                type="button"
+                aria-label="Restaurar colores recientes"
+                title="Restaurar colores recientes">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+
+            <button
                 id="saveUniversalColor"
+                class="btn-save"
                 type="button"
                 aria-label="Aplicar"
                 title="Aplicar"
             >
-                ✓
+                <i class="fa-solid fa-check"></i>
             </button>
 
         </div>
