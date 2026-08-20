@@ -3628,9 +3628,12 @@ document.querySelectorAll(
 
             }
 
-            preview.classList.toggle(
-                "preview-ampliada"
-            );
+            const imagen =
+                preview.querySelector("img");
+
+            if(imagen){
+                abrirMiniaturaAmpliada(imagen);
+            }
 
         }
     );
@@ -7760,6 +7763,13 @@ function detectarTipoEnlace(url = "", icono = ""){
     }
 
     if(
+        valor.includes("graduation-cap") ||
+        valor.includes("curso")
+    ){
+        return "curso";
+    }
+
+    if(
         valor.includes("fa-file-pdf") ||
         /\.pdf(?:[?#].*)?$/i.test(url)
     ){
@@ -7815,6 +7825,104 @@ function escaparHTML(valor = ""){
         .replace(/'/g, "&#039;");
 }
 
+/*====================================================
+    AMPLIAR MINIATURAS DEL PROYECTO
+    - 4x respecto al tamaño visible
+    - centrada dentro del modal si existe
+    - muestra la imagen completa sin recorte
+    - vuelve automáticamente a normal después de 2 minutos
+====================================================*/
+
+function abrirMiniaturaAmpliada(imagenOrigen){
+
+    if(!imagenOrigen || !imagenOrigen.src){
+        return;
+    }
+
+    const modalPadre =
+        imagenOrigen.closest(".modal-content");
+
+    const contenedor =
+        modalPadre || document.body;
+
+    const overlay =
+        document.createElement("div");
+
+    overlay.className =
+        "project-thumbnail-lightbox";
+
+    if(modalPadre){
+        overlay.classList.add("inside-modal");
+    }
+
+    const imagen =
+        document.createElement("img");
+
+    imagen.src =
+        imagenOrigen.currentSrc ||
+        imagenOrigen.src;
+
+    imagen.alt =
+        imagenOrigen.alt ||
+        "Miniatura ampliada";
+
+    const rect =
+        imagenOrigen.getBoundingClientRect();
+
+    const ancho4x =
+        Math.max(40, rect.width * 4);
+
+    const alto4x =
+        Math.max(40, rect.height * 4);
+
+    imagen.style.width =
+        `${ancho4x}px`;
+
+    imagen.style.height =
+        `${alto4x}px`;
+
+    imagen.style.maxWidth =
+        "92vw";
+
+    imagen.style.maxHeight =
+        "88vh";
+
+    imagen.style.objectFit =
+        "contain";
+
+    overlay.appendChild(imagen);
+    contenedor.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+        overlay.classList.add("is-visible");
+    });
+
+    const cerrar = () => {
+
+        overlay.classList.remove("is-visible");
+
+        setTimeout(() => {
+            overlay.remove();
+        }, 250);
+
+    };
+
+    overlay.addEventListener("click", cerrar);
+
+    /* Unos minutos: 2 minutos. */
+    setTimeout(() => {
+
+        if(document.body.contains(overlay) ||
+           contenedor.contains(overlay)){
+
+            cerrar();
+
+        }
+
+    }, 120000);
+
+}
+
 function obtenerIconoActualEditor(){
     return document.getElementById("linkIcon")?.value || "";
 }
@@ -7864,6 +7972,7 @@ function actualizarCamposSocialesEditor(){
         "social-type-whatsapp",
         "social-type-social",
         "social-type-youtube",
+        "social-type-curso",
         "social-type-pdf",
         "social-type-generic"
     );
@@ -7893,6 +8002,9 @@ function actualizarCamposSocialesEditor(){
          }else if(tipo === "youtube"){
             help.textContent =
                 "Puedes utilizar una fotografía subida manualmente para sustituir la miniatura de YouTube.";
+        }else if(tipo === "curso"){
+            help.textContent =
+                "El curso mostrará un panel informativo con su logo o imagen y la descripción que escribas.";
         }else if(tipo === "pdf"){
             help.textContent =
                 "El PDF se mostrará con su primera página y debajo aparecerá únicamente la descripción.";
@@ -7913,13 +8025,15 @@ function actualizarCamposSocialesEditor(){
         photoField.querySelector("label[for='linkSocialPhoto']").textContent =
             tipo === "youtube"
                 ? "Fotografía manual para miniatura de YouTube"
-                : "Foto / imagen";
+                : tipo === "curso"
+                    ? "Logo / imagen del curso"
+                    : "Foto / imagen";
     }
 
     if(editor){
         editor.classList.toggle(
             "social-type-youtube-manual-photo",
-            tipo === "youtube"
+            tipo === "youtube" || tipo === "curso"
         );
     }
 
@@ -7927,10 +8041,7 @@ function actualizarCamposSocialesEditor(){
         document.getElementById("socialPanelColors");
 
     if(panelColors){
-        panelColors.style.display =
-            tipo === "generic"
-                ? "none"
-                : "grid";
+        panelColors.style.display = "grid";
     }
 
     if(tipo === "pdf" || tipo === "generic"){
@@ -7961,6 +8072,14 @@ function renderizarInformacionBoton(card){
     const seguidores = card.dataset.socialFollowers || "";
     const meGusta = card.dataset.socialLikes || "";
     const descripcion = card.dataset.description || "";
+    const infoNombre =
+        card.dataset.infoName ||
+        card.dataset.socialName ||
+        "";
+    const infoDescripcion =
+        card.dataset.infoDescription ||
+        descripcion ||
+        "";
     const youtubeDescription =
         card.dataset.youtubeDescription || "";
 
@@ -8001,6 +8120,36 @@ function renderizarInformacionBoton(card){
                     ? `<span class="social-info-description">${escaparHTML(youtubeDescription)}</span>`
                     : ""
                 }
+            </div>
+        `;
+
+    }else if(tipo === "curso"){
+
+        const logoCurso = foto || "";
+
+        contenido = `
+            <div class="social-info-inner curso-info-inner">
+                ${
+                    logoCurso
+                    ? `<div class="curso-logo-wrap" title="Toca la imagen para ampliarla">
+                           <img class="curso-logo" src="${escaparHTML(logoCurso)}" alt="Logo del curso">
+                       </div>`
+                    : `<div class="social-info-avatar social-placeholder curso-placeholder">
+                           <i class="fa-solid fa-graduation-cap"></i>
+                       </div>`
+                }
+
+                <div class="curso-info-content">
+                    <strong class="social-info-name">
+                        ${escaparHTML(infoNombre || "Curso")}
+                    </strong>
+
+                    ${
+                        infoDescripcion
+                        ? `<span class="social-info-description">${escaparHTML(infoDescripcion)}</span>`
+                        : ""
+                    }
+                </div>
             </div>
         `;
 
@@ -8119,10 +8268,45 @@ function renderizarInformacionBoton(card){
         `;
 
     }else{
-        contenido = "";
+
+        contenido = `
+            <div class="social-info-inner generic-info-inner">
+                <strong class="social-info-name">
+                    ${escaparHTML(infoNombre || "Información")}
+                </strong>
+
+                ${
+                    infoDescripcion
+                    ? `<span class="social-info-description">${escaparHTML(infoDescripcion)}</span>`
+                    : `<span class="social-info-description">No hay información adicional.</span>`
+                }
+            </div>
+        `;
     }
 
     panel.innerHTML = contenido;
+
+    /*====================================================
+        AMPLIAR TODAS LAS MINIATURAS DEL PANEL
+    ====================================================*/
+
+    panel.querySelectorAll(
+        ".curso-logo, .youtube-thumbnail"
+    ).forEach(miniatura => {
+
+        miniatura.style.cursor = "pointer";
+
+        miniatura.onclick = (e) => {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            abrirMiniaturaAmpliada(miniatura);
+
+        };
+
+    });
+
 }
 
 function actualizarContadorDescripcionYouTube(){
@@ -8144,6 +8328,26 @@ function actualizarContadorDescripcionYouTube(){
         `${input.value.length} / 100`;
 }
 
+function limitarCamposInformacionEditor(){
+
+    const nombre =
+        document.getElementById("linkInfoName");
+
+    const descripcion =
+        document.getElementById("linkInfoDescription");
+
+    if(nombre){
+        nombre.value =
+            nombre.value.slice(0,30);
+    }
+
+    if(descripcion){
+        descripcion.value =
+            descripcion.value.slice(0,200);
+    }
+
+}
+
 function cargarCamposSocialesEditor(card){
 
     const fotoActual =
@@ -8154,6 +8358,29 @@ function cargarCamposSocialesEditor(card){
     );
 
 
+
+    const infoName =
+        document.getElementById("linkInfoName");
+    const infoDescription =
+        document.getElementById("linkInfoDescription");
+
+    if(infoName){
+        infoName.value =
+            (
+                card.dataset.infoName ||
+                card.dataset.socialName ||
+                ""
+            ).slice(0,30);
+    }
+
+    if(infoDescription){
+        infoDescription.value =
+            (
+                card.dataset.infoDescription ||
+                card.dataset.description ||
+                ""
+            ).slice(0,200);
+    }
 
     const map = {
         linkSocialName: "socialName",
@@ -8195,21 +8422,48 @@ function cargarCamposSocialesEditor(card){
         document.getElementById("linkPanelTextColor");
 
     if(panelColor){
-        panelColor.value =
+        const valor =
             card.dataset.socialPanelColor ||
             "#202020";
+
+        panelColor.dataset.colorFinal = valor;
+        panelColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(valor)
+            );
     }
 
     if(panelTextColor){
-        panelTextColor.value =
+        const valor =
             card.dataset.socialPanelTextColor ||
             "#ffffff";
+
+        panelTextColor.dataset.colorFinal = valor;
+        panelTextColor.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(valor)
+            );
     }
 
     actualizarCamposSocialesEditor();
 }
 
 function guardarCamposSocialesEditor(card){
+
+    const infoName =
+        document.getElementById("linkInfoName");
+    const infoDescription =
+        document.getElementById("linkInfoDescription");
+
+    if(infoName){
+        card.dataset.infoName =
+            infoName.value.trim().slice(0,30);
+    }
+
+    if(infoDescription){
+        card.dataset.infoDescription =
+            infoDescription.value.trim().slice(0,200);
+    }
 
     const map = {
         linkSocialName: "socialName",
@@ -8247,6 +8501,7 @@ function guardarCamposSocialesEditor(card){
         document.getElementById("linkPanelTextColor");
 
     card.dataset.socialPanelColor =
+        panelColor?.dataset.colorFinal ||
         panelColor?.value ||
         card.dataset.socialPanelColor ||
         "#202020";
@@ -8387,6 +8642,32 @@ function aplicarColoresPanelInformacion(card){
 
 function activarCamposDinamicosEditor(){
 
+    const infoName =
+        document.getElementById("linkInfoName");
+
+    const infoDescription =
+        document.getElementById("linkInfoDescription");
+
+    if(infoName && infoName.dataset.limitBound !== "true"){
+        infoName.dataset.limitBound = "true";
+        infoName.maxLength = 30;
+        infoName.addEventListener(
+            "input",
+            limitarCamposInformacionEditor
+        );
+    }
+
+    if(infoDescription && infoDescription.dataset.limitBound !== "true"){
+        infoDescription.dataset.limitBound = "true";
+        infoDescription.maxLength = 200;
+        infoDescription.addEventListener(
+            "input",
+            limitarCamposInformacionEditor
+        );
+    }
+
+    limitarCamposInformacionEditor();
+
     const linkIcon =
         document.getElementById("linkIcon");
 
@@ -8443,11 +8724,13 @@ function activarColoresPanelEditor(){
 
         if(fondo){
             botonSeleccionado.dataset.socialPanelColor =
+                fondo.dataset.colorFinal ||
                 fondo.value;
         }
 
         if(texto){
             botonSeleccionado.dataset.socialPanelTextColor =
+                texto.dataset.colorFinal ||
                 texto.value;
         }
 
@@ -8525,20 +8808,7 @@ function activarColoresPanelEditor(){
 
     });
 
-    [fondo,texto].forEach(input => {
 
-        if(!input || input.dataset.panelColorBound === "true"){
-            return;
-        }
-
-        input.dataset.panelColorBound = "true";
-
-        input.addEventListener(
-            "input",
-            aplicar
-        );
-
-    });
 }
 
 /*====================================================
@@ -8923,7 +9193,8 @@ document.getElementById("linkModal")
                 tipoEnlace === "facebook" ||
                 tipoEnlace === "instagram" ||
                 tipoEnlace === "tiktok" ||
-                tipoEnlace === "youtube"
+                tipoEnlace === "youtube" ||
+                tipoEnlace === "curso"
             )
         ){
             try{
@@ -9207,6 +9478,8 @@ document.getElementById("duplicateLink").onclick = () => {
 
     const socialData = {
         socialName: botonSeleccionado.dataset.socialName || "",
+        infoName: botonSeleccionado.dataset.infoName || "",
+        infoDescription: botonSeleccionado.dataset.infoDescription || "",
         socialUsername: botonSeleccionado.dataset.socialUsername || "",
         socialPhone: botonSeleccionado.dataset.socialPhone || "",
         socialPhoto: botonSeleccionado.dataset.socialPhoto || "",
@@ -9365,6 +9638,13 @@ function agregarBoton(
 
     div.dataset.socialName =
         socialData.socialName || "";
+    div.dataset.infoName =
+        socialData.infoName ||
+        "";
+    div.dataset.infoDescription =
+        socialData.infoDescription ||
+        descripcion ||
+        "";
     div.dataset.socialUsername =
         socialData.socialUsername || "";
     div.dataset.socialPhone =
@@ -11667,6 +11947,12 @@ async function guardarBotones(){
                         socialName:
                             card.dataset.socialName || "",
 
+                        infoName:
+                            card.dataset.infoName || "",
+
+                        infoDescription:
+                            card.dataset.infoDescription || "",
+
                         socialUsername:
                             card.dataset.socialUsername || "",
 
@@ -11799,6 +12085,8 @@ async function cargarBotones() {
                 btn.newTab,
                 {
                     socialName: btn.socialName || "",
+                    infoName: btn.infoName || "",
+                    infoDescription: btn.infoDescription || btn.description || "",
                     socialUsername: btn.socialUsername || "",
                     socialPhone: btn.socialPhone || "",
                     socialPhoto: btn.socialPhoto || "",
@@ -12398,6 +12686,475 @@ async function cargarEstadoAdmin(){
         INICIALIZAR APLICACIÓN
 ====================================================*/
 
+
+/*====================================================
+        EDITOR DE ICONOS DE REDES
+====================================================*/
+
+const REDES_ICONOS = {
+    whatsapp: { nombre:"WhatsApp", icono:"fab fa-whatsapp" },
+    facebook: { nombre:"Facebook", icono:"fab fa-facebook" },
+    instagram: { nombre:"Instagram", icono:"fab fa-instagram" },
+    tiktok: { nombre:"TikTok", icono:"fab fa-tiktok" },
+    youtube: { nombre:"YouTube", icono:"fab fa-youtube" },
+    telegram: { nombre:"Telegram", icono:"fab fa-telegram" },
+    linkedin: { nombre:"LinkedIn", icono:"fab fa-linkedin" },
+    github: { nombre:"GitHub", icono:"fab fa-github" },
+    x: { nombre:"X", icono:"fab fa-x-twitter" },
+    web: { nombre:"Web", icono:"fa-solid fa-globe" }
+};
+
+function normalizarRedesSociales(){
+
+    if(typeof configuracion.socialIconsEnabled !== "boolean"){
+        configuracion.socialIconsEnabled = true;
+    }
+
+    if(!Array.isArray(configuracion.socialIcons)){
+        configuracion.socialIcons = [
+            {tipo:"whatsapp", url:"https://api.whatsapp.com/"},
+            {tipo:"facebook", url:"https://www.facebook.com/"},
+            {tipo:"instagram", url:"https://www.instagram.com/"},
+            {tipo:"tiktok", url:"https://www.tiktok.com/"},
+            {tipo:"youtube", url:"https://www.youtube.com/"}
+        ];
+    }
+
+    configuracion.socialIcons =
+        configuracion.socialIcons
+            .filter(red => red && REDES_ICONOS[red.tipo])
+            .slice(0,6);
+
+    if(!configuracion.socialIconsColor){
+        configuracion.socialIconsColor = "#ffffff";
+    }
+
+    if(
+        configuracion.socialIconsPosition !== "bottom" &&
+        configuracion.socialIconsPosition !== "top"
+    ){
+        configuracion.socialIconsPosition = "top";
+    }
+}
+
+function aplicarEstiloIconosRedes(){
+    const color =
+        configuracion.socialIconsColor || "#ffffff";
+
+    document.documentElement.style.setProperty(
+        "--social-icons-color",
+        color
+    );
+}
+
+function renderizarIconosRedes(){
+    normalizarRedesSociales();
+
+    const area =
+        document.getElementById("socialNetworksArea");
+    const container =
+        document.getElementById("socialNetworksContainer");
+    const links =
+        document.getElementById("linksContainer");
+    const card =
+        document.querySelector(".card");
+
+    if(!area || !container || !links || !card){
+        return;
+    }
+
+    container.innerHTML = "";
+
+    configuracion.socialIcons.forEach(red => {
+        const meta = REDES_ICONOS[red.tipo];
+        if(!meta) return;
+
+        const a = document.createElement("a");
+        a.className = "social-network-icon";
+        a.href = red.url || "#";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.title = meta.nombre;
+        a.dataset.type = red.tipo;
+        a.innerHTML = `<i class="${meta.icono}"></i>`;
+
+        if(!red.url){
+            a.addEventListener("click", e => e.preventDefault());
+        }
+
+        container.appendChild(a);
+    });
+
+    aplicarEstiloIconosRedes();
+
+    if(configuracion.socialIconsPosition === "bottom"){
+        card.insertBefore(area, null);
+        card.appendChild(area);
+    }else{
+        card.insertBefore(area, links);
+    }
+
+    const iconosActivos =
+        configuracion.socialIconsEnabled !== false;
+
+    container.style.display =
+        iconosActivos ? "flex" : "none";
+
+    const adminBtn =
+        document.getElementById("socialNetworksAdminButton");
+
+    if(adminBtn){
+        adminBtn.style.display =
+            administradorActivo ? "flex" : "none";
+    }
+
+    /*
+        El área permanece visible para el administrador aunque
+        los iconos estén desactivados, para conservar el botón
+        "Editar iconos de redes".
+    */
+    area.style.display =
+        (
+            iconosActivos &&
+            configuracion.socialIcons.length
+        ) || administradorActivo
+            ? "flex"
+            : "none";
+}
+
+
+
+
+/*
+    La fila conserva el tipo aunque se vuelva a renderizar.
+*/
+function crearFilaRedSocial(red, indice){
+    const meta =
+        REDES_ICONOS[red.tipo] || REDES_ICONOS.web;
+
+    const fila = document.createElement("div");
+    fila.className = "social-network-row";
+    fila.dataset.index = indice;
+    fila.dataset.type = red.tipo;
+
+    fila.innerHTML = `
+        <div class="social-network-row-icon">
+            <i class="${meta.icono}"></i>
+        </div>
+
+        <div class="social-network-row-main">
+            <strong>${escaparHTML(meta.nombre)}</strong>
+            <input
+                type="url"
+                class="social-network-url"
+                placeholder="https://..."
+                value="${escaparHTML(red.url || "")}">
+        </div>
+
+        <button
+            type="button"
+            class="social-network-remove"
+            title="Eliminar icono"
+            aria-label="Eliminar ${escaparHTML(meta.nombre)}">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    `;
+
+    fila.querySelector(".social-network-remove").onclick = () => {
+        fila.remove();
+    };
+
+    return fila;
+}
+
+
+/*====================================================
+    RENDERIZAR FILAS DEL EDITOR DE REDES
+====================================================*/
+
+function renderizarFilasEditorRedes(){
+
+    const contenedor =
+        document.getElementById("socialNetworkRows");
+
+    if(!contenedor){
+        return;
+    }
+
+    contenedor.innerHTML = "";
+
+    normalizarRedesSociales();
+
+    configuracion.socialIcons.forEach((red, indice) => {
+
+        const fila =
+            crearFilaRedSocial(red, indice);
+
+        contenedor.appendChild(fila);
+
+    });
+}
+
+
+function leerFilasEditorRedes(){
+
+    const filas =
+        document.querySelectorAll(
+            "#socialNetworkRows .social-network-row"
+        );
+
+    const redes = [];
+
+    filas.forEach(fila => {
+
+        const tipo =
+            fila.dataset.type;
+
+        const input =
+            fila.querySelector(".social-network-url");
+
+        if(!tipo || !REDES_ICONOS[tipo]){
+            return;
+        }
+
+        redes.push({
+            tipo: tipo,
+            url: input ? input.value.trim() : ""
+        });
+
+    });
+
+    return redes.slice(0, 6);
+}
+
+function abrirEditorIconosRedes(){
+    normalizarRedesSociales();
+
+    const modal =
+        document.getElementById("socialNetworksModal");
+
+    if(!modal) return;
+
+    renderizarFilasEditorRedes();
+
+    const posicion =
+        document.getElementById("socialNetworksPosition");
+
+    if(posicion){
+        posicion.value =
+            configuracion.socialIconsPosition;
+    }
+
+    const picker =
+        document.getElementById("socialNetworksColorPicker");
+
+    if(picker){
+        const actual =
+            configuracion.socialIconsColor || "#ffffff";
+        picker.value =
+            rgbObjetoAHex(
+                obtenerRGBDesdeColor(actual)
+            );
+        picker.dataset.colorFinal = actual;
+    }
+
+    const socialIconsEnabled =
+        document.getElementById("socialIconsEnabled");
+
+    if(socialIconsEnabled){
+        socialIconsEnabled.checked =
+            configuracion.socialIconsEnabled !== false;
+    }
+
+    cerrarTodosLosModales();
+
+    modal.style.display = "flex";
+    guardarEstadoModal(modal);
+}
+
+function activarEditorIconosRedes(){
+    normalizarRedesSociales();
+
+    const abrir =
+        document.getElementById("socialNetworksAdminButton");
+
+    const modal =
+        document.getElementById("socialNetworksModal");
+
+    const select =
+        document.getElementById("socialNetworkSelect");
+
+    const add =
+        document.getElementById("addSocialNetwork");
+
+    const save =
+        document.getElementById("saveSocialNetworks");
+
+    const close =
+        document.getElementById("closeSocialNetworks");
+
+    const colorBtn =
+        document.getElementById("socialNetworksColor");
+
+    const picker =
+        document.getElementById("socialNetworksColorPicker");
+
+    if(abrir && abrir.dataset.bound !== "true"){
+        abrir.dataset.bound = "true";
+        abrir.onclick = e => {
+            e.preventDefault();
+            e.stopPropagation();
+            abrirEditorIconosRedes();
+        };
+    }
+
+    if(add && add.dataset.bound !== "true"){
+        add.dataset.bound = "true";
+        add.onclick = () => {
+            const rows =
+                document.querySelectorAll(
+                    "#socialNetworkRows .social-network-row"
+                );
+
+            if(rows.length >= 6){
+                mostrarNotificacionGuardado(
+                    "Límite alcanzado",
+                    "Solo puedes crear máximo 6 iconos de redes."
+                );
+                return;
+            }
+
+            const tipo =
+                select?.value || "web";
+
+            const fila =
+                crearFilaRedSocial(
+                    {tipo, url:""},
+                    rows.length
+                );
+
+            document.getElementById(
+                "socialNetworkRows"
+            )?.appendChild(fila);
+        };
+    }
+
+    if(save && save.dataset.bound !== "true"){
+        save.dataset.bound = "true";
+        save.onclick = async () => {
+            const filas =
+                leerFilasEditorRedes();
+
+            if(filas.length > 6){
+                mostrarNotificacionGuardado(
+                    "Límite alcanzado",
+                    "Solo puedes tener máximo 6 iconos."
+                );
+                return;
+            }
+
+            const posicion =
+                document.getElementById(
+                    "socialNetworksPosition"
+                )?.value || "top";
+
+            const socialIconsEnabled =
+                document.getElementById(
+                    "socialIconsEnabled"
+                );
+
+            configuracion.socialIconsEnabled =
+                socialIconsEnabled
+                    ? socialIconsEnabled.checked
+                    : configuracion.socialIconsEnabled !== false;
+
+            configuracion.socialIcons = filas;
+            configuracion.socialIconsPosition = posicion;
+
+            aplicarEstiloIconosRedes();
+            renderizarIconosRedes();
+
+            await guardarConfiguracionServidor();
+
+            cerrarModalDefinitivamente(modal);
+
+            mostrarNotificacionGuardado(
+                "Cambios guardados",
+                "Los iconos de redes fueron actualizados."
+            );
+        };
+    }
+
+    if(colorBtn && colorBtn.dataset.bound !== "true"){
+        colorBtn.dataset.bound = "true";
+
+        colorBtn.onclick = e => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if(!picker) return;
+
+            abrirEditorColor({
+                picker,
+                despuesDeAplicar: async valor => {
+                    configuracion.socialIconsColor = valor;
+                    picker.dataset.colorFinal = valor;
+                    aplicarEstiloIconosRedes();
+                    renderizarIconosRedes();
+                    await guardarConfiguracionServidor();
+                }
+            });
+        };
+    }
+
+    if(close && close.dataset.bound !== "true"){
+        close.dataset.bound = "true";
+
+        close.onclick = () => {
+
+            /*-----------------------------------------
+                ADVERTENCIA SI EXISTEN CAMBIOS
+            -----------------------------------------*/
+            if(modalTieneCambios()){
+
+                mostrarAdvertenciaCambios(() => {
+
+                    /* Restaurar todo lo que no se guardó */
+                    restaurarEstadoModal();
+
+                    /* Cerrar definitivamente */
+                    cerrarModalDefinitivamente(modal);
+
+                });
+
+                return;
+            }
+
+            cerrarModalDefinitivamente(modal);
+        };
+    }
+
+    renderizarIconosRedes();
+}
+
+/*====================================================
+    MODO CELULAR: PRIORIZAR ORIENTACIÓN VERTICAL
+====================================================*/
+
+function intentarBloquearOrientacionVertical(){
+    try{
+        if(
+            window.screen &&
+            screen.orientation &&
+            typeof screen.orientation.lock === "function"
+        ){
+            screen.orientation.lock("portrait").catch(() => {});
+        }
+    }catch(error){
+        // Los navegadores pueden impedir el bloqueo fuera de PWA/fullscreen.
+    }
+}
+
 async function inicializarAplicacion() {
 
  
@@ -12526,6 +13283,15 @@ if (configuracion.titleFont) {
     ----------------------------------*/    
     
     await cargarEstadoAdmin();
+
+    /*----------------------------------
+        REDES SOCIALES
+    ----------------------------------*/
+    normalizarRedesSociales();
+    aplicarEstiloIconosRedes();
+    activarEditorIconosRedes();
+    renderizarIconosRedes();
+    intentarBloquearOrientacionVertical();
 
     /*----------------------------------
     MÚSICA DEL SITIO

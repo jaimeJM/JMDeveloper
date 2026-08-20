@@ -6019,7 +6019,7 @@ body:not(.admin-mode) #linksContainer .user-info-toggle,
 }
 
 @keyframes socialInfoReveal{
-    from{opacity:0; transform:translateY(-14px);}
+    from{opacity:0; transform:translateY(-140px);}
     to{opacity:1; transform:translateY(0);}
 }
 
@@ -6315,16 +6315,7 @@ body:not(.admin-mode) #linksContainer .user-info-toggle,
     object-fit:cover;
 }
 
-#linksContainer .youtube-play{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:42px;
-    color:#fff !important;
-    text-shadow:0 3px 15px rgba(0,0,0,.55);
-}
+
 
 #linksContainer .youtube-info-inner .social-info-name{
     display:none;
@@ -6821,7 +6812,7 @@ body.admin-mode.user-mode #linksContainer .user-info-toggle{
 }
 
 .universal-color-picker-wrap::after{
-    content:"Cambiar color";
+    
     position:absolute;
     left:50%;
     top:calc(50% + 12px);
@@ -6943,7 +6934,7 @@ body.dark #linksContainer .link-main .user-info-toggle i{
     position:absolute !important;
     left:14px !important;
     right:14px !important;
-    bottom:calc(100% + 8px) !important;
+    bottom:calc(75% + 8px) !important;
     top:auto !important;
     width:calc(100% - 28px) !important;
     margin:0 !important;
@@ -7164,3 +7155,732 @@ body.dark #linksContainer .link-main .user-info-toggle i{
         max-width:210px !important;
     }
 }
+
+
+/*====================================================
+    INFORMACIÓN GENERAL DEL BOTÓN
+====================================================*/
+
+.link-social-editor .social-field-info-common{
+    display:block !important;
+}
+
+.link-social-editor .social-field-info-common textarea{
+    width:100%;
+    min-height:82px;
+    resize:vertical;
+}
+
+/*====================================================
+    CURSO - LOGO / PANEL INFORMATIVO
+====================================================*/
+
+.link-social-editor.social-type-curso .social-field-photo{
+    display:block !important;
+}
+
+#linksContainer .curso-info-inner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    text-align:center;
+}
+
+#linksContainer .curso-logo-wrap{
+    width:min(280px,100%);
+    aspect-ratio:16/9;
+    border-radius:18px;
+    overflow:hidden;
+    background:rgba(0,0,0,.22);
+    box-shadow:0 8px 22px rgba(0,0,0,.24);
+}
+
+#linksContainer .curso-logo{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+#linksContainer .curso-placeholder{
+    margin-bottom:4px;
+}
+
+/*====================================================
+    ICONOS DE REDES SOCIALES
+====================================================*/
+
+.social-networks-area{
+    width:100%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:12px;
+
+    /* AJUSTE MANUAL:
+       cambia este margin para acercar/alejar
+       los iconos del borde final de la tarjeta. */
+    margin:0px 0 0px;
+}
+
+.social-networks-container{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:12px;
+    width:100%;
+}
+
+.social-network-icon{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    color:var(--social-icons-color,#fff) !important;
+    border:1px solid color-mix(
+        in srgb,
+        var(--social-icons-color,#fff) 35%,
+        transparent
+    );
+    background:rgba(255,255,255,.07);
+    box-shadow:0 7px 18px rgba(0,0,0,.20);
+    transition:transform .25s ease, background .25s ease, box-shadow .25s ease;
+}
+
+.social-network-icon i{
+    color:inherit !important;
+    font-size:21px;
+}
+
+.social-network-icon:hover{
+    transform:translateY(-3px) scale(1.06);
+    background:rgba(255,255,255,.13);
+    box-shadow:0 10px 24px rgba(0,0,0,.28);
+}
+
+.social-networks-admin{
+    flex:0 0 42px;
+    width:42px !important;
+    height:42px !important;
+    min-width:42px;
+    border:0;
+    border-radius:50%;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/*====================================================
+    EDITOR DE ICONOS DE REDES
+====================================================*/
+
+.social-networks-editor-modal{
+    width:min(620px, calc(100vw - 24px));
+}
+
+.social-networks-warning{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:13px 15px;
+    margin:12px 0 18px;
+    border-radius:15px;
+    background:rgba(255,193,7,.12);
+    border:1px solid rgba(255,193,7,.35);
+}
+
+.social-networks-warning > i{
+    font-size:20px;
+    margin-top:2px;
+}
+
+.social-networks-warning div{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+.social-networks-warning span{
+    font-size:12px;
+    line-height:1.45;
+    opacity:.78;
+}
+
+.social-network-add-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 46px;
+    gap:10px;
+    align-items:end;
+}
+
+.social-network-add-row button{
+    width:46px !important;
+    height:46px !important;
+    padding:0 !important;
+}
+
+.social-network-rows{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    margin:15px 0;
+    max-height:300px;
+    overflow:auto;
+}
+
+.social-network-row{
+    display:grid;
+    grid-template-columns:44px minmax(0,1fr) 42px;
+    gap:9px;
+    align-items:center;
+    padding:9px;
+    border-radius:15px;
+    background:rgba(0,0,0,.10);
+    border:1px solid rgba(255,255,255,.10);
+}
+
+.social-network-row-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,.10);
+}
+
+.social-network-row-icon i{
+    color:var(--social-icons-color,#fff);
+    font-size:19px;
+}
+
+.social-network-row-main{
+    min-width:0;
+}
+
+.social-network-row-main strong{
+    display:block;
+    margin-bottom:5px;
+    font-size:12px;
+}
+
+.social-network-remove{
+    width:40px !important;
+    height:40px !important;
+    padding:0 !important;
+    border:0;
+    border-radius:50%;
+    cursor:pointer;
+    background:#8c1111;
+    color:#fff;
+}
+
+.social-network-settings{
+    display:grid;
+    grid-template-columns:1fr;
+    justify-items:center;
+    gap:12px;
+    margin-top:10px;
+    text-align:center;
+}
+
+.social-network-settings label{
+    width:100%;
+    text-align:center;
+    margin:0 !important;
+}
+
+.social-network-settings select{
+    width:min(100%, 360px);
+    margin:0 auto;
+    text-align:center;
+    text-align-last:center;
+}
+
+.social-network-color-button{
+    width:min(100%, 360px);
+    min-height:44px;
+    margin:0 auto;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:12px;
+    background:rgba(255,255,255,.08);
+    color:inherit;
+    cursor:pointer;
+    font-weight:600;
+}
+
+#socialNetworksColorPicker{
+    position:absolute !important;
+    width:1px !important;
+    height:1px !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+}
+
+/*====================================================
+    MEJORA VISUAL DEL EDITOR UNIVERSAL DE COLOR
+====================================================*/
+
+#colorPickerModal .modal-content.color-editor{
+    width:min(680px, calc(100vw - 24px));
+}
+
+#colorPickerModal .universal-color-workspace{
+    width:100% !important;
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:14px !important;
+}
+
+#colorPickerModal .universal-color-preview-wrap,
+#colorPickerModal .universal-color-picker-wrap{
+    width:100% !important;
+    min-width:0 !important;
+    height:145px !important;
+    flex:1 1 auto !important;
+}
+
+#colorPickerModal #previewColor,
+#colorPickerModal .universal-color-picker-box,
+#colorPickerModal #pickerColor{
+    width:100% !important;
+    height:145px !important;
+    min-width:0 !important;
+    min-height:145px !important;
+}
+
+#colorPickerModal #alphaColor,
+#colorPickerModal #hueColor{
+    width:100% !important;
+    max-width:none !important;
+    height:22px !important;
+    margin:4px 0 18px !important;
+}
+
+.universal-color-code-grid{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:8px;
+}
+
+.universal-color-code-field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    min-width:0;
+}
+
+.universal-color-code-field label{
+    margin:0 !important;
+    font-size:12px;
+    font-weight:700;
+}
+
+.universal-color-code-field input{
+    width:100%;
+    min-width:0;
+}
+
+#colorPickerModal .universal-color-history-section{
+    width:100%;
+}
+
+#colorPickerModal #universalColorHistory{
+    width:100%;
+}
+
+#linksContainer .social-info-panel{
+    background:var(--social-panel-bg, rgba(32,32,32,.82)) !important;
+    color:var(--social-panel-text,#fff) !important;
+}
+
+#linksContainer .social-info-panel .social-info-description,
+#linksContainer .social-info-panel .social-info-name,
+#linksContainer .social-info-panel .social-info-user,
+#linksContainer .social-info-panel .social-info-url{
+    color:var(--social-panel-text,#fff) !important;
+}
+
+/*====================================================
+    CELULAR: SIN ZOOM NI DESPLAZAMIENTO HORIZONTAL
+====================================================*/
+
+html,
+body{
+    max-width:100%;
+    overflow-x:hidden;
+    overscroll-behavior-x:none;
+}
+
+body{
+    touch-action:pan-y;
+}
+
+@media(max-width:600px){
+    .social-network-row{
+        grid-template-columns:40px minmax(0,1fr) 40px;
+    }
+
+    .social-network-settings{
+        grid-template-columns:1fr;
+    }
+
+    .social-network-icon{
+        width:42px;
+        height:42px;
+    }
+
+    #colorPickerModal .universal-color-workspace{
+        grid-template-columns:1fr 1fr !important;
+        gap:8px !important;
+    }
+
+    #colorPickerModal .universal-color-preview-wrap,
+    #colorPickerModal .universal-color-picker-wrap,
+    #colorPickerModal #previewColor,
+    #colorPickerModal .universal-color-picker-box,
+    #colorPickerModal #pickerColor{
+        height:105px !important;
+        min-height:105px !important;
+    }
+
+    .universal-color-code-grid{
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+    }
+}
+
+@media(max-width:380px){
+    .social-network-row{
+        grid-template-columns:36px minmax(0,1fr) 36px;
+        gap:7px;
+    }
+
+    .social-network-row-icon,
+    .social-network-remove{
+        width:36px !important;
+        height:36px !important;
+    }
+
+}
+
+/*
+    Si el navegador permite bloquear la orientación, el JS intenta
+    mantener portrait. En navegadores que no lo permiten, el diseño
+    sigue ocupando todo el ancho disponible sin zoom horizontal.
+*/
+@media(max-width:900px) and (orientation:landscape){
+    body{
+        overflow-x:hidden;
+        touch-action:pan-y;
+    }
+
+    .card{
+        width:min(680px, calc(100vw - 20px));
+    }
+}
+
+/*====================================================
+    AJUSTE FINAL - EDITOR UNIVERSAL DE COLOR
+    Dos cuadros iguales, juntos y con el mismo ancho
+    total disponible que los ranges.
+====================================================*/
+#colorPickerModal .universal-color-workspace{
+    width:100% !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:12px !important;
+    align-items:stretch !important;
+    justify-content:stretch !important;
+}
+
+#colorPickerModal .universal-color-preview-wrap,
+#colorPickerModal .universal-color-picker-wrap{
+    width:100% !important;
+    min-width:0 !important;
+    height:120px !important;
+    min-height:120px !important;
+    flex:1 1 0 !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+}
+
+#colorPickerModal .universal-color-preview-wrap > label,
+#colorPickerModal .universal-color-picker-wrap > label{
+    width:100% !important;
+    text-align:center !important;
+    margin:0 0 8px !important;
+}
+
+#colorPickerModal #previewColor,
+#colorPickerModal .universal-color-picker-box{
+    width:100% !important;
+    height:92px !important;
+    min-width:0 !important;
+    min-height:92px !important;
+    max-width:none !important;
+}
+
+#colorPickerModal .universal-color-picker-box{
+    position:relative !important;
+}
+
+#colorPickerModal #pickerColor{
+    width:100% !important;
+    height:92px !important;
+    min-width:0 !important;
+    min-height:92px !important;
+    position:absolute !important;
+    inset:0 !important;
+}
+
+#colorPickerModal #hueColor,
+#colorPickerModal #alphaColor{
+    width:100% !important;
+    max-width:none !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+}
+
+#colorPickerModal .universal-color-code-grid{
+    width:100% !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+}
+
+#colorPickerModal .universal-color-code-field label{
+    width:100% !important;
+    text-align:center !important;
+}
+
+#colorPickerModal .universal-color-code-field input{
+    text-align:center !important;
+}
+
+/*====================================================
+    PANEL CURSO - IMAGEN A LA IZQUIERDA
+    TITULO + DESCRIPCION A LA DERECHA
+====================================================*/
+#linksContainer .curso-info-inner{
+    width:100%;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    text-align:left;
+}
+
+#linksContainer .curso-logo-wrap{
+    flex:0 0 150px;
+    width:150px;
+    aspect-ratio:16/9;
+    cursor:pointer;
+}
+
+#linksContainer .curso-info-content{
+    flex:1 1 auto;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:7px;
+    text-align:left;
+}
+
+#linksContainer .curso-info-content .social-info-name,
+#linksContainer .curso-info-content .social-info-description{
+    width:100%;
+    text-align:left;
+}
+
+#linksContainer .curso-logo{
+    cursor:pointer;
+    transition:transform .2s ease, filter .2s ease;
+}
+
+#linksContainer .curso-logo-wrap:hover .curso-logo{
+    filter:brightness(1.08);
+}
+
+/* Ampliación temporal de la imagen del curso. */
+.curso-image-lightbox{
+    position:fixed;
+    inset:0;
+    z-index:100000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(0,0,0,.82);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .3s ease, visibility .3s ease;
+    cursor:pointer;
+    touch-action:manipulation;
+}
+
+.curso-image-lightbox.is-visible{
+    opacity:1;
+    visibility:visible;
+}
+
+.curso-image-lightbox img{
+    width:min(92vw, 1100px);
+    max-height:90vh;
+    object-fit:contain;
+    border-radius:18px;
+    box-shadow:0 20px 70px rgba(0,0,0,.65);
+    transform:scale(.25);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+
+.curso-image-lightbox.is-visible img{
+    transform:scale(1);
+}
+
+@media(max-width:600px){
+    #linksContainer .curso-info-inner{
+        gap:10px;
+    }
+
+    #linksContainer .curso-logo-wrap{
+        flex-basis:105px;
+        width:105px;
+    }
+
+    #linksContainer .curso-info-content{
+        gap:5px;
+    }
+
+    #linksContainer .curso-info-content .social-info-name{
+        font-size:14px;
+    }
+
+    #linksContainer .curso-info-content .social-info-description{
+        font-size:12px;
+    }
+
+    #colorPickerModal .universal-color-workspace{
+        gap:8px !important;
+    }
+
+    #colorPickerModal .universal-color-preview-wrap,
+    #colorPickerModal .universal-color-picker-wrap{
+        height:100px !important;
+        min-height:100px !important;
+    }
+
+    #colorPickerModal #previewColor,
+    #colorPickerModal .universal-color-picker-box,
+    #colorPickerModal #pickerColor{
+        height:76px !important;
+        min-height:76px !important;
+    }
+}
+
+
+/*====================================================
+    MINIATURAS DEL PROYECTO
+    Mostrar la imagen completa en el panel informativo.
+====================================================*/
+
+#linksContainer .curso-logo,
+#linksContainer .youtube-thumbnail{
+    object-fit:contain !important;
+    background:rgba(0,0,0,.18);
+}
+
+/* El logo/miniatura del curso conserva toda la imagen. */
+#linksContainer .curso-logo{
+    width:100%;
+    height:100%;
+}
+
+/*====================================================
+    AMPLIACIÓN DE MINIATURAS
+    4x, centrada y sin recorte.
+====================================================*/
+
+.project-thumbnail-lightbox{
+    position:fixed;
+    inset:0;
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    box-sizing:border-box;
+    background:rgba(0,0,0,.86);
+    opacity:0;
+    cursor:zoom-out;
+    transition:opacity .25s ease;
+}
+
+.project-thumbnail-lightbox.inside-modal{
+    position:absolute;
+    z-index:999999;
+    width:100%;
+    height:100%;
+}
+
+.project-thumbnail-lightbox.is-visible{
+    opacity:1;
+}
+
+.project-thumbnail-lightbox img{
+    display:block;
+    width:auto;
+    height:auto;
+    max-width:92vw;
+    max-height:88vh;
+    object-fit:contain;
+    border-radius:12px;
+    box-shadow:0 18px 60px rgba(0,0,0,.65);
+    transform:scale(.92);
+    transition:transform .25s ease;
+}
+
+.project-thumbnail-lightbox.is-visible img{
+    transform:scale(1);
+}
+
+#linksContainer .curso-logo,
+#linksContainer .youtube-thumbnail,
+.link-social-photo-upload .file-preview-box img{
+    cursor:pointer;
+}
+
+@media(max-width:600px){
+
+    .project-thumbnail-lightbox{
+        padding:12px;
+    }
+
+    .project-thumbnail-lightbox img{
+        max-width:94vw;
+        max-height:86vh;
+        border-radius:10px;
+    }
+
+}
+
+/*====================================================
+    CHECKBOX ACTIVAR ICONOS DE REDES
+====================================================*/
+
+.social-icons-enable-row{
+    margin-top:18px;
+    margin-bottom:18px;
+}
+

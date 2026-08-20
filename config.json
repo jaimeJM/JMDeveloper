@@ -52,5 +52,30 @@
     "cardColor3": "#2b23a4",
     "cardWatermark": "/uploads/card-watermark.svg",
     "musicUrl": "/uploads/site-music.mp3",
-    "musicEnabled": true
+    "musicEnabled": true,
+    "socialIcons": [
+        {
+            "tipo": "whatsapp",
+            "url": "https://api.whatsapp.com/send?phone=51960722146&text=hola%20buenas.%20necesito%20orientaci%C3%B3n%20t%C3%A9cnica"
+        },
+        {
+            "tipo": "facebook",
+            "url": "https://www.facebook.com/profile.php?id=61588687977605"
+        },
+        {
+            "tipo": "instagram",
+            "url": "https://www.instagram.com/jaime_abraham_martinez"
+        },
+        {
+            "tipo": "tiktok",
+            "url": "https://www.tiktok.com/@jaime_abraham_martinez"
+        },
+        {
+            "tipo": "youtube",
+            "url": "https://www.youtube.com/@JaimeMartinezQA"
+        }
+    ],
+    "socialIconsEnabled": true,
+    "socialIconsColor": "#FFFFFF",
+    "socialIconsPosition": "top"
 }

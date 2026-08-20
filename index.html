@@ -4,7 +4,7 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <style id="app-startup-state">
         /* No permitir que el HTML por defecto se pinte durante la carga. */
         body.app-loading {
@@ -181,6 +181,17 @@ Jaime Martinez1
         </div>
  <p id="description" class="profile-description"></p>
 
+        <!-- REDES SOCIALES -->
+        <div id="socialNetworksArea" class="social-networks-area">
+            <div id="socialNetworksContainer" class="social-networks-container"></div>
+            <button
+                type="button"
+                id="socialNetworksAdminButton"
+                class="card-stat-item social-networks-admin admin-only"
+                title="Editar iconos de redes">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
+        </div>
 
         <!-- Botones -->
 
@@ -496,6 +507,10 @@ Jaime Martinez1
                 YouTube
             </option>
 
+            <option value="fa-solid fa-graduation-cap">
+                Curso
+            </option>
+
             <option value="fab fa-telegram">
                 Telegram
             </option>
@@ -593,6 +608,16 @@ Jaime Martinez1
                 Estos datos se guardan junto al botón y aparecerán al pulsar la flecha ↑.
             </p>
 
+            <div class="social-field social-field-info-common">
+                <label for="linkInfoName">Nombre que verá el usuario</label>
+                <input type="text" id="linkInfoName" maxlength="30" placeholder="Nombre del botón o curso">
+            </div>
+
+            <div class="social-field social-field-info-common">
+                <label for="linkInfoDescription">Descripción que verá el usuario</label>
+                <textarea id="linkInfoDescription" maxlength="200" placeholder="Descripción que aparecerá en el panel informativo"></textarea>
+            </div>
+
             <div class="social-field social-field-youtube">
                 <label for="linkYoutubeDescription">
                     Descripción del video
@@ -646,7 +671,7 @@ Jaime Martinez1
             </div>
 
             <div class="social-field social-field-photo" id="linkSocialPhotoField">
-                <label for="linkSocialPhoto">Foto / imagen / miniatura de YouTube</label>
+                <label for="linkSocialPhoto">Foto / imagen / logo del curso</label>
 
                 <div class="file-upload-preview link-social-photo-upload">
                     <label
@@ -1419,6 +1444,87 @@ Jaime Martinez1
 
 
 
+<!--====================================================
+        EDITOR DE ICONOS DE REDES
+=====================================================-->
+<div class="modal" id="socialNetworksModal">
+    <div class="modal-content social-networks-editor-modal">
+        <h2><i class="fa-solid fa-share-nodes"></i> Editor de iconos de redes</h2>
+
+        <div class="social-networks-warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+                <strong>Máximo 6 iconos</strong>
+                <span>Puedes agregar, eliminar y cambiar las URL de cada red.</span>
+            </div>
+        </div>
+
+        <label for="socialNetworkSelect">Icono que deseas agregar</label>
+        <div class="social-network-add-row">
+            <select id="socialNetworkSelect">
+                <option value="whatsapp">WhatsApp</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="youtube">YouTube</option>
+                <option value="telegram">Telegram</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="github">GitHub</option>
+                <option value="x">X</option>
+                <option value="web">Web</option>
+            </select>
+            <button type="button" id="addSocialNetwork" class="btn-save" title="Agregar icono">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+
+        <div id="socialNetworkRows" class="social-network-rows"></div>
+
+        <div class="music-enable-row social-icons-enable-row">
+
+            <label class="music-enable-control">
+
+                <input
+                    type="checkbox"
+                    id="socialIconsEnabled">
+
+                <span class="music-switch"></span>
+
+                <span class="music-enable-text">
+                    Activar iconos redes sociales
+                </span>
+
+            </label>
+
+        </div>
+
+        <div class="social-network-settings">
+            <label for="socialNetworksPosition">Ubicación de los iconos</label>
+            <select id="socialNetworksPosition">
+                <option value="top">Debajo de la descripción</option>
+                <option value="bottom">Debajo de todos los botones</option>
+            </select>
+
+            <button type="button" id="socialNetworksColor" class="social-network-color-button">
+                <i class="fa-solid fa-palette"></i>
+                Color de todos los iconos
+            </button>
+            <input type="color" id="socialNetworksColorPicker" value="#ffffff" aria-hidden="true" tabindex="-1">
+        </div>
+
+        <div class="buttons">
+            <button type="button" id="saveSocialNetworks" class="btn-save" title="Guardar">
+                <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+        </div>
+
+        <button type="button" id="closeSocialNetworks" class="closeX" title="Cerrar">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+</div>
+
+
 <!--=============================================
         EDITOR UNIVERSAL DE COLOR
 ==============================================-->
@@ -1431,7 +1537,7 @@ Jaime Martinez1
                 TÍTULO
         ======================================-->
 
-        <h2>Editor de Color</h2>
+        <h2><i class="fa-solid fa-pen-to-square"> </i>&nbsp;Editor de Color</h2>
 
 
         <!--=====================================
@@ -1451,7 +1557,7 @@ Jaime Martinez1
                     <input
                         type="color"
                         id="pickerColor"
-                        aria-label="Cambiar color"
+                        aria-label=""
                     >
                     <span class="pickerColorText">Cambiar color</span>
                 </div>
@@ -1483,29 +1589,29 @@ Jaime Martinez1
 
 
         <!--=====================================
-                HEX
+                HEX / RGB
         ======================================-->
+        <div class="universal-color-code-grid">
 
-        <label>HEX</label>
+            <div class="universal-color-code-field">
+                <label for="hexColor">HEX</label>
+                <input
+                    type="text"
+                    id="hexColor"
+                    placeholder="#FFFFFF"
+                >
+            </div>
 
-        <input
-            type="text"
-            id="hexColor"
-            placeholder="#FFFFFF"
-        >
+            <div class="universal-color-code-field">
+                <label for="rgbColor">RGB</label>
+                <input
+                    type="text"
+                    id="rgbColor"
+                    placeholder="rgb(255, 255, 255)"
+                >
+            </div>
 
-
-        <!--=====================================
-                RGB
-        ======================================-->
-
-        <label>RGB</label>
-
-        <input
-            type="text"
-            id="rgbColor"
-            placeholder="rgb( 255, 255, 255)"
-        >
+        </div>
 
 
 
@@ -1515,7 +1621,7 @@ Jaime Martinez1
         ======================================-->
 
         <div class="universal-color-history-section">
-            <label>Colores recientes</label>
+            <label class="text-align: center">Colores recientes</label>
             <div id="universalColorHistory"></div>
         </div>
 
