@@ -511,6 +511,10 @@ Jaime Martinez1
                 Curso
             </option>
 
+            <option value="fa-solid fa-bell">
+                Recordatorio
+            </option>
+
             <option value="fab fa-telegram">
                 Telegram
             </option>
@@ -611,11 +615,13 @@ Jaime Martinez1
             <div class="social-field social-field-info-common">
                 <label for="linkInfoName">Nombre que verá el usuario</label>
                 <input type="text" id="linkInfoName" maxlength="30" placeholder="Nombre del botón o curso">
+                <small id="linkInfoNameCounter" class="description-counter">0 / 30</small>
             </div>
 
             <div class="social-field social-field-info-common">
                 <label for="linkInfoDescription">Descripción que verá el usuario</label>
                 <textarea id="linkInfoDescription" maxlength="200" placeholder="Descripción que aparecerá en el panel informativo"></textarea>
+                <small id="linkInfoDescriptionCounter" class="description-counter">0 / 200</small>
             </div>
 
             <div class="social-field social-field-youtube">
@@ -668,6 +674,76 @@ Jaime Martinez1
             <div class="social-field social-field-whatsapp">
                 <label for="linkSocialPhone">Número de WhatsApp</label>
                 <input type="text" id="linkSocialPhone" maxlength="30" placeholder="+51 999 999 999">
+            </div>
+
+            <!--========================================
+                EDITOR ESPECIAL: RECORDATORIO
+            ========================================-->
+            <div class="reminder-editor" id="reminderEditor" data-editor-type="recordatorio">
+
+                <h3>
+                    <i class="fa-solid fa-bell"></i>
+                    Configuración del recordatorio
+                </h3>
+
+                <div class="social-field">
+                    <label for="reminderPhoneCountry">País del WhatsApp</label>
+                    <div class="reminder-phone-row">
+                        <select id="reminderPhoneCountry" aria-label="Código de país"></select>
+                        <input
+                            type="tel"
+                            id="reminderPhone"
+                            maxlength="20"
+                            inputmode="tel"
+                            placeholder="999 999 999">
+                    </div>
+                    <small>El mensaje se enviará al número indicado.</small>
+                </div>
+
+                <div class="social-field">
+                    <label for="reminderStartDate">Fecha de inicio</label>
+                    <input type="date" id="reminderStartDate">
+                </div>
+
+                <div class="social-field">
+                    <label for="reminderEndDate">Fecha de finalización</label>
+                    <input type="date" id="reminderEndDate">
+                </div>
+
+                <div class="reminder-grid">
+                    <div class="social-field">
+                        <label for="reminderNotifyTime">Hora del aviso automático</label>
+                        <input type="time" id="reminderNotifyTime" value="09:00">
+                    </div>
+
+                    <div class="social-field">
+                        <label for="reminderTimezone">Zona horaria del dispositivo</label>
+                        <input type="text" id="reminderTimezone" readonly>
+                    </div>
+                </div>
+
+                <div class="social-field">
+                    <label for="reminderMessage">Mensaje que se enviará por WhatsApp</label>
+                    <textarea
+                        id="reminderMessage"
+                        maxlength="1000"
+                        placeholder="Escribe el mensaje del recordatorio"></textarea>
+                    <small id="reminderMessageCounter" class="description-counter">0 / 1000</small>
+                </div>
+
+                <div class="reminder-notice">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>
+                        El aviso automático se programa para <strong>1 mes y 1 día antes</strong>
+                        de la fecha final. El día se calcula automáticamente y la hora se toma del campo anterior.
+                    </span>
+                </div>
+
+                <div class="social-field">
+                    <label for="reminderNotifyDate">Día del aviso (por defecto: 1 mes y 1 día antes)</label>
+                    <input type="date" id="reminderNotifyDate">
+                </div>
+
             </div>
 
             <div class="social-field social-field-photo" id="linkSocialPhotoField">

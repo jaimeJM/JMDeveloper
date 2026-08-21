@@ -6516,11 +6516,11 @@ body.admin-mode.user-mode #linksContainer .user-info-toggle{
 #linksContainer .social-info-panel,
 #linksContainer .social-info-panel *{
     --button:transparent;
-    color:var(--social-panel-text, #ffffff) !important;
+    color:var(--social-panel-text, #ff0000) !important;
 }
 
 #linksContainer .social-info-panel .social-info-stats > div{
-    background:rgba(255,255,255,.12);
+    background:rgb(85, 255, 0);
 }
 
 /* YouTube: miniatura cuadrada/compacta con esquinas redondeadas. */
@@ -7884,3 +7884,699 @@ body{
     margin-bottom:18px;
 }
 
+
+
+/* =========================================================
+   AJUSTES FINALES: MINIATURAS Y RECORDATORIOS
+   ========================================================= */
+
+/* La caja de una imagen subida se adapta a su proporción real. */
+.file-upload-preview .file-preview-box.has-image{
+    width:auto !important;
+    height:auto !important;
+    min-width:40px !important;
+    min-height:40px !important;
+    max-width:170px !important;
+    max-height:100px !important;
+    flex:0 0 auto !important;
+    aspect-ratio:auto !important;
+}
+
+.file-upload-preview .file-preview-box.has-image img{
+    width:auto !important;
+    height:auto !important;
+    max-width:170px !important;
+    max-height:100px !important;
+    object-fit:contain !important;
+}
+
+/* Las imágenes del panel nunca se recortan. El contenedor sigue su proporción. */
+#linksContainer .curso-logo-wrap,
+#linksContainer .youtube-thumbnail-wrap{
+    width:auto !important;
+    height:auto !important;
+    max-width:min(360px,100%) !important;
+    aspect-ratio:auto !important;
+    overflow:hidden !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+}
+
+#linksContainer .curso-logo,
+#linksContainer .youtube-thumbnail{
+    width:auto !important;
+    height:auto !important;
+    max-width:100% !important;
+    max-height:360px !important;
+    object-fit:contain !important;
+}
+
+/* Caja de ampliación: siempre centrada dentro del modal que la contiene. */
+.project-thumbnail-lightbox{
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:auto !important;
+    padding:20px !important;
+}
+
+.project-thumbnail-lightbox.inside-modal{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+}
+
+.project-thumbnail-lightbox img{
+    width:auto !important;
+    height:auto !important;
+    max-width:92% !important;
+    max-height:88% !important;
+    object-fit:contain !important;
+}
+
+/* Recordatorio */
+.reminder-editor{
+    display:none;
+    margin:18px 0 8px;
+    padding:18px;
+    border-radius:18px;
+    background:rgba(0,0,0,.08);
+    border:1px solid rgba(255,255,255,.15);
+}
+
+.link-social-editor.social-type-recordatorio .reminder-editor{
+    display:block;
+}
+
+.link-social-editor.social-type-recordatorio .social-field-whatsapp,
+.link-social-editor.social-type-recordatorio .social-field-socials,
+.link-social-editor.social-type-recordatorio .social-field-youtube{
+    display:none !important;
+}
+
+.reminder-editor h3{
+    margin:0 0 15px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+
+.reminder-phone-row{
+    display:grid;
+    grid-template-columns:minmax(125px, .4fr) minmax(0, 1fr);
+    gap:8px;
+}
+
+.reminder-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.reminder-editor input[readonly]{
+    opacity:.8;
+}
+
+.reminder-notice{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    margin:10px 0 14px;
+    padding:12px;
+    border-radius:12px;
+    background:rgba(0,210,255,.08);
+    border:1px solid rgba(0,210,255,.22);
+    font-size:12px;
+    line-height:1.45;
+}
+
+.reminder-notice i{
+    margin-top:2px;
+}
+
+.reminder-bell{
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    border:0;
+    border-radius:50%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    color:#fff !important;
+    cursor:pointer;
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+.link-card.reminder-active .reminder-bell{
+    display:flex;
+}
+
+body.admin-mode .reminder-bell{
+    display:none !important;
+}
+
+.reminder-user-panel{
+    width:100%;
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:13px;
+    color:var(--social-panel-text,#fff);
+    background:var(--social-panel-bg,#202020);
+}
+
+.reminder-user-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    font-size:12px;
+}
+
+.reminder-countdown{
+    font-weight:700;
+    font-size:14px;
+}
+
+.reminder-progress{
+    width:100%;
+    height:9px;
+    margin-top:8px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.16);
+}
+
+.reminder-progress-bar{
+    height:100%;
+    width:0;
+    border-radius:inherit;
+    background:#22c55e;
+    transition:width .5s ease, background .5s ease;
+}
+
+body.dark .social-networks-editor-modal,
+body.dark .social-networks-editor-modal h2,
+body.dark .social-networks-editor-modal h3,
+body.dark .social-networks-editor-modal label,
+body.dark .social-networks-editor-modal span,
+body.dark .social-networks-editor-modal strong,
+body.dark .social-networks-editor-modal p,
+body.dark .social-networks-editor-modal .social-networks-warning,
+body.dark .social-networks-editor-modal .social-network-settings{
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal{
+    background:#000 !important;
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal input,
+body.dark .social-networks-editor-modal select,
+body.dark .social-networks-editor-modal textarea{
+    background:#000 !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.35) !important;
+}
+
+body.dark .social-networks-editor-modal .social-network-add-row button,
+body.dark .social-networks-editor-modal .social-network-color-button,
+body.dark .social-networks-editor-modal .buttons button{
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal .social-network-icon{
+    color:#fff !important;
+    background:#000 !important;
+    border-color:rgba(255,255,255,.45) !important;
+}
+
+@media(max-width:600px){
+    .reminder-grid{
+        grid-template-columns:1fr;
+    }
+    .reminder-phone-row{
+        grid-template-columns:120px 1fr;
+    }
+}
+
+
+/* =========================================================
+   AJUSTES FINALES - RECORDATORIO Y MINIATURAS
+   ========================================================= */
+
+/* Los campos generales siempre son visibles dentro del editor.
+   Esto evita que el selector dinámico oculte los datos del usuario. */
+.link-social-editor .social-field-info-common{
+    display:block !important;
+}
+
+/* El Recordatorio necesita su propia imagen/logo. */
+.link-social-editor.social-type-recordatorio .social-field-photo{
+    display:block !important;
+}
+
+/* El selector de imagen del Recordatorio se comporta como miniatura real. */
+.link-social-editor.social-type-recordatorio .link-social-photo-upload{
+    display:flex !important;
+}
+
+/* La caja se adapta a la proporción real de la imagen subida. */
+.link-social-photo-upload .file-preview-box.has-image{
+    width:auto !important;
+    height:auto !important;
+    min-width:40px !important;
+    min-height:40px !important;
+    max-width:170px !important;
+    max-height:120px !important;
+    aspect-ratio:auto !important;
+    flex:0 0 auto !important;
+    overflow:hidden !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+}
+
+.link-social-photo-upload .file-preview-box.has-image img{
+    display:block !important;
+    width:auto !important;
+    height:auto !important;
+    max-width:170px !important;
+    max-height:120px !important;
+    object-fit:contain !important;
+}
+
+/* Todas las miniaturas del panel muestran la imagen completa,
+   y el contenedor se adapta a su proporción. */
+#linksContainer .curso-logo-wrap,
+#linksContainer .youtube-thumbnail-wrap,
+#linksContainer .reminder-logo-wrap{
+    width:auto !important;
+    height:auto !important;
+    max-width:min(360px,100%) !important;
+    aspect-ratio:auto !important;
+    overflow:hidden !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+}
+
+#linksContainer .curso-logo,
+#linksContainer .youtube-thumbnail,
+#linksContainer .reminder-logo-wrap img{
+    width:auto !important;
+    height:auto !important;
+    max-width:100% !important;
+    max-height:360px !important;
+    object-fit:contain !important;
+    display:block !important;
+}
+
+/* La campanita solamente existe visualmente en Recordatorio. */
+#linksContainer .reminder-bell{
+    display:none !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:40px !important;
+    height:40px !important;
+    min-width:40px !important;
+    border:0 !important;
+    border-radius:50% !important;
+    color:#fff !important;
+    cursor:pointer !important;
+    transition:background .35s ease, transform .2s ease !important;
+}
+
+#linksContainer .reminder-active .reminder-bell{
+    display:flex !important;
+}
+
+#linksContainer .reminder-bell i{
+    color:#fff !important;
+}
+
+/* Barra y campana usan el mismo color de estado. */
+#linksContainer .reminder-progress{
+    width:100%;
+    height:10px;
+    border-radius:999px;
+    overflow:hidden;
+    background:rgba(255,255,255,.16);
+}
+
+#linksContainer .reminder-progress-bar{
+    height:100%;
+    width:0;
+    border-radius:inherit;
+    background:#22c55e;
+    transition:width .5s ease, background .5s ease;
+}
+
+/* Modo oscuro: el botón de editar iconos y todos sus iconos
+   quedan negros con iconografía blanca. */
+body.dark #socialNetworksAdminButton,
+body.dark #socialNetworksAdminButton i,
+body.dark .social-networks-admin,
+body.dark .social-networks-admin i{
+    background:#000 !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.4) !important;
+}
+
+body.dark .social-networks-editor-modal,
+body.dark .social-networks-editor-modal *,
+body.dark .social-networks-editor-modal i{
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal{
+    background:#000 !important;
+}
+
+body.dark .social-networks-editor-modal input,
+body.dark .social-networks-editor-modal select,
+body.dark .social-networks-editor-modal textarea,
+body.dark .social-networks-editor-modal button,
+body.dark .social-networks-editor-modal .social-network-icon,
+body.dark .social-networks-editor-modal .social-network-remove{
+    background:#000 !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.4) !important;
+}
+
+/* Ampliación: siempre centrada y limitada únicamente por la pantalla/modal. */
+.project-thumbnail-lightbox{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+}
+
+.project-thumbnail-lightbox img{
+    object-fit:contain !important;
+    max-width:92vw !important;
+    max-height:88vh !important;
+}
+
+/* =========================================================
+   CORRECCIÓN - CAMPOS DEL EDITOR DE RECORDATORIO
+   =========================================================
+   La regla general del editor oculta .social-field. El
+   Recordatorio necesita mostrar todos sus campos internos.
+   Esta regla tiene prioridad únicamente cuando el tipo es
+   recordatorio y no afecta a los demás botones.
+*/
+.link-social-editor.social-type-recordatorio .reminder-editor,
+.link-social-editor.social-type-recordatorio .reminder-editor .social-field,
+.link-social-editor.social-type-recordatorio .reminder-editor .reminder-grid,
+.link-social-editor.social-type-recordatorio .reminder-editor .reminder-grid .social-field,
+.link-social-editor.social-type-recordatorio .reminder-editor .reminder-notice{
+    display:block !important;
+}
+
+.link-social-editor.social-type-recordatorio .reminder-editor .reminder-grid{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+}
+
+.link-social-editor.social-type-recordatorio .reminder-editor .reminder-phone-row{
+    display:grid !important;
+}
+
+.link-social-editor.social-type-recordatorio .reminder-editor label,
+.link-social-editor.social-type-recordatorio .reminder-editor input,
+.link-social-editor.social-type-recordatorio .reminder-editor select,
+.link-social-editor.social-type-recordatorio .reminder-editor textarea,
+.link-social-editor.social-type-recordatorio .reminder-editor small{
+    visibility:visible !important;
+}
+
+@media(max-width:600px){
+    .link-social-editor.social-type-recordatorio .reminder-editor .reminder-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+/* =========================================================
+   AJUSTES FINALES: EDITOR DE REDES, CAMPANA Y MINIATURAS
+   ========================================================= */
+
+/* Miniaturas: la caja conserva la proporción real de la imagen subida. */
+.file-upload-preview .file-preview-box.has-image{
+    width:var(--preview-w, auto) !important;
+    height:var(--preview-h, auto) !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    max-width:170px !important;
+    max-height:100px !important;
+}
+
+.file-upload-preview .file-preview-box.has-image img{
+    width:100% !important;
+    height:100% !important;
+    max-width:170px !important;
+    max-height:100px !important;
+    object-fit:contain !important;
+}
+
+/* Modo oscuro completo del editor de iconos de redes. */
+body.dark .social-networks-editor-modal,
+body.dark .social-networks-editor-modal .social-network-row,
+body.dark .social-networks-editor-modal .social-network-row-icon,
+body.dark .social-networks-editor-modal .social-network-add-row,
+body.dark .social-networks-editor-modal .social-network-settings,
+body.dark .social-networks-editor-modal .social-network-color-button{
+    background:#000 !important;
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal *,
+body.dark .social-networks-editor-modal i,
+body.dark .social-networks-editor-modal .social-network-row-icon i{
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal .social-network-row,
+body.dark .social-networks-editor-modal .social-network-row-icon,
+body.dark .social-networks-editor-modal .social-network-color-button,
+body.dark .social-networks-editor-modal .social-network-add-row button{
+    border-color:rgba(255,255,255,.45) !important;
+}
+
+/* La campana sustituye al icono izquierdo cuando el recordatorio está activo. */
+.link-card .left{
+    position:relative;
+}
+
+.link-card .left .reminder-bell-left{
+    display:none;
+    width:100%;
+    height:100%;
+    min-width:0;
+    flex:0 0 auto;
+    border-radius:inherit;
+    box-shadow:none;
+}
+
+.link-card.reminder-active .left .link-original-icon{
+    display:none;
+}
+
+.link-card.reminder-active .left .reminder-bell-left{
+    display:flex !important;
+}
+
+body.admin-mode .link-card.reminder-active .left .reminder-bell-left{
+    display:none !important;
+}
+
+
+/* =========================================================
+   CAMBIOS FINALES SOLICITADOS
+   ========================================================= */
+
+/* MODO OSCURO: editor de redes completamente negro. */
+body.dark .social-networks-editor-modal,
+body.dark .social-networks-editor-modal .social-network-row,
+body.dark .social-networks-editor-modal .social-network-row-icon,
+body.dark .social-networks-editor-modal .social-network-add-row,
+body.dark .social-networks-editor-modal .social-network-settings,
+body.dark .social-networks-editor-modal .social-network-color-button{
+    background:#000 !important;
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal *,
+body.dark .social-networks-editor-modal i,
+body.dark .social-networks-editor-modal svg{
+    color:#fff !important;
+}
+
+body.dark .social-networks-editor-modal input,
+body.dark .social-networks-editor-modal select,
+body.dark .social-networks-editor-modal textarea{
+    background:#000 !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.4) !important;
+}
+
+/* Los iconos de redes que aparecen en los cards también son blancos
+   cuando el sitio está en modo oscuro. */
+body.dark #linksContainer .link-original-icon,
+body.dark #linksContainer .left > i{
+    color:#fff !important;
+}
+
+/* Recordatorio: la campana sustituye al icono izquierdo SOLO cuando
+   existe una fecha y el recordatorio quedó guardado/activo. */
+#linksContainer .link-main .left{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+#linksContainer .link-main .left .reminder-bell-left{
+    display:none !important;
+    align-items:center;
+    justify-content:center;
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    min-width:0;
+    border:0;
+    box-shadow:none;
+    border-radius:inherit;
+}
+
+#linksContainer .link-card.reminder-active .left .link-original-icon{
+    display:none !important;
+}
+
+#linksContainer .link-card.reminder-active .left .reminder-bell-left{
+    display:flex !important;
+}
+
+#linksContainer .link-card .reminder-bell-left i{
+    color:#fff !important;
+}
+
+/* Si no existe fecha, nunca se muestra la campana de reemplazo. */
+#linksContainer .link-card:not(.reminder-active)
+    .left .reminder-bell-left{
+    display:none !important;
+}
+
+/* La barra y la campana reciben el mismo color mediante JS. */
+#linksContainer .reminder-bell-left{
+    background:var(--reminder-state-color,#22c55e);
+}
+
+/* =========================================================
+   MINIATURAS: CAJA ADAPTADA A LA PROPORCIÓN REAL
+   ========================================================= */
+
+.file-upload-preview .file-preview-box.has-image{
+    width:var(--preview-w,auto) !important;
+    height:var(--preview-h,auto) !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    max-width:170px !important;
+    max-height:120px !important;
+    flex:0 0 auto !important;
+    aspect-ratio:auto !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:hidden !important;
+}
+
+.file-upload-preview .file-preview-box.has-image img{
+    width:100% !important;
+    height:100% !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    max-width:none !important;
+    max-height:none !important;
+    object-fit:contain !important;
+}
+
+/* También para las vistas previas del Editor del botón/recordatorio. */
+.link-social-photo-upload .file-preview-box.has-image{
+    width:auto !important;
+    height:auto !important;
+    min-width:40px !important;
+    min-height:40px !important;
+    max-width:170px !important;
+    max-height:120px !important;
+    flex:0 0 auto !important;
+}
+
+.link-social-photo-upload .file-preview-box.has-image img{
+    width:auto !important;
+    height:auto !important;
+    max-width:170px !important;
+    max-height:120px !important;
+    object-fit:contain !important;
+}
+
+/* =========================================================
+   AMPLIACIÓN 4X
+   ========================================================= */
+
+.project-thumbnail-lightbox{
+    position:absolute;
+    inset:0;
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    box-sizing:border-box;
+    background:rgba(0,0,0,.78);
+    opacity:0;
+    pointer-events:none;
+    cursor:zoom-out;
+    transition:opacity .22s ease;
+}
+
+.project-thumbnail-lightbox:not(.inside-modal){
+    position:fixed;
+}
+
+.project-thumbnail-lightbox.inside-modal{
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:inherit;
+}
+
+.project-thumbnail-lightbox.is-visible{
+    opacity:1;
+    pointer-events:auto;
+}
+
+.project-thumbnail-lightbox img{
+    display:block;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    max-width:92%;
+    max-height:88%;
+    margin:auto;
+    border-radius:10px;
+    box-shadow:0 18px 55px rgba(0,0,0,.6);
+}
+
+/* Las vistas previas de estos editores participan en el mismo sistema. */
+#logoFilePreview,
+#buttonFilePreview,
+#backgroundImagePreview,
+#cardWatermarkLogoPreview{
+    cursor:pointer;
+}

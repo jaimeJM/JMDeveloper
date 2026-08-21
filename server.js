@@ -412,6 +412,288 @@ function guardarBotones(botones) {
 
 
 
+
+/*====================================================
+    PROGRAMADOR DE RECORDATORIOS WHATSAPP
+    Requiere WhatsApp Cloud API:
+      WHATSAPP_ACCESS_TOKEN
+      WHATSAPP_PHONE_NUMBER_ID
+      WHATSAPP_GRAPH_VERSION (opcional)
+====================================================*/
+
+const reminderSendState = new Map();
+
+function obtenerPartesFechaZonaHoraria(timeZone){
+
+    try{
+        const formatter = new Intl.DateTimeFormat("en-CA", {
+            timeZone,
+            year:"numeric",
+            month:"2-digit",
+            day:"2-digit",
+            hour:"2-digit",
+            minute:"2-digit",
+            hourCycle:"h23"
+        });
+
+        const partes = Object.fromEntries(
+            formatter.formatToParts(new Date())
+                .filter(p => p.type !== "literal")
+                .map(p => [p.type,p.value])
+        );
+
+        return {
+            fecha:`${partes.year}-${partes.month}-${partes.day}`,
+            hora:`${partes.hour}:${partes.minute}`
+        };
+
+    }catch(error){
+        return null;
+    }
+}
+
+function obtenerNumeroWhatsAppCompleto(boton){
+
+    const codigo = String(boton.reminderPhoneCountry || "")
+        .replace(/\D/g,"");
+
+    const numero = String(boton.reminderPhone || "")
+        .replace(/\D/g,"");
+
+    if(!codigo || !numero){
+        return "";
+    }
+
+    return codigo + numero;
+}
+
+function obtenerFechaAvisoServidor(fechaFinal){
+
+    if(!fechaFinal){
+        return "";
+    }
+
+    const partes = String(fechaFinal).split("-");
+    if(partes.length !== 3){
+        return "";
+    }
+
+    const year = Number(partes[0]);
+    const month = Number(partes[1]) - 1;
+    const day = Number(partes[2]);
+
+    if(!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)){
+        return "";
+    }
+
+    const mesAnterior = month - 1;
+    const ultimoDiaMesAnterior =
+        new Date(year, mesAnterior + 1, 0).getDate();
+
+    const fecha = new Date(
+        year,
+        mesAnterior,
+        Math.min(day, ultimoDiaMesAnterior)
+    );
+
+    fecha.setDate(fecha.getDate() - 1);
+
+    return [
+        fecha.getFullYear(),
+        String(fecha.getMonth()+1).padStart(2,"0"),
+        String(fecha.getDate()).padStart(2,"0")
+    ].join("-");
+}
+async function enviarWhatsAppRecordatorio(boton, indice){
+
+    const token = process.env.WHATSAPP_ACCESS_TOKEN;
+    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    const graphVersion =
+        process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
+
+    if(!token || !phoneNumberId){
+        return {
+            ok:false,
+            skipped:true,
+            reason:"WhatsApp Cloud API no configurada."
+        };
+    }
+
+    const destinatario =
+        obtenerNumeroWhatsAppCompleto(boton);
+
+    if(!destinatario){
+        return {
+            ok:false,
+            skipped:true,
+            reason:"El recordatorio no tiene número de WhatsApp."
+        };
+    }
+
+    const mensaje =
+        String(boton.reminderMessage || "").trim();
+
+    if(!mensaje){
+        return {
+            ok:false,
+            skipped:true,
+            reason:"El recordatorio no tiene mensaje."
+        };
+    }
+
+    const endpoint =
+        `https://graph.facebook.com/${graphVersion}/${phoneNumberId}/messages`;
+
+    const respuesta = await fetch(endpoint, {
+        method:"POST",
+        headers:{
+            "Authorization":`Bearer ${token}`,
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            messaging_product:"whatsapp",
+            recipient_type:"individual",
+            to:destinatario,
+            type:"text",
+            text:{
+                preview_url:false,
+                body:mensaje
+            }
+        })
+    });
+
+    const datos = await respuesta.json().catch(() => ({}));
+
+    if(!respuesta.ok){
+        throw new Error(
+            datos?.error?.message ||
+            `WhatsApp API HTTP ${respuesta.status}`
+        );
+    }
+
+    reminderSendState.set(
+        `${indice}:${boton.reminderNotifyDate}:${boton.reminderNotifyTime}`,
+        Date.now()
+    );
+
+    return {
+        ok:true,
+        messageId:
+            datos?.messages?.[0]?.id || ""
+    };
+}
+
+async function procesarRecordatoriosWhatsApp(){
+
+    try{
+
+        const botones = leerBotones();
+
+        if(!Array.isArray(botones)){
+            return;
+        }
+
+        for(let indice = 0; indice < botones.length; indice++){
+
+            const boton = botones[indice];
+
+            if(!boton || boton.reminderEnabled !== true){
+                continue;
+            }
+
+            const fechaFinal =
+                boton.reminderEndDate || "";
+
+            const fechaAviso =
+                boton.reminderNotifyDate ||
+                obtenerFechaAvisoServidor(fechaFinal);
+
+            if(!fechaAviso){
+                continue;
+            }
+
+            const zona =
+                boton.reminderTimezone ||
+                "UTC";
+
+            const ahora = obtenerPartesFechaZonaHoraria(zona);
+
+            if(!ahora){
+                continue;
+            }
+
+            const horaAviso =
+                String(boton.reminderNotifyTime || "09:00")
+                    .slice(0,5);
+
+            if(
+                ahora.fecha !== fechaAviso ||
+                ahora.hora !== horaAviso
+            ){
+                continue;
+            }
+
+            const clave =
+                `${indice}:${fechaAviso}:${horaAviso}`;
+
+            if(
+                reminderSendState.has(clave) ||
+                boton.reminderLastSentKey === clave
+            ){
+                continue;
+            }
+
+            try{
+
+                const resultado =
+                    await enviarWhatsAppRecordatorio(
+                        boton,
+                        indice
+                    );
+
+                if(resultado.ok){
+                    boton.reminderLastSentKey = clave;
+                    guardarBotones(botones);
+
+                    console.log(
+                        `[Recordatorio] WhatsApp enviado al botón ${indice + 1}.`
+                    );
+                }else if(!resultado.skipped){
+                    console.warn(
+                        `[Recordatorio] No enviado: ${resultado.reason || "motivo desconocido"}`
+                    );
+                }
+
+            }catch(error){
+
+                console.error(
+                    `[Recordatorio] Error enviando WhatsApp para el botón ${indice + 1}:`,
+                    error.message
+                );
+
+            }
+        }
+
+    }catch(error){
+
+        console.error(
+            "Error procesando recordatorios:",
+            error.message
+        );
+
+    }
+}
+
+setInterval(
+    procesarRecordatoriosWhatsApp,
+    60 * 1000
+);
+
+setTimeout(
+    procesarRecordatoriosWhatsApp,
+    5000
+);
+
 const app = express();
 
 app.use(express.json({

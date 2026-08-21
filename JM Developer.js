@@ -3475,6 +3475,31 @@ const logo = document.getElementById("logo");
         VISTA PREVIA DE ARCHIVOS
 ====================================================*/
 
+function ajustarCajaMiniatura(preview){
+
+    const box = preview?.closest(".file-preview-box");
+
+    if(!preview || !box){
+        return;
+    }
+
+    const aplicar = () => {
+
+        const ancho = preview.naturalWidth || 1;
+        const alto = preview.naturalHeight || 1;
+        const escala = Math.min(170 / ancho, 100 / alto, 1);
+
+        box.style.setProperty("--preview-w", `${Math.max(40, Math.round(ancho * escala))}px`);
+        box.style.setProperty("--preview-h", `${Math.max(40, Math.round(alto * escala))}px`);
+    };
+
+    if(preview.complete && preview.naturalWidth){
+        aplicar();
+    }else{
+        preview.addEventListener("load", aplicar, {once:true});
+    }
+}
+
 function activarVistaPreviaArchivo(
     inputId,
     previewId
@@ -3530,6 +3555,8 @@ function activarVistaPreviaArchivo(
                             "has-image"
                         );
 
+                    ajustarCajaMiniatura(preview);
+
                 };
 
             lector.readAsDataURL(
@@ -3578,6 +3605,7 @@ function restaurarVistasPreviasActuales(){
         logoPreview.src = logoActual;
         logoPreview.style.display =
             logoActual ? "block" : "none";
+        if(logoActual) ajustarCajaMiniatura(logoPreview);
     }
 
     const cardPreview =
@@ -3589,6 +3617,7 @@ function restaurarVistasPreviasActuales(){
         cardPreview.src = imagenActual;
         cardPreview.style.display =
             imagenActual ? "block" : "none";
+        if(imagenActual) ajustarCajaMiniatura(cardPreview);
     }
 
     const watermarkPreview =
@@ -3600,6 +3629,7 @@ function restaurarVistasPreviasActuales(){
         watermarkPreview.src = watermarkActual;
         watermarkPreview.style.display =
             watermarkActual ? "block" : "none";
+        if(watermarkActual) ajustarCajaMiniatura(watermarkPreview);
     }
 
 }
@@ -3610,38 +3640,27 @@ function restaurarVistasPreviasActuales(){
         AMPLIAR VISTA PREVIA AL HACER CLICK
 ====================================================*/
 
-document.querySelectorAll(
-    ".file-preview-box"
-).forEach(preview => {
+/*
+    Delegación de eventos: también funciona con vistas previas
+    creadas dinámicamente después de abrir otros modales.
+*/
+document.addEventListener("click", (evento) => {
 
-    preview.addEventListener(
-        "click",
-        () => {
+    const preview = evento.target.closest(".file-preview-box");
 
-            if(
-                !preview.classList.contains(
-                    "has-image"
-                )
-            ){
+    if(!preview || !preview.classList.contains("has-image")){
+        return;
+    }
 
-                return;
+    const imagen = preview.querySelector("img");
 
-            }
+    if(imagen && (imagen.currentSrc || imagen.src)){
+        evento.preventDefault();
+        evento.stopPropagation();
+        abrirMiniaturaAmpliada(imagen);
+    }
 
-            const imagen =
-                preview.querySelector("img");
-
-            if(imagen){
-                abrirMiniaturaAmpliada(imagen);
-            }
-
-        }
-    );
-
-});
-
-
-
+}, true);
 
 
 /*====================================================
@@ -7581,7 +7600,20 @@ if (linkIcon && linkTitle) {
 }
 
 
+/*====================================================
+    PAÍSES DEL RECORDATORIO
+====================================================*/
 
+const REMINDER_COUNTRIES = [
+    ["+51","Perú"],["+1","Estados Unidos / Canadá"],["+52","México"],
+    ["+57","Colombia"],["+56","Chile"],["+54","Argentina"],
+    ["+55","Brasil"],["+58","Venezuela"],["+593","Ecuador"],
+    ["+591","Bolivia"],["+595","Paraguay"],["+598","Uruguay"],
+    ["+34","España"],["+33","Francia"],["+49","Alemania"],
+    ["+39","Italia"],["+44","Reino Unido"],["+351","Portugal"],
+    ["+81","Japón"],["+82","Corea del Sur"],["+86","China"],
+    ["+91","India"],["+61","Australia"]
+];
 
 
 /*====================================================
@@ -7770,6 +7802,13 @@ function detectarTipoEnlace(url = "", icono = ""){
     }
 
     if(
+        valor.includes("fa-bell") ||
+        valor.includes("recordatorio")
+    ){
+        return "recordatorio";
+    }
+
+    if(
         valor.includes("fa-file-pdf") ||
         /\.pdf(?:[?#].*)?$/i.test(url)
     ){
@@ -7830,12 +7869,21 @@ function escaparHTML(valor = ""){
     - 4x respecto al tamaño visible
     - centrada dentro del modal si existe
     - muestra la imagen completa sin recorte
-    - vuelve automáticamente a normal después de 2 minutos
+    - vuelve automáticamente a normal después de 3 segundos
 ====================================================*/
 
 function abrirMiniaturaAmpliada(imagenOrigen){
 
-    if(!imagenOrigen || !imagenOrigen.src){
+    if(!imagenOrigen){
+        return;
+    }
+
+    const src =
+        imagenOrigen.currentSrc ||
+        imagenOrigen.src ||
+        "";
+
+    if(!src){
         return;
     }
 
@@ -7858,69 +7906,92 @@ function abrirMiniaturaAmpliada(imagenOrigen){
     const imagen =
         document.createElement("img");
 
-    imagen.src =
-        imagenOrigen.currentSrc ||
-        imagenOrigen.src;
-
+    imagen.src = src;
     imagen.alt =
         imagenOrigen.alt ||
-        "Miniatura ampliada";
-
-    const rect =
-        imagenOrigen.getBoundingClientRect();
-
-    const ancho4x =
-        Math.max(40, rect.width * 4);
-
-    const alto4x =
-        Math.max(40, rect.height * 4);
-
-    imagen.style.width =
-        `${ancho4x}px`;
-
-    imagen.style.height =
-        `${alto4x}px`;
-
-    imagen.style.maxWidth =
-        "92vw";
-
-    imagen.style.maxHeight =
-        "88vh";
-
-    imagen.style.objectFit =
-        "contain";
+        "Imagen ampliada";
 
     overlay.appendChild(imagen);
     contenedor.appendChild(overlay);
 
-    requestAnimationFrame(() => {
-        overlay.classList.add("is-visible");
-    });
+    const mostrar = () => {
+
+        const rect =
+            imagenOrigen.getBoundingClientRect();
+
+        const miniW =
+            Math.max(
+                1,
+                rect.width ||
+                imagenOrigen.clientWidth ||
+                40
+            );
+
+        const miniH =
+            Math.max(
+                1,
+                rect.height ||
+                imagenOrigen.clientHeight ||
+                40
+            );
+
+        /* EXACTAMENTE 4 veces el tamaño visible de la miniatura. */
+        imagen.style.width =
+            `${miniW * 4}px`;
+
+        imagen.style.height =
+            `${miniH * 4}px`;
+
+        imagen.style.maxWidth =
+            "92%";
+
+        imagen.style.maxHeight =
+            "88%";
+
+        imagen.style.objectFit =
+            "contain";
+
+        requestAnimationFrame(() => {
+            overlay.classList.add("is-visible");
+        });
+    };
+
+    if(imagen.complete && imagen.naturalWidth){
+        mostrar();
+    }else{
+        imagen.addEventListener(
+            "load",
+            mostrar,
+            {once:true}
+        );
+    }
 
     const cerrar = () => {
+
+        if(!overlay.isConnected){
+            return;
+        }
 
         overlay.classList.remove("is-visible");
 
         setTimeout(() => {
             overlay.remove();
-        }, 250);
-
+        }, 220);
     };
 
-    overlay.addEventListener("click", cerrar);
+    overlay.addEventListener(
+        "click",
+        cerrar
+    );
 
-    /* Unos minutos: 2 minutos. */
+    /* A los 3 segundos vuelve al estado normal. */
     setTimeout(() => {
 
-        if(document.body.contains(overlay) ||
-           contenedor.contains(overlay)){
-
+        if(overlay.isConnected){
             cerrar();
-
         }
 
-    }, 120000);
-
+    }, 3000);
 }
 
 function obtenerIconoActualEditor(){
@@ -7944,6 +8015,10 @@ function actualizarVistaPreviaFotoEditor(url = ""){
             Boolean(url)
         );
     }
+
+    if(url){
+        ajustarCajaMiniatura(preview);
+    }
 }
 
 function limpiarFotoPendienteEditor(){
@@ -7954,6 +8029,416 @@ function limpiarFotoPendienteEditor(){
     if(input){
         input.value = "";
     }
+}
+
+
+/*====================================================
+    RECORDATORIOS
+====================================================*/
+
+
+function inicializarPaisesRecordatorio(){
+
+    const select = document.getElementById("reminderPhoneCountry");
+
+    if(!select || select.dataset.bound === "true"){
+        return;
+    }
+
+    REMINDER_COUNTRIES.forEach(([codigo,nombre]) => {
+        const option = document.createElement("option");
+        option.value = codigo;
+        option.textContent = `${nombre} (${codigo})`;
+        select.appendChild(option);
+    });
+
+    select.value = "+51";
+    select.dataset.bound = "true";
+}
+
+function obtenerFechaAvisoRecordatorio(fechaFinal){
+
+    if(!fechaFinal){
+        return "";
+    }
+
+    const partes = String(fechaFinal).split("-");
+    if(partes.length !== 3){
+        return "";
+    }
+
+    const year = Number(partes[0]);
+    const month = Number(partes[1]) - 1;
+    const day = Number(partes[2]);
+
+    if(!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)){
+        return "";
+    }
+
+    /* Restar un mes sin que los meses cortos desborden la fecha. */
+    const mesAnterior = month - 1;
+    const ultimoDiaMesAnterior =
+        new Date(year, mesAnterior + 1, 0).getDate();
+
+    const fecha = new Date(
+        year,
+        mesAnterior,
+        Math.min(day, ultimoDiaMesAnterior)
+    );
+
+    /* Y después restar un día. */
+    fecha.setDate(fecha.getDate() - 1);
+
+    return [
+        fecha.getFullYear(),
+        String(fecha.getMonth()+1).padStart(2,"0"),
+        String(fecha.getDate()).padStart(2,"0")
+    ].join("-");
+}
+function actualizarFechaAvisoRecordatorio(){
+
+    const end = document.getElementById("reminderEndDate");
+    const notify = document.getElementById("reminderNotifyDate");
+
+    if(!end || !notify){
+        return;
+    }
+
+    const fecha = obtenerFechaAvisoRecordatorio(end.value);
+
+    if(!notify.value || notify.dataset.auto === "true"){
+        notify.value = fecha;
+        notify.dataset.auto = "true";
+    }
+
+    return notify.value || fecha;
+}
+
+function actualizarContadorRecordatorio(){
+
+    const input = document.getElementById("reminderMessage");
+    const counter = document.getElementById("reminderMessageCounter");
+
+    if(input && counter){
+        input.value = input.value.slice(0,1000);
+        counter.textContent = `${input.value.length} / 1000`;
+    }
+}
+
+function cargarCamposRecordatorio(card){
+
+    inicializarPaisesRecordatorio();
+
+    const data = card?.dataset || {};
+
+    const country = document.getElementById("reminderPhoneCountry");
+    const phone = document.getElementById("reminderPhone");
+    const start = document.getElementById("reminderStartDate");
+    const end = document.getElementById("reminderEndDate");
+    const time = document.getElementById("reminderNotifyTime");
+    const timezone = document.getElementById("reminderTimezone");
+    const message = document.getElementById("reminderMessage");
+    const notify = document.getElementById("reminderNotifyDate");
+
+    if(country) country.value = data.reminderPhoneCountry || "+51";
+    if(phone) phone.value = data.reminderPhone || "";
+    if(start) start.value = data.reminderStartDate || "";
+    if(end) end.value = data.reminderEndDate || "";
+    if(time) time.value = data.reminderNotifyTime || "09:00";
+    if(timezone) timezone.value =
+        data.reminderTimezone ||
+        Intl.DateTimeFormat().resolvedOptions().timeZone ||
+        "UTC";
+    if(message) message.value = data.reminderMessage || "";
+
+    if(notify){
+        notify.value = data.reminderNotifyDate || "";
+        notify.dataset.auto = data.reminderNotifyDate ? "false" : "true";
+    }
+
+    actualizarFechaAvisoRecordatorio();
+    actualizarContadorRecordatorio();
+}
+
+function guardarCamposRecordatorio(card){
+
+    if(!card){
+        return;
+    }
+
+    inicializarPaisesRecordatorio();
+
+    const country = document.getElementById("reminderPhoneCountry");
+    const phone = document.getElementById("reminderPhone");
+    const start = document.getElementById("reminderStartDate");
+    const end = document.getElementById("reminderEndDate");
+    const time = document.getElementById("reminderNotifyTime");
+    const timezone = document.getElementById("reminderTimezone");
+    const message = document.getElementById("reminderMessage");
+    const notify = document.getElementById("reminderNotifyDate");
+
+    card.dataset.reminderPhoneCountry =
+        country?.value || "+51";
+
+    card.dataset.reminderPhone =
+        (phone?.value || "").replace(/[^\d]/g,"").slice(0,15);
+
+    card.dataset.reminderStartDate =
+        start?.value || "";
+
+    card.dataset.reminderEndDate =
+        end?.value || "";
+
+    card.dataset.reminderNotifyTime =
+        time?.value || "09:00";
+
+    card.dataset.reminderTimezone =
+        timezone?.value ||
+        Intl.DateTimeFormat().resolvedOptions().timeZone ||
+        "UTC";
+
+    card.dataset.reminderNotifyDate =
+        notify?.value ||
+        obtenerFechaAvisoRecordatorio(
+            card.dataset.reminderEndDate
+        );
+
+    card.dataset.reminderMessage =
+        (message?.value || "").slice(0,1000);
+
+    actualizarFechaAvisoRecordatorio();
+}
+
+function activarEditorRecordatorio(){
+
+    inicializarPaisesRecordatorio();
+
+    const end = document.getElementById("reminderEndDate");
+    const notify = document.getElementById("reminderNotifyDate");
+    const message = document.getElementById("reminderMessage");
+    const timezone = document.getElementById("reminderTimezone");
+
+    if(timezone && !timezone.value){
+        timezone.value =
+            Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    }
+
+    if(end && end.dataset.bound !== "true"){
+        end.dataset.bound = "true";
+        end.addEventListener("change", actualizarFechaAvisoRecordatorio);
+        end.addEventListener("input", actualizarFechaAvisoRecordatorio);
+    }
+
+    if(notify && notify.dataset.bound !== "true"){
+        notify.dataset.bound = "true";
+        notify.addEventListener("change", () => {
+            notify.dataset.auto = "false";
+        });
+    }
+
+    if(message && message.dataset.bound !== "true"){
+        message.dataset.bound = "true";
+        message.addEventListener("input", actualizarContadorRecordatorio);
+    }
+
+    actualizarContadorRecordatorio();
+}
+
+function obtenerNumeroWhatsAppRecordatorio(card){
+
+    const codigo = card?.dataset.reminderPhoneCountry || "";
+    const numero = (card?.dataset.reminderPhone || "").replace(/\D/g,"");
+
+    if(!codigo || !numero){
+        return "";
+    }
+
+    return codigo.replace("+","") + numero;
+}
+
+function actualizarRecordatorioUsuario(card){
+
+    if(!card || !card.classList.contains("reminder-active")){
+        return;
+    }
+
+    const start = card.dataset.reminderStartDate || "";
+    const end = card.dataset.reminderEndDate || "";
+
+    let panel = card.querySelector(".reminder-user-panel");
+
+    if(!start || !end){
+        if(panel) panel.remove();
+        return;
+    }
+
+    if(!panel){
+        panel = document.createElement("div");
+        panel.className = "reminder-user-panel";
+
+        panel.innerHTML = `
+            <div class="reminder-user-row">
+                <span class="reminder-days"></span>
+                <span class="reminder-countdown"></span>
+            </div>
+            <div class="reminder-progress">
+                <div class="reminder-progress-bar"></div>
+            </div>
+        `;
+
+        const infoPanel = card.querySelector(".social-info-panel");
+        if(infoPanel){
+            infoPanel.appendChild(panel);
+        }else{
+            card.querySelector(".link-main")?.appendChild(panel);
+        }
+    }
+
+    const ahora = new Date();
+    const inicio = new Date(`${start}T00:00:00`);
+    const fin = new Date(`${end}T23:59:59`);
+
+    if(Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())){
+        return;
+    }
+
+    const total = Math.max(1, fin.getTime() - inicio.getTime());
+    const transcurrido = Math.min(
+        total,
+        Math.max(0, ahora.getTime() - inicio.getTime())
+    );
+
+    const restante = Math.max(0, fin.getTime() - ahora.getTime());
+    const progreso = Math.min(
+        100,
+        Math.max(0, (transcurrido / total) * 100)
+    );
+
+    const dias = Math.floor(restante / 86400000);
+    const horasTotales = Math.floor(restante / 3600000);
+    const minutos = Math.floor((restante % 3600000) / 60000);
+
+    const daysEl = panel.querySelector(".reminder-days");
+    const countdownEl = panel.querySelector(".reminder-countdown");
+    const bar = panel.querySelector(".reminder-progress-bar");
+    const bell = card.querySelector(".reminder-bell");
+
+    if(daysEl){
+        daysEl.textContent =
+            restante > 0
+                ? `${dias} día${dias === 1 ? "" : "s"} restantes`
+                : "Fecha finalizada";
+    }
+
+    if(countdownEl){
+        countdownEl.textContent =
+            restante > 0
+                ? `${String(horasTotales).padStart(2,"0")}:${String(minutos).padStart(2,"0")}`
+                : "00:00";
+    }
+
+    if(bar){
+        bar.style.width = `${progreso}%`;
+
+        let color = "#22c55e";
+
+        if(progreso >= 70){
+            color = "#ef4444";
+        }else if(progreso >= 40){
+            color = "#eab308";
+        }
+
+        bar.style.background = color;
+
+        if(bell){
+            bell.style.background = color;
+        }
+    }
+
+    if(restante <= 0 && panel){
+        panel.remove();
+        card.classList.remove("reminder-active");
+        if(bell) bell.style.display = "none";
+    }
+}
+
+function activarRecordatoriosUsuario(){
+
+    document.querySelectorAll(".link-card").forEach(card => {
+
+        if(!card.dataset.reminderBound){
+            card.dataset.reminderBound = "true";
+
+            const bell = card.querySelector(".reminder-bell");
+
+            if(bell){
+                bell.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const message =
+                        card.dataset.reminderMessage ||
+                        "Tienes un recordatorio pendiente.";
+
+                    mostrarNotificacionGuardado(
+                        "Recordatorio",
+                        message
+                    );
+                };
+            }
+        }
+
+        const bell = card.querySelector(".reminder-bell");
+        const tipo = detectarTipoEnlace(
+            card.dataset.url || "",
+            card.querySelector(".left i")?.className || ""
+        );
+
+        if(bell){
+            const esRecordatorio =
+                tipo === "recordatorio" &&
+                card.dataset.reminderEnabled === "true" &&
+                !!card.dataset.reminderEndDate;
+
+            bell.style.display = esRecordatorio ? "flex" : "none";
+            card.classList.toggle("reminder-active", esRecordatorio);
+
+            bell.setAttribute(
+                "aria-hidden",
+                esRecordatorio ? "false" : "true"
+            );
+        }
+
+        if(
+            tipo === "recordatorio" &&
+            card.dataset.reminderEnabled === "true" &&
+            !!card.dataset.reminderEndDate
+        ){
+            card.classList.add("reminder-active");
+            actualizarRecordatorioUsuario(card);
+        }else{
+            card.classList.remove("reminder-active");
+            const panelRecordatorio =
+                card.querySelector(".reminder-user-panel");
+            if(panelRecordatorio){
+                panelRecordatorio.remove();
+            }
+        }
+    });
+}
+
+function iniciarActualizacionRecordatorios(){
+
+    if(window.jmReminderInterval){
+        clearInterval(window.jmReminderInterval);
+    }
+
+    activarRecordatoriosUsuario();
+
+    window.jmReminderInterval =
+        setInterval(() => {
+            activarRecordatoriosUsuario();
+        }, 1000);
 }
 
 function actualizarCamposSocialesEditor(){
@@ -7974,7 +8459,8 @@ function actualizarCamposSocialesEditor(){
         "social-type-youtube",
         "social-type-curso",
         "social-type-pdf",
-        "social-type-generic"
+        "social-type-generic",
+        "social-type-recordatorio"
     );
 
     editor.classList.add(
@@ -8005,6 +8491,9 @@ function actualizarCamposSocialesEditor(){
         }else if(tipo === "curso"){
             help.textContent =
                 "El curso mostrará un panel informativo con su logo o imagen y la descripción que escribas.";
+        }else if(tipo === "recordatorio"){
+            help.textContent =
+                "El panel mostrará la cuenta regresiva y la barra de progreso. El aviso de WhatsApp se calcula 1 mes y 1 día antes de la fecha final.";
         }else if(tipo === "pdf"){
             help.textContent =
                 "El PDF se mostrará con su primera página y debajo aparecerá únicamente la descripción.";
@@ -8027,7 +8516,9 @@ function actualizarCamposSocialesEditor(){
                 ? "Fotografía manual para miniatura de YouTube"
                 : tipo === "curso"
                     ? "Logo / imagen del curso"
-                    : "Foto / imagen";
+                    : tipo === "recordatorio"
+                        ? "Logo / imagen del recordatorio"
+                        : "Foto / imagen";
     }
 
     if(editor){
@@ -8042,6 +8533,36 @@ function actualizarCamposSocialesEditor(){
 
     if(panelColors){
         panelColors.style.display = "grid";
+    }
+
+    /*
+        Recordatorio: además de los campos generales,
+        muestra siempre su logo/imagen y los colores del panel.
+    */
+    const infoNameField = document.getElementById("linkInfoName");
+    const infoDescriptionField = document.getElementById("linkInfoDescription");
+    const infoCommonFields = editor.querySelectorAll(".social-field-info-common");
+
+    infoCommonFields.forEach(field => {
+        field.style.display = "block";
+    });
+
+    const photoFieldRecordatorio =
+        document.getElementById("linkSocialPhotoField");
+
+    if(photoFieldRecordatorio){
+        photoFieldRecordatorio.style.display =
+            (tipo === "recordatorio" || tipo === "curso" || tipo === "youtube")
+                ? "block"
+                : "";
+    }
+
+    if(infoNameField){
+        infoNameField.maxLength = 30;
+    }
+
+    if(infoDescriptionField){
+        infoDescriptionField.maxLength = 200;
     }
 
     if(tipo === "pdf" || tipo === "generic"){
@@ -8087,7 +8608,41 @@ function renderizarInformacionBoton(card){
 
     let contenido = "";
 
-    if(tipo === "youtube"){
+    if(tipo === "recordatorio"){
+
+        contenido = `
+            <div class="social-info-inner reminder-info-inner">
+                ${
+                    foto
+                    ? `<div class="curso-logo-wrap reminder-logo-wrap">
+                           <img class="curso-logo" src="${escaparHTML(foto)}" alt="Logo del recordatorio">
+                       </div>`
+                    : ""
+                }
+
+                <strong class="social-info-name">
+                    ${escaparHTML(infoNombre || "Recordatorio")}
+                </strong>
+
+                ${
+                    infoDescripcion
+                    ? `<span class="social-info-description">${escaparHTML(infoDescripcion)}</span>`
+                    : ""
+                }
+
+                <div class="reminder-user-panel">
+                    <div class="reminder-user-row">
+                        <span class="reminder-days">Calculando...</span>
+                        <span class="reminder-countdown">00:00</span>
+                    </div>
+                    <div class="reminder-progress">
+                        <div class="reminder-progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+    }else if(tipo === "youtube"){
         // Si existe una foto subida manualmente, esta sustituye la miniatura de YouTube.
         const thumb = foto || youtube;
 
@@ -8291,7 +8846,7 @@ function renderizarInformacionBoton(card){
     ====================================================*/
 
     panel.querySelectorAll(
-        ".curso-logo, .youtube-thumbnail"
+        ".curso-logo, .youtube-thumbnail, .social-info-avatar"
     ).forEach(miniatura => {
 
         miniatura.style.cursor = "pointer";
@@ -8328,26 +8883,31 @@ function actualizarContadorDescripcionYouTube(){
         `${input.value.length} / 100`;
 }
 
-function limitarCamposInformacionEditor(){
+function actualizarContadoresInformacionEditor(){
 
-    const nombre =
-        document.getElementById("linkInfoName");
-
-    const descripcion =
-        document.getElementById("linkInfoDescription");
+    const nombre = document.getElementById("linkInfoName");
+    const descripcion = document.getElementById("linkInfoDescription");
+    const nombreCounter = document.getElementById("linkInfoNameCounter");
+    const descripcionCounter = document.getElementById("linkInfoDescriptionCounter");
 
     if(nombre){
-        nombre.value =
-            nombre.value.slice(0,30);
+        nombre.value = nombre.value.slice(0,30);
+        if(nombreCounter){
+            nombreCounter.textContent = `${nombre.value.length} / 30`;
+        }
     }
 
     if(descripcion){
-        descripcion.value =
-            descripcion.value.slice(0,200);
+        descripcion.value = descripcion.value.slice(0,200);
+        if(descripcionCounter){
+            descripcionCounter.textContent = `${descripcion.value.length} / 200`;
+        }
     }
-
 }
 
+function limitarCamposInformacionEditor(){
+    actualizarContadoresInformacionEditor();
+}
 function cargarCamposSocialesEditor(card){
 
     const fotoActual =
@@ -8445,6 +9005,9 @@ function cargarCamposSocialesEditor(card){
             );
     }
 
+    cargarCamposRecordatorio(card);
+    actualizarContadoresInformacionEditor();
+
     actualizarCamposSocialesEditor();
 }
 
@@ -8512,6 +9075,8 @@ function guardarCamposSocialesEditor(card){
         "#ffffff";
 
     aplicarColoresPanelInformacion(card);
+
+    guardarCamposRecordatorio(card);
 }
 
 async function subirFotoSocialEditor(){
@@ -8689,6 +9254,7 @@ function activarCamposDinamicosEditor(){
     }
 
     activarEditorFotoSocial();
+    activarEditorRecordatorio();
     activarColoresPanelEditor();
 
     const youtubeDescription =
@@ -9194,7 +9760,8 @@ document.getElementById("linkModal")
                 tipoEnlace === "instagram" ||
                 tipoEnlace === "tiktok" ||
                 tipoEnlace === "youtube" ||
-                tipoEnlace === "curso"
+                tipoEnlace === "curso" ||
+                tipoEnlace === "recordatorio"
             )
         ){
             try{
@@ -9310,6 +9877,15 @@ document.getElementById("linkModal")
         guardarCamposSocialesEditor(
             botonSeleccionado
         );
+
+        botonSeleccionado.dataset.reminderEnabled =
+            tipoEnlace === "recordatorio" &&
+            Boolean(
+                botonSeleccionado.dataset.reminderStartDate &&
+                botonSeleccionado.dataset.reminderEndDate
+            )
+                ? "true"
+                : "false";
 
         aplicarColoresPanelInformacion(
             botonSeleccionado
@@ -9491,7 +10067,37 @@ document.getElementById("duplicateLink").onclick = () => {
         socialPanelColor:
             botonSeleccionado.dataset.socialPanelColor || "#202020",
         socialPanelTextColor:
-            botonSeleccionado.dataset.socialPanelTextColor || "#ffffff"
+            botonSeleccionado.dataset.socialPanelTextColor || "#ffffff",
+
+        reminderEnabled:
+            botonSeleccionado.dataset.reminderEnabled === "true",
+
+        reminderPhoneCountry:
+            botonSeleccionado.dataset.reminderPhoneCountry || "+51",
+
+        reminderPhone:
+            botonSeleccionado.dataset.reminderPhone || "",
+
+        reminderStartDate:
+            botonSeleccionado.dataset.reminderStartDate || "",
+
+        reminderEndDate:
+            botonSeleccionado.dataset.reminderEndDate || "",
+
+        reminderNotifyTime:
+            botonSeleccionado.dataset.reminderNotifyTime || "09:00",
+
+        reminderNotifyDate:
+            botonSeleccionado.dataset.reminderNotifyDate || "",
+
+        reminderTimezone:
+            botonSeleccionado.dataset.reminderTimezone || "",
+
+        reminderMessage:
+            botonSeleccionado.dataset.reminderMessage || "",
+
+        reminderLastSentKey:
+            botonSeleccionado.dataset.reminderLastSentKey || ""
     };
 
 
@@ -9669,6 +10275,32 @@ function agregarBoton(
         socialData.socialPanelTextColor ||
         "#ffffff";
 
+    div.dataset.reminderEnabled =
+        socialData.reminderEnabled === true ||
+        socialData.reminderEnabled === "true"
+            ? "true"
+            : "false";
+
+    div.dataset.reminderPhoneCountry =
+        socialData.reminderPhoneCountry || "+51";
+    div.dataset.reminderPhone =
+        socialData.reminderPhone || "";
+    div.dataset.reminderStartDate =
+        socialData.reminderStartDate || "";
+    div.dataset.reminderEndDate =
+        socialData.reminderEndDate || "";
+    div.dataset.reminderNotifyTime =
+        socialData.reminderNotifyTime || "09:00";
+    div.dataset.reminderNotifyDate =
+        socialData.reminderNotifyDate || "";
+    div.dataset.reminderTimezone =
+        socialData.reminderTimezone || "";
+    div.dataset.reminderMessage =
+        socialData.reminderMessage || "";
+
+    div.dataset.reminderLastSentKey =
+        socialData.reminderLastSentKey || "";
+
     aplicarColoresPanelInformacion(div);
 
 
@@ -9677,7 +10309,10 @@ function agregarBoton(
         <div class="link-main">
 
             <div class="left">
-                <i class="${icono}"></i>
+                <i class="link-original-icon ${icono}"></i>
+                <button class="reminder-bell reminder-bell-left" type="button" aria-label="Mostrar recordatorio">
+                    <i class="fa-solid fa-bell"></i>
+                </button>
             </div>
 
             <div class="center">
@@ -9700,6 +10335,7 @@ function agregarBoton(
                 <button class="user-info-toggle" type="button" aria-label="Mostrar información">
                     <i class="fa-solid fa-chevron-up"></i>
                 </button>
+
             </div>
 
         </div>
@@ -9710,6 +10346,29 @@ function agregarBoton(
 
 
  
+
+    /*
+        La campanita pertenece exclusivamente al botón Recordatorio.
+        Los demás botones no muestran este control.
+    */
+    const tipoBotonCreado = detectarTipoEnlace(url, icono);
+    const campanaRecordatorio = div.querySelector(".reminder-bell");
+
+    if(campanaRecordatorio){
+        const recordatorioActivo =
+            tipoBotonCreado === "recordatorio" &&
+            div.dataset.reminderEnabled === "true" &&
+            !!div.dataset.reminderEndDate;
+
+        campanaRecordatorio.style.display =
+            recordatorioActivo ? "flex" : "none";
+
+        div.classList.toggle(
+            "reminder-active",
+            recordatorioActivo
+        );
+    }
+
 contenedor.appendChild(div);
 
 const infoToggleNuevo =
@@ -11980,7 +12639,39 @@ async function guardarBotones(){
 
                         socialPanelTextColor:
                             card.dataset.socialPanelTextColor ||
-                            "#ffffff"
+                            "#ffffff",
+
+                        reminderEnabled:
+                            card.dataset.reminderEnabled === "true",
+
+                        reminderPhoneCountry:
+                            card.dataset.reminderPhoneCountry || "+51",
+
+                        reminderPhone:
+                            card.dataset.reminderPhone || "",
+
+                        reminderStartDate:
+                            card.dataset.reminderStartDate || "",
+
+                        reminderEndDate:
+                            card.dataset.reminderEndDate || "",
+
+                        reminderNotifyTime:
+                            card.dataset.reminderNotifyTime || "09:00",
+
+                        reminderNotifyDate:
+                            card.dataset.reminderNotifyDate || "",
+
+                        reminderTimezone:
+                            card.dataset.reminderTimezone ||
+                            Intl.DateTimeFormat().resolvedOptions().timeZone ||
+                            "UTC",
+
+                        reminderMessage:
+                            card.dataset.reminderMessage || "",
+
+                        reminderLastSentKey:
+                            card.dataset.reminderLastSentKey || ""
 
                     });
 
@@ -12098,7 +12789,37 @@ async function cargarBotones() {
                     socialPanelColor:
                         btn.socialPanelColor || "#202020",
                     socialPanelTextColor:
-                        btn.socialPanelTextColor || "#ffffff"
+                        btn.socialPanelTextColor || "#ffffff",
+
+                    reminderEnabled:
+                        btn.reminderEnabled === true,
+
+                    reminderPhoneCountry:
+                        btn.reminderPhoneCountry || "+51",
+
+                    reminderPhone:
+                        btn.reminderPhone || "",
+
+                    reminderStartDate:
+                        btn.reminderStartDate || "",
+
+                    reminderEndDate:
+                        btn.reminderEndDate || "",
+
+                    reminderNotifyTime:
+                        btn.reminderNotifyTime || "09:00",
+
+                    reminderNotifyDate:
+                        btn.reminderNotifyDate || "",
+
+                    reminderTimezone:
+                        btn.reminderTimezone || "",
+
+                    reminderMessage:
+                        btn.reminderMessage || "",
+
+                    reminderLastSentKey:
+                        btn.reminderLastSentKey || ""
                 }
 
             );
@@ -13291,6 +14012,8 @@ if (configuracion.titleFont) {
     aplicarEstiloIconosRedes();
     activarEditorIconosRedes();
     renderizarIconosRedes();
+    activarRecordatoriosUsuario();
+    iniciarActualizacionRecordatorios();
     intentarBloquearOrientacionVertical();
 
     /*----------------------------------
