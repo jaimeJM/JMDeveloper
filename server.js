@@ -454,56 +454,31 @@ function obtenerPartesFechaZonaHoraria(timeZone){
 
 function obtenerNumeroWhatsAppCompleto(boton){
 
-    const codigo = String(boton.reminderPhoneCountry || "")
-        .replace(/\D/g,"");
+    let codigo = String(
+        boton.reminderPhoneCountry || "+51"
+    ).replace(/\D/g,"");
 
-    const numero = String(boton.reminderPhone || "")
-        .replace(/\D/g,"");
+    let numero = String(
+        boton.reminderPhone || "960722146"
+    ).replace(/\D/g,"");
 
-    if(!codigo || !numero){
-        return "";
+    if(!codigo){
+        codigo = "51";
+    }
+
+    if(!numero){
+        numero = "960722146";
+    }
+
+    /* Evita duplicar el código si el usuario escribió +51 dentro
+       del campo del número aunque ya haya seleccionado Perú. */
+    while(numero.startsWith(codigo) && numero.length > codigo.length + 6){
+        numero = numero.slice(codigo.length);
     }
 
     return codigo + numero;
 }
 
-function obtenerFechaAvisoServidor(fechaFinal){
-
-    if(!fechaFinal){
-        return "";
-    }
-
-    const partes = String(fechaFinal).split("-");
-    if(partes.length !== 3){
-        return "";
-    }
-
-    const year = Number(partes[0]);
-    const month = Number(partes[1]) - 1;
-    const day = Number(partes[2]);
-
-    if(!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)){
-        return "";
-    }
-
-    const mesAnterior = month - 1;
-    const ultimoDiaMesAnterior =
-        new Date(year, mesAnterior + 1, 0).getDate();
-
-    const fecha = new Date(
-        year,
-        mesAnterior,
-        Math.min(day, ultimoDiaMesAnterior)
-    );
-
-    fecha.setDate(fecha.getDate() - 1);
-
-    return [
-        fecha.getFullYear(),
-        String(fecha.getMonth()+1).padStart(2,"0"),
-        String(fecha.getDate()).padStart(2,"0")
-    ].join("-");
-}
 async function enviarWhatsAppRecordatorio(boton, indice){
 
     const token = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -515,7 +490,7 @@ async function enviarWhatsAppRecordatorio(boton, indice){
         return {
             ok:false,
             skipped:true,
-            reason:"WhatsApp Cloud API no configurada."
+            reason:"WhatsApp Cloud API no configurada. Revisa WHATSAPP_ACCESS_TOKEN y WHATSAPP_PHONE_NUMBER_ID en .env."
         };
     }
 
@@ -531,7 +506,11 @@ async function enviarWhatsAppRecordatorio(boton, indice){
     }
 
     const mensaje =
-        String(boton.reminderMessage || "").trim();
+        String(
+            boton.reminderWhatsappMessage ||
+            boton.reminderMessage ||
+            ""
+        ).trim();
 
     if(!mensaje){
         return {
@@ -572,7 +551,7 @@ async function enviarWhatsAppRecordatorio(boton, indice){
     }
 
     reminderSendState.set(
-        `${indice}:${boton.reminderNotifyDate}:${boton.reminderNotifyTime}`,
+        `${indice}:${boton.reminderEndDate}:${boton.reminderEndTime}`,
         Date.now()
     );
 
@@ -597,44 +576,67 @@ async function procesarRecordatoriosWhatsApp(){
 
             const boton = botones[indice];
 
-            if(!boton || boton.reminderEnabled !== true){
+            if(
+                !boton ||
+                boton.reminderWhatsappEnabled !== true ||
+                (
+                    boton.reminderEnabled !== true &&
+                    boton.reminderWhatsappPending !== true
+                )
+            ){
                 continue;
             }
 
+            const pendiente =
+                boton.reminderWhatsappPending === true;
+
             const fechaFinal =
-                boton.reminderEndDate || "";
+                pendiente
+                    ? boton.reminderPendingEndDate || ""
+                    : boton.reminderEndDate || "";
 
-            const fechaAviso =
-                boton.reminderNotifyDate ||
-                obtenerFechaAvisoServidor(fechaFinal);
+            const horaFinal =
+                String(
+                    pendiente
+                        ? boton.reminderPendingEndTime || ""
+                        : boton.reminderEndTime || ""
+                ).slice(0,5);
 
-            if(!fechaAviso){
+            if(!fechaFinal || !horaFinal){
                 continue;
             }
 
             const zona =
-                boton.reminderTimezone ||
+                (
+                    pendiente
+                        ? boton.reminderPendingTimezone
+                        : boton.reminderTimezone
+                ) ||
                 "UTC";
 
-            const ahora = obtenerPartesFechaZonaHoraria(zona);
+            const ahora =
+                obtenerPartesFechaZonaHoraria(zona);
 
             if(!ahora){
                 continue;
             }
 
-            const horaAviso =
-                String(boton.reminderNotifyTime || "09:00")
-                    .slice(0,5);
+            const actualClave =
+                `${ahora.fecha}T${ahora.hora}`;
 
-            if(
-                ahora.fecha !== fechaAviso ||
-                ahora.hora !== horaAviso
-            ){
+            const finalClave =
+                `${fechaFinal}T${horaFinal}`;
+
+            /*
+                El proceso puede ejecutarse unos segundos después del minuto
+                configurado. Si ya alcanzó la fecha/hora final, enviamos.
+            */
+            if(actualClave < finalClave){
                 continue;
             }
 
             const clave =
-                `${indice}:${fechaAviso}:${horaAviso}`;
+                `${indice}:${fechaFinal}:${horaFinal}`;
 
             if(
                 reminderSendState.has(clave) ||
@@ -653,6 +655,14 @@ async function procesarRecordatoriosWhatsApp(){
 
                 if(resultado.ok){
                     boton.reminderLastSentKey = clave;
+
+                    if(boton.reminderWhatsappPending === true){
+                        boton.reminderWhatsappPending = false;
+                        boton.reminderPendingEndDate = "";
+                        boton.reminderPendingEndTime = "";
+                        boton.reminderPendingTimezone = "";
+                    }
+
                     guardarBotones(botones);
 
                     console.log(
@@ -686,7 +696,7 @@ async function procesarRecordatoriosWhatsApp(){
 
 setInterval(
     procesarRecordatoriosWhatsApp,
-    60 * 1000
+    10 * 1000
 );
 
 setTimeout(

@@ -686,7 +686,66 @@ Jaime Martinez1
                     Configuración del recordatorio
                 </h3>
 
+                <div class="reminder-section-title">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Fechas del recordatorio
+                </div>
+
+                <div class="reminder-grid">
+                    <div class="social-field">
+                        <label for="reminderStartDate">Fecha de inicio</label>
+                        <input type="date" id="reminderStartDate" placeholder="Fecha de inicio">
+                    </div>
+                    <div class="social-field">
+                        <label for="reminderStartTime">Hora de inicio</label>
+                        <input type="time" id="reminderStartTime" placeholder="Hora de inicio">
+                    </div>
+                    <div class="social-field">
+                        <label for="reminderEndDate">Fecha final</label>
+                        <input type="date" id="reminderEndDate" placeholder="Fecha final">
+                    </div>
+                    <div class="social-field">
+                        <label for="reminderEndTime">Hora final</label>
+                        <input type="time" id="reminderEndTime" placeholder="Hora final">
+                    </div>
+                </div>
+
+                <div class="reminder-section-title">
+                    <i class="fa-solid fa-globe"></i>
+                    País y hora de referencia
+                </div>
+
                 <div class="social-field">
+                    <label for="reminderTimezone">País</label>
+                    <select id="reminderTimezone"></select>
+                    <small>La cuenta regresiva usa la zona horaria del país seleccionado.</small>
+                </div>
+
+                <div class="social-field">
+                    <label for="reminderMessage">Mensaje que verá el usuario</label>
+                    <textarea
+                        id="reminderMessage"
+                        maxlength="1000"
+                        placeholder="Escribe el mensaje que aparecerá con el recordatorio"></textarea>
+                    <small id="reminderMessageCounter" class="description-counter">0 / 1000</small>
+                </div>
+
+                <div class="reminder-section-title">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    Aviso al finalizar
+                </div>
+
+                <div class="music-enable-row reminder-switch-row">
+                    <label class="music-enable-control">
+                        <input type="checkbox" id="reminderWhatsappEnabled">
+                        <span class="music-switch"></span>
+                        <span class="music-enable-text">
+                            Enviar un mensaje al número de WhatsApp cuando termine el tiempo
+                        </span>
+                    </label>
+                </div>
+
+                <div class="social-field reminder-whatsapp-fields">
                     <label for="reminderPhoneCountry">País del WhatsApp</label>
                     <div class="reminder-phone-row">
                         <select id="reminderPhoneCountry" aria-label="Código de país"></select>
@@ -695,53 +754,71 @@ Jaime Martinez1
                             id="reminderPhone"
                             maxlength="20"
                             inputmode="tel"
-                            placeholder="999 999 999">
-                    </div>
-                    <small>El mensaje se enviará al número indicado.</small>
-                </div>
-
-                <div class="social-field">
-                    <label for="reminderStartDate">Fecha de inicio</label>
-                    <input type="date" id="reminderStartDate">
-                </div>
-
-                <div class="social-field">
-                    <label for="reminderEndDate">Fecha de finalización</label>
-                    <input type="date" id="reminderEndDate">
-                </div>
-
-                <div class="reminder-grid">
-                    <div class="social-field">
-                        <label for="reminderNotifyTime">Hora del aviso automático</label>
-                        <input type="time" id="reminderNotifyTime" value="09:00">
-                    </div>
-
-                    <div class="social-field">
-                        <label for="reminderTimezone">Zona horaria del dispositivo</label>
-                        <input type="text" id="reminderTimezone" readonly>
+                            placeholder="Número de celular">
                     </div>
                 </div>
 
                 <div class="social-field">
-                    <label for="reminderMessage">Mensaje que se enviará por WhatsApp</label>
+                    <label for="reminderWhatsappMessage">Mensaje de WhatsApp</label>
                     <textarea
-                        id="reminderMessage"
+                        id="reminderWhatsappMessage"
                         maxlength="1000"
-                        placeholder="Escribe el mensaje del recordatorio"></textarea>
-                    <small id="reminderMessageCounter" class="description-counter">0 / 1000</small>
+                        placeholder="Mensaje que se enviará al terminar el recordatorio"></textarea>
+                </div>
+
+                <div class="reminder-section-title">
+                    <i class="fa-solid fa-bell"></i>
+                    Aviso visual en la página
+                </div>
+
+                <div class="music-enable-row reminder-switch-row">
+                    <label class="music-enable-control">
+                        <input type="checkbox" id="reminderLeftMessageEnabled">
+                        <span class="music-switch"></span>
+                        <span class="music-enable-text">
+                            Mostrar un mensaje animado en el lado izquierdo al llegar la fecha final
+                        </span>
+                    </label>
+                </div>
+
+                <div class="reminder-grid reminder-left-message-fields">
+                    <div class="social-field">
+                        <label for="reminderLeftMessageTime">Hora del mensaje</label>
+                        <input type="time" id="reminderLeftMessageTime" placeholder="Hora del mensaje">
+                    </div>
+                    <div class="social-field">
+                        <label for="reminderLeftMessageFrequency">Veces que aparecerá ese día</label>
+                        <select id="reminderLeftMessageFrequency">
+                            <option value="1">1 vez</option>
+                            <option value="2">2 veces</option>
+                            <option value="3">3 veces</option>
+                            <option value="4">4 veces</option>
+                            <option value="6">6 veces</option>
+                            <option value="12">12 veces</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="reminder-notice">
-                    <i class="fa-solid fa-circle-info"></i>
+                    <i class="fa-solid fa-clock"></i>
                     <span>
-                        El aviso automático se programa para <strong>1 mes y 1 día antes</strong>
-                        de la fecha final. El día se calcula automáticamente y la hora se toma del campo anterior.
+                        La fecha y hora de inicio y final son obligatorias. El botón mostrará una campana
+                        mientras el recordatorio esté activo y volverá al estado de calendario al finalizar.
                     </span>
                 </div>
 
-                <div class="social-field">
-                    <label for="reminderNotifyDate">Día del aviso (por defecto: 1 mes y 1 día antes)</label>
-                    <input type="date" id="reminderNotifyDate">
+                <div class="music-enable-row reminder-alarm-enable-row">
+                    <label class="music-enable-control">
+                        <input
+                            type="checkbox"
+                            id="reminderAlarmEnabled">
+
+                        <span class="music-switch"></span>
+
+                        <span class="music-enable-text">
+                            Activar alarma al finalizar el tiempo
+                        </span>
+                    </label>
                 </div>
 
             </div>

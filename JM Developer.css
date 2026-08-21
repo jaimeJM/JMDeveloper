@@ -786,6 +786,13 @@ body{
         MODALES
 ==========================*/
 
+/* Bloqueo del scroll del fondo mientras cualquier modal está abierto. */
+html.modal-scroll-locked,
+body.modal-scroll-locked{
+    overflow:hidden !important;
+    overscroll-behavior:none !important;
+}
+
 .modal{
 
     position:fixed;
@@ -804,6 +811,8 @@ body{
     backdrop-filter:blur(5px);
 
     z-index:9999999;
+    overscroll-behavior:contain;
+    touch-action:pan-y;
 
 }
 
@@ -820,6 +829,8 @@ body{
     box-sizing:border-box;
 
     scrollbar-gutter:stable;
+    overscroll-behavior:contain;
+    overscroll-behavior-y:contain;
 
     padding-right:18px;
 
@@ -7265,6 +7276,34 @@ body.dark #linksContainer .link-main .user-info-toggle i{
     box-shadow:0 10px 24px rgba(0,0,0,.28);
 }
 
+/* Modo oscuro: área de redes negra e iconos blancos. */
+
+
+body.dark #socialNetworksArea{
+    background:#00000000 !important;
+    border-radius:16px;
+    padding:8px;
+    box-sizing:border-box;
+}
+
+body.dark #socialNetworksContainer .social-network-icon,
+body.dark #socialNetworksAdminButton{
+    background:#00000000 !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.55) !important;
+    box-shadow:0 5px 15px rgba(0,0,0,.65);
+}
+
+body.dark #socialNetworksContainer .social-network-icon i,
+body.dark #socialNetworksAdminButton i{
+    color:#fff !important;
+}
+
+body.dark #socialNetworksContainer .social-network-icon:hover,
+body.dark #socialNetworksAdminButton:hover{
+    background:#000 !important;
+}
+
 .social-networks-admin{
     flex:0 0 42px;
     width:42px !important;
@@ -7936,8 +7975,9 @@ body{
 .project-thumbnail-lightbox{
     align-items:center !important;
     justify-content:center !important;
-    overflow:auto !important;
+    overflow:hidden !important;
     padding:20px !important;
+    overscroll-behavior:contain !important;
 }
 
 .project-thumbnail-lightbox.inside-modal{
@@ -7952,12 +7992,96 @@ body{
 .project-thumbnail-lightbox img{
     width:auto !important;
     height:auto !important;
-    max-width:92% !important;
-    max-height:88% !important;
+    max-width:none !important;
+    max-height:none !important;
     object-fit:contain !important;
 }
 
 /* Recordatorio */
+/* Editor de recordatorio mejorado */
+.reminder-section-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:20px 0 10px;
+    font-weight:700;
+    color:inherit;
+}
+
+.reminder-section-title i{
+    color:currentColor;
+}
+
+.reminder-check-row{
+    margin:10px 0 14px;
+    line-height:1.4;
+}
+
+.reminder-check-row input{
+    width:18px;
+    height:18px;
+    flex:0 0 18px;
+}
+
+.reminder-whatsapp-fields,
+.reminder-left-message-fields{
+    transition:opacity .2s ease;
+}
+
+.reminder-editor input::placeholder,
+.reminder-editor textarea::placeholder{
+    color:rgba(255,255,255,.30) !important;
+}
+
+body:not(.dark) .reminder-editor input::placeholder,
+body:not(.dark) .reminder-editor textarea::placeholder{
+    color:rgba(0,0,0,.30) !important;
+}
+
+.reminder-editor select,
+.reminder-editor input[type="date"],
+.reminder-editor input[type="time"]{
+    min-height:42px;
+}
+
+.reminder-editor .reminder-notice{
+    margin-top:18px;
+}
+
+.reminder-user-panel{
+    position:relative;
+}
+
+.reminder-progress-bar{
+    transition:width .5s ease, background-color .5s ease;
+}
+
+.reminder-final-toast{
+    position:fixed;
+    left:18px;
+    top:50%;
+    transform:translate(-120%,-50%);
+    z-index:10000000;
+    width:min(330px,calc(100vw - 36px));
+    padding:14px 18px;
+    border-radius:14px;
+    background:#000;
+    color:#fff;
+    box-shadow:0 12px 35px rgba(0,0,0,.35);
+    transition:transform .35s ease, opacity .35s ease;
+    opacity:0;
+}
+
+.reminder-final-toast.is-visible{
+    transform:translate(0,-50%);
+    opacity:1;
+}
+
+body.dark .reminder-user-panel{
+    background:#000 !important;
+    color:#fff !important;
+}
+
 .reminder-editor{
     display:none;
     margin:18px 0 8px;
@@ -8579,4 +8703,100 @@ body.dark #linksContainer .left > i{
 #backgroundImagePreview,
 #cardWatermarkLogoPreview{
     cursor:pointer;
+}
+
+/* Icono principal del recordatorio: campana con fondo dinámico. */
+#linksContainer .link-card.reminder-active .link-original-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:#fff !important;
+}
+
+
+/*====================================================
+    ALARMA DEL RECORDATORIO
+====================================================*/
+
+.reminder-alarm-enable-row{
+    margin-top:18px;
+    margin-bottom:4px;
+}
+
+.reminder-alarm-alert{
+    position:fixed;
+    top:18px;
+    left:18px;
+    right:auto;
+    z-index:10000001;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 17px;
+    border-radius:14px;
+    background:#b91c1c;
+    color:#fff;
+    box-shadow:0 0 0 2px rgba(255,255,255,.18),0 10px 35px rgba(0,0,0,.35);
+    opacity:0;
+    pointer-events:none;
+    border:0;
+    cursor:pointer;
+    font:inherit;
+    transform:translateY(-18px) scale(.92);
+    transition:opacity .2s ease,transform .2s ease;
+}
+
+.reminder-alarm-alert.is-active{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0) scale(1);
+    animation:reminderAlarmFlash .65s ease-in-out infinite alternate;
+}
+
+.reminder-alarm-alert i{
+    font-size:24px;
+    animation:reminderAlarmBell .45s ease-in-out infinite alternate;
+    transform-origin:50% 10%;
+}
+
+.reminder-alarm-alert span{
+    font-weight:800;
+    letter-spacing:.3px;
+}
+
+@keyframes reminderAlarmFlash{
+    from{
+        box-shadow:0 0 0 2px rgba(255,255,255,.2),0 0 8px rgba(239,68,68,.7),0 10px 35px rgba(0,0,0,.35);
+    }
+    to{
+        box-shadow:0 0 0 3px rgba(255,255,255,.65),0 0 28px rgba(239,68,68,1),0 10px 35px rgba(0,0,0,.35);
+    }
+}
+
+@keyframes reminderAlarmBell{
+    from{ transform:rotate(-12deg) translateX(-1px); }
+    to{ transform:rotate(12deg) translateX(1px); }
+}
+
+@media (max-width:600px){
+    .reminder-alarm-alert{
+        top:12px;
+        right:12px;
+        left:12px;
+        justify-content:center;
+    }
+}
+
+
+/* Recordatorio: los dos interruptores usan exactamente el mismo
+   diseño visual de "Activar música del sitio". */
+.reminder-switch-row{
+    margin:14px 0 12px;
+}
+
+.reminder-editor .reminder-progress-bar,
+#linksContainer .reminder-progress-bar{
+    min-width:0;
+    background-color:#22c55e !important;
 }
