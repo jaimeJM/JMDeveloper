@@ -764,6 +764,29 @@ app.use(session({
 
 function requireAdmin(req, res, next) {
 
+    console.log(
+        "========== REQUIRE ADMIN =========="
+    );
+
+    console.log(
+        "SESSION ID:",
+        req.sessionID
+    );
+
+    console.log(
+        "ADMIN:",
+        req.session.admin
+    );
+
+    console.log(
+        "COOKIE:",
+        req.headers.cookie
+    );
+
+    console.log(
+        "==================================="
+    );
+
     if (req.session.admin !== true) {
 
         return res.status(403).json({
@@ -940,6 +963,39 @@ app.post(
 
 
 /*====================================================
+            ELIMINAR LOGO ACTUAL
+====================================================*/
+app.post("/removeLogo", requireAdmin, (req, res) => {
+    try{
+        const configuracion = leerConfiguracion();
+        eliminarLogoAnterior(configuracion.logo);
+        configuracion.logo = "";
+        guardarConfiguracion(configuracion);
+        res.json({ok:true});
+    }catch(error){
+        console.error("Error eliminando logo:", error);
+        res.status(500).json({ok:false,error:error.message});
+    }
+});
+
+/*====================================================
+            ELIMINAR MINIATURA DE BOTÓN
+====================================================*/
+app.post("/deleteSocialImage", requireAdmin, (req, res) => {
+    try{
+        const ruta = String(req.body?.path || "").trim();
+        if(!ruta || !ruta.startsWith("/uploads/")){
+            return res.status(400).json({ok:false,error:"Ruta de imagen no válida."});
+        }
+        eliminarImagenAnterior(ruta);
+        res.json({ok:true});
+    }catch(error){
+        console.error("Error eliminando miniatura:", error);
+        res.status(500).json({ok:false,error:error.message});
+    }
+});
+
+/*====================================================
             SUBIR FUENTE
 ====================================================*/
 app.post(
@@ -1080,10 +1136,19 @@ app.post(
 
             }
 
+            const nuevaRuta =
+                "/uploads/" + req.file.filename;
+
+            const anterior =
+                String(req.body?.previousSocialImage || "").trim();
+
+            if(anterior && anterior !== nuevaRuta){
+                eliminarImagenAnterior(anterior);
+            }
+
             return res.json({
                 ok:true,
-                socialPhoto:
-                    "/uploads/" + req.file.filename
+                socialPhoto:nuevaRuta
             });
 
         }catch(error){
@@ -2871,6 +2936,11 @@ app.post("/admin/login", async (req, res) => {
         ====================================================*/
 
         req.session.admin = true;
+
+        console.log("===== LOGIN ADMIN =====");
+console.log("SESSION ID:", req.sessionID);
+console.log("ADMIN DESPUÉS DEL LOGIN:", req.session.admin);
+console.log("=======================");
 
 
 

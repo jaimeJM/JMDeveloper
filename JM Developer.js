@@ -3611,6 +3611,8 @@ activarVistaPreviaArchivo(
     "cardWatermarkLogoPreview"
 );
 
+activarBotonesEliminarMiniaturas();
+
 /*====================================================
     RESTAURAR VISTAS PREVIAS CON LAS IMÁGENES ACTUALES
 ====================================================*/
@@ -3665,6 +3667,7 @@ function restaurarVistasPreviasActuales(){
         if(watermarkActual) ajustarCajaMiniatura(watermarkPreview);
     }
 
+    activarBotonesEliminarMiniaturas();
 }
 
 
@@ -8156,6 +8159,108 @@ function actualizarVistaPreviaFotoEditor(url = ""){
     }
 }
 
+async function eliminarMiniaturaSocialEditor(){
+
+    const card = botonSeleccionado;
+    const ruta = card?.dataset.socialPhoto || "";
+
+    socialPhotoPendingFile = null;
+
+    const input = document.getElementById("linkSocialPhoto");
+    if(input){
+        input.value = "";
+    }
+
+    if(ruta){
+        try{
+            const respuesta = await fetch("/deleteSocialImage", {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({path:ruta})
+            });
+            const resultado = await respuesta.json();
+            if(!respuesta.ok || !resultado.ok){
+                throw new Error(resultado.error || "No se pudo eliminar la imagen.");
+            }
+        }catch(error){
+            console.error("Error eliminando miniatura:", error);
+            mostrarNotificacionGuardado("No se pudo eliminar la miniatura", error.message);
+            return;
+        }
+    }
+
+    if(card){
+        card.dataset.socialPhoto = "";
+    }
+
+    actualizarVistaPreviaFotoEditor("");
+
+    if(card){
+        try{
+            await guardarBotones();
+        }catch(error){
+            console.error("Error guardando eliminación de miniatura:", error);
+        }
+    }
+}
+
+function activarBotonesEliminarMiniaturas(){
+
+    document.querySelectorAll(".file-upload-preview .file-preview-box").forEach(box => {
+        if(box.dataset.removeBound === "true") return;
+        box.dataset.removeBound = "true";
+
+        const img = box.querySelector("img");
+        if(!img) return;
+
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = "preview-remove-button";
+        boton.setAttribute("aria-label", "Eliminar miniatura");
+        boton.title = "Eliminar miniatura";
+        boton.innerHTML = '<i class="fa-solid fa-trash"></i>';
+        box.appendChild(boton);
+
+        boton.addEventListener("click", async e => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const id = img.id;
+
+            if(id === "linkSocialPhotoPreview"){
+                await eliminarMiniaturaSocialEditor();
+                return;
+            }
+
+            if(id === "logoFilePreview"){
+                try{
+                    const respuesta = await fetch("/removeLogo", {method:"POST"});
+                    const resultado = await respuesta.json();
+                    if(!resultado.ok) throw new Error(resultado.error || "No se pudo eliminar el logo.");
+                    configuracion.logo = "";
+                    img.src = "";
+                    img.style.display = "none";
+                    box.classList.remove("has-image");
+                    if(typeof logo !== "undefined") logo.src = "";
+                    if(typeof favicon !== "undefined") favicon.href = "";
+                }catch(error){
+                    mostrarNotificacionGuardado("No se pudo eliminar el logo", error.message);
+                }
+                return;
+            }
+
+            if(id === "backgroundImagePreview"){
+                document.getElementById("removeCardImage")?.click();
+                return;
+            }
+
+            if(id === "cardWatermarkLogoPreview"){
+                document.getElementById("removeCardWatermark")?.click();
+            }
+        });
+    });
+}
+
 function limpiarFotoPendienteEditor(){
     socialPhotoPendingFile = null;
 
@@ -8950,6 +9055,20 @@ function mostrarMensajeFinalRecordatorio(card){
 
 const recordatorioAlarmasActivas = new WeakMap();
 
+let recordatorioUsuarioInteractuo = false;
+
+if(!window.__jmReminderInteractionBound){
+    window.__jmReminderInteractionBound = true;
+
+    const marcarInteraccionRecordatorio = () => {
+        recordatorioUsuarioInteractuo = true;
+    };
+
+    window.addEventListener("pointerdown", marcarInteraccionRecordatorio, { passive:true });
+    window.addEventListener("keydown", marcarInteraccionRecordatorio, { passive:true });
+    window.addEventListener("touchstart", marcarInteraccionRecordatorio, { passive:true });
+}
+
 function crearAvisoAlarmaRecordatorio(card = null){
 
     let aviso =
@@ -9029,11 +9148,23 @@ function iniciarAlarmaRecordatorio(card){
 
     recordatorioAlarmasActivas.set(card, estado);
 
+
     const vibrar = () => {
-        if("vibrate" in navigator){
-            try{
-                navigator.vibrate([500,300,500,300,900]);
-            }catch(_){ }
+        if(!recordatorioUsuarioInteractuo){
+            return;
+        }
+
+        if(
+            typeof navigator === "undefined" ||
+            typeof navigator.vibrate !== "function"
+        ){
+            return;
+        }
+
+        try{
+            navigator.vibrate([500,300,500,300,900]);
+        }catch(_){
+            // La vibración es opcional; la alarma continúa sin ella.
         }
     };
 
@@ -9095,9 +9226,6 @@ function restaurarFechasRecordatorioFinalizado(card){
 
     if(!card) return;
 
-    /* La alarma se dispara antes de borrar los datos del recordatorio. */
-    iniciarAlarmaRecordatorio(card);
-
     /*
         Si WhatsApp está activado, conservamos una copia mínima del
         momento final para que el servidor pueda enviar el aviso aunque
@@ -9126,6 +9254,7 @@ function restaurarFechasRecordatorioFinalizado(card){
     card.dataset.reminderEnabled = "false";
     card.dataset.reminderLastSentKey = "";
     card.dataset.reminderLastToastKey = "";
+    card.dataset.reminderRuntimeReady = "false";
 
     const panel = card.querySelector(".reminder-user-panel");
     panel?.remove();
@@ -9140,7 +9269,11 @@ function restaurarFechasRecordatorioFinalizado(card){
 
     const icono = card.querySelector(".link-original-icon");
     if(icono){
-        icono.className = "link-original-icon fa-regular fa-calendar";
+        const iconoOriginal =
+            card.dataset.reminderOriginalIcon || icono.className;
+
+        icono.className = iconoOriginal;
+        icono.style.display = "";
         icono.style.color = "";
         icono.style.backgroundColor = "";
         icono.style.borderRadius = "";
@@ -9148,8 +9281,14 @@ function restaurarFechasRecordatorioFinalizado(card){
         icono.style.boxSizing = "";
     }
 
-    /* Persistir inmediatamente el restablecimiento de fechas. */
-    guardarBotones();
+    /*
+        La alarma puede ejecutarse aunque la sesión de administrador
+        ya no esté activa. Intentamos persistir el estado, pero en modo
+        silencioso no mostramos el aviso de sesión al usuario.
+    */
+    guardarBotones({
+        silencioso: true
+    });
 }
 
 function actualizarRecordatorioUsuario(card){
@@ -9326,32 +9465,49 @@ function actualizarRecordatorioUsuario(card){
     }
 
     if(bell){
-        bell.style.backgroundColor =
-            color;
+        /*
+            El CSS de la campana usa !important sobre la variable
+            --reminder-state-color. Actualizamos la variable en cada
+            tick para que fondo y barra cambien juntos, sin recargar.
+        */
+        bell.style.setProperty(
+            "--reminder-state-color",
+            color
+        );
+        bell.style.setProperty(
+            "background-color",
+            color,
+            "important"
+        );
     }
 
     if(iconoPrincipal){
-        iconoPrincipal.className =
-            "link-original-icon fa-solid fa-bell";
-        iconoPrincipal.style.color =
-            "#fff";
-        iconoPrincipal.style.backgroundColor =
-            color;
-        iconoPrincipal.style.borderRadius =
-            "50%";
-        iconoPrincipal.style.padding =
-            "9px";
-        iconoPrincipal.style.boxSizing =
-            "border-box";
+        iconoPrincipal.style.color = "";
+        iconoPrincipal.style.backgroundColor = "";
+        iconoPrincipal.style.borderRadius = "";
+        iconoPrincipal.style.padding = "";
+        iconoPrincipal.style.boxSizing = "";
     }
 
     mostrarMensajeFinalRecordatorio(card);
 
     if(ahora >= fin){
 
+        /*
+            La primera restauración puede ocurrir durante la carga de la página.
+            En ese momento no se debe disparar la alarma automáticamente.
+            Una vez que el recordatorio ya está funcionando en tiempo real,
+            llegar a cero sí activa la alarma antes de limpiar las fechas.
+        */
+        if(card.dataset.reminderRuntimeReady === "true"){
+            iniciarAlarmaRecordatorio(card);
+        }
+
         restaurarFechasRecordatorioFinalizado(card);
         return;
     }
+
+    card.dataset.reminderRuntimeReady = "true";
 }
 
 function activarRecordatoriosUsuario(){
@@ -9415,6 +9571,26 @@ function activarRecordatoriosUsuario(){
             card.dataset.reminderEnabled === "true" &&
             tieneFechas;
 
+        const esTipoRecordatorio =
+            tipo === "recordatorio";
+
+        if(esTipoRecordatorio && icono){
+
+            /*
+                Conservamos el icono original. El recordatorio activo
+                se representa exclusivamente con .reminder-bell-left.
+            */
+            if(!card.dataset.reminderOriginalIcon){
+                card.dataset.reminderOriginalIcon = icono.className;
+            }
+
+            icono.style.color = "";
+            icono.style.backgroundColor = "";
+            icono.style.borderRadius = "";
+            icono.style.padding = "";
+            icono.style.boxSizing = "";
+        }
+
         if(esRecordatorio){
 
             card.classList.add(
@@ -9423,10 +9599,7 @@ function activarRecordatoriosUsuario(){
 
             if(bell){
                 bell.style.display = "flex";
-                bell.setAttribute(
-                    "aria-hidden",
-                    "false"
-                );
+                bell.setAttribute("aria-hidden", "false");
             }
 
             actualizarRecordatorioUsuario(card);
@@ -9453,12 +9626,6 @@ function activarRecordatoriosUsuario(){
             if(panel){
                 panel.remove();
             }
-
-            /*
-                Sin fechas activas no se muestra ningún
-                icono de calendario. Solo un recordatorio
-                que ya terminó vuelve a calendario.
-            */
         }
     });
 }
@@ -10149,6 +10316,13 @@ async function subirFotoSocialEditor(){
         socialPhotoPendingFile
     );
 
+    if(botonSeleccionado?.dataset.socialPhoto){
+        datos.append(
+            "previousSocialImage",
+            botonSeleccionado.dataset.socialPhoto
+        );
+    }
+
     const respuesta = await fetch(
         "/uploadSocialImage",
         {
@@ -10404,118 +10578,79 @@ function activarColoresPanelEditor(){
 
 function ajustarEspacioPanelInformacion(card){
 
-    if(!card) return;
+    const links =
+        document.getElementById("linksContainer");
 
-    const panel =
-        card.querySelector(".social-info-panel");
-
-    if(!panel) return;
-
-    if(!card.classList.contains("social-info-open")){
-
-        card.style.removeProperty("margin-top");
+    if(!links){
         return;
-
     }
 
-    /*
-        El panel se dibuja por encima del botón, pero la tarjeta
-        se desplaza solo lo necesario para que el panel no tape
-        el botón anterior. Los botones siguientes quedan debajo
-        de forma natural porque la tarjeta conserva su espacio en el flujo.
-
-        Puedes ajustar la separación desde CSS con:
-        --social-info-gap: 5px;
-    */
-    requestAnimationFrame(() => {
-
-        const alturaPanel =
-            Math.min(
-                panel.scrollHeight,
-                430
-            );
-
-        const links =
-            document.getElementById(
-                "linksContainer"
-            );
-
-        const gapConfigurado =
-            links
-                ? parseFloat(
-                    getComputedStyle(links)
-                        .getPropertyValue("--social-info-gap")
-                ) || 5
-                : 5;
-
-        const cardRect =
-            card.getBoundingClientRect();
-
-        const panelTopActual =
-            cardRect.top -
-            alturaPanel -
-            8;
-
-        let desplazamiento =
-            alturaPanel + 8;
+    const aplicarAjuste = () => {
 
         const tarjetas =
             Array.from(
-                document.querySelectorAll(
-                    "#linksContainer .link-card"
-                )
+                links.querySelectorAll(".link-card")
             );
 
-        const indice =
-            tarjetas.indexOf(card);
+        tarjetas.forEach(tarjeta => {
+            tarjeta.style.removeProperty("transform");
+            delete tarjeta.dataset.infoPanelShift;
+        });
 
-        if(indice > 0){
+        const abierta =
+            tarjetas.find(tarjeta =>
+                tarjeta.classList.contains("social-info-open")
+            );
 
-            const tarjetaAnterior =
-                tarjetas[indice - 1];
-
-            const anteriorRect =
-                tarjetaAnterior.getBoundingClientRect();
-
-            const panelTopDeseado =
-                anteriorRect.bottom +
-                gapConfigurado;
-
-            const desplazamientoNecesario =
-                panelTopDeseado -
-                panelTopActual;
-
-            desplazamiento =
-                Math.max(0, desplazamientoNecesario);
-
-        }else if(links){
-
-            const linksRect =
-                links.getBoundingClientRect();
-
-            const panelTopDeseado =
-                linksRect.top +
-                gapConfigurado;
-
-            const desplazamientoNecesario =
-                panelTopDeseado -
-                panelTopActual;
-
-            desplazamiento =
-                Math.max(0, desplazamientoNecesario);
-
+        if(!abierta){
+            return;
         }
 
-        card.style.setProperty(
-            "margin-top",
-            `${Math.ceil(desplazamiento)}px`,
-            "important"
-        );
+        const panel =
+            abierta.querySelector(".social-info-panel");
 
+        const indice =
+            tarjetas.indexOf(abierta);
+
+        if(!panel || indice <= 0){
+            return;
+        }
+
+        const altura =
+            Math.ceil(panel.getBoundingClientRect().height);
+
+        if(altura <= 0){
+            return;
+        }
+
+        const separacion = 10;
+        const desplazamiento =
+            -(altura + separacion);
+
+        for(let i = 0; i < indice; i++){
+            tarjetas[i].dataset.infoPanelShift =
+                String(desplazamiento);
+
+            tarjetas[i].style.setProperty(
+                "transform",
+                `translateY(${desplazamiento}px)`,
+                "important"
+            );
+        }
+    };
+
+    /*
+        El panel contiene imágenes y puede crecer después del primer
+        frame. Medimos varias veces para que el desplazamiento ocurra
+        desde la primera apertura y no recién al cerrar/reabrir.
+    */
+    requestAnimationFrame(() => {
+        requestAnimationFrame(aplicarAjuste);
     });
 
+    setTimeout(aplicarAjuste, 120);
+    setTimeout(aplicarAjuste, 350);
 }
-
 
 function activarBotonesInfoUsuario(){
 
@@ -10582,9 +10717,7 @@ function activarBotonesInfoUsuario(){
                             "social-info-open"
                         );
 
-                        card.style.removeProperty(
-                            "margin-top"
-                        );
+                        ajustarEspacioPanelInformacion(card);
 
                         if(icono){
                             icono.className =
@@ -10595,7 +10728,7 @@ function activarBotonesInfoUsuario(){
 
             }else{
 
-                card.style.removeProperty("margin-top");
+                ajustarEspacioPanelInformacion(card);
 
                 if(card._infoAutoHideTimer){
                     clearTimeout(
@@ -10847,9 +10980,22 @@ botonSeleccionado.dataset.buttonText =
 
         /* ACTUALIZAR ICONO */
 
-        botonSeleccionado
-            .querySelector(".left i")
-            .className = icono;
+        const iconoPrincipalEditor =
+            botonSeleccionado.querySelector(".link-original-icon");
+
+        if(iconoPrincipalEditor){
+            const claseIcono = String(icono || "")
+                .replace(/\blink-original-icon\b/g, "")
+                .trim();
+
+            iconoPrincipalEditor.className =
+                `link-original-icon ${claseIcono}`.trim();
+
+            if(tipoEnlace === "recordatorio"){
+                botonSeleccionado.dataset.reminderOriginalIcon =
+                    iconoPrincipalEditor.className;
+            }
+        }
 
 
         /* ACTUALIZAR URL */
@@ -10962,28 +11108,78 @@ botonSeleccionado.dataset.buttonText =
                 ? "true"
                 : "false";
 
-        const iconoBotonGuardado =
-            botonSeleccionado.querySelector(".link-original-icon");
+const iconoBotonGuardado =
+    botonSeleccionado.querySelector(".link-original-icon");
 
-        if(iconoBotonGuardado){
+let campanaGuardada =
+    botonSeleccionado.querySelector(".reminder-bell-left");
 
-            iconoBotonGuardado.className =
-                recordatorioCompleto
-                    ? "link-original-icon fa-solid fa-bell"
-                    : tipoEnlace === "recordatorio"
-                        ? "link-original-icon fa-regular fa-calendar"
-                        : icono;
+if(recordatorioCompleto){
+
+    botonSeleccionado.classList.add("reminder-active");
+
+    if(iconoBotonGuardado){
+        if(!botonSeleccionado.dataset.reminderOriginalIcon){
+            botonSeleccionado.dataset.reminderOriginalIcon =
+                iconoBotonGuardado.className;
         }
 
-        const campanaGuardada =
-            botonSeleccionado.querySelector(".reminder-bell");
+        iconoBotonGuardado.style.display = "none";
+    }
 
-        if(campanaGuardada){
-            campanaGuardada.style.display =
-                recordatorioCompleto
-                    ? "flex"
-                    : "none";
+    /*
+        Garantiza la misma estructura para botones antiguos y nuevos.
+        No se crea una campana como <i> principal: siempre va dentro
+        de .reminder-bell-left.
+    */
+    if(!campanaGuardada){
+        const left =
+            botonSeleccionado.querySelector(".left");
+
+        if(left){
+            campanaGuardada =
+                document.createElement("button");
+
+            campanaGuardada.type = "button";
+            campanaGuardada.className =
+                "reminder-bell reminder-bell-left";
+            campanaGuardada.setAttribute(
+                "aria-label",
+                "Mostrar recordatorio"
+            );
+            campanaGuardada.innerHTML =
+                '<i class="fa-solid fa-bell"></i>';
+
+            left.appendChild(campanaGuardada);
         }
+    }
+
+    if(campanaGuardada){
+        campanaGuardada.style.display = "flex";
+        campanaGuardada.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+    }
+
+    actualizarRecordatorioUsuario(botonSeleccionado);
+
+}else{
+
+    botonSeleccionado.classList.remove("reminder-active");
+
+    if(campanaGuardada){
+        campanaGuardada.style.display = "none";
+        campanaGuardada.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+    if(iconoBotonGuardado){
+        iconoBotonGuardado.style.display = "";
+    }
+}
 
         aplicarColoresPanelInformacion(
             botonSeleccionado
@@ -13550,32 +13746,6 @@ function actualizarColorIconosCardStats() {
     );
 
 
-    console.log(
-        "CARDSTATS → fondo:",
-        backgroundColor
-    );
-
-    console.log(
-        "CARDSTATS → imagen:",
-        backgroundImage
-    );
-
-    console.log(
-        "CARDSTATS → RGB:",
-        Math.round(r),
-        Math.round(g),
-        Math.round(b)
-    );
-
-    console.log(
-        "CARDSTATS → luminosidad:",
-        Math.round(luminosidad)
-    );
-
-    console.log(
-        "CARDSTATS → iconos:",
-        colorIconos
-    );
 }
 
 
@@ -13711,7 +13881,16 @@ function detectarColorFondoCardStats() {
 let guardandoBotones = false;
 let guardarBotonesPendiente = false;
 
-async function guardarBotones(){
+async function guardarBotones(opciones = {}){
+
+    /*
+        Las operaciones automáticas del recordatorio pueden necesitar
+        persistir cambios, pero no deben mostrar al visitante una
+        notificación de sesión expirada. El guardado manual continúa
+        verificando la sesión normalmente.
+    */
+    const guardadoSilencioso =
+        opciones?.silencioso === true;
 
     const contenedor =
         document.getElementById("linksContainer");
@@ -13876,9 +14055,40 @@ async function guardarBotones(){
 
                 });
 
+            /*
+                Verificamos la sesión antes de intentar guardar. Así,
+                una sesión vencida no genera un POST 403 en cada
+                actualización automática del recordatorio.
+            */
+            const estadoSesion =
+                await fetch("/admin/status", {
+                    method: "GET",
+                    credentials: "same-origin",
+                    cache: "no-store"
+                });
+
+            const sesion =
+                estadoSesion.ok
+                    ? await estadoSesion.json()
+                    : { admin: false };
+
+            if(!sesion.admin){
+
+                if(!guardadoSilencioso){
+                    mostrarNotificacionGuardado(
+                        "Sesión de administrador",
+                        "La sesión no está activa. Inicia sesión nuevamente para guardar los cambios."
+                    );
+                }
+
+                return;
+            }
+
             const respuesta = await fetch("/botones", {
 
                 method: "POST",
+
+                credentials: "same-origin",
 
                 headers: {
 
@@ -14498,6 +14708,8 @@ function mostrarControles(){
 
     activarBotonesInfoUsuario();
 
+    activarRecordatoriosUsuario();
+
     activarBotones();
 
     activarLinks();
@@ -14562,6 +14774,8 @@ function ocultarControles(){
     });
 
     activarBotonesInfoUsuario();
+
+    activarRecordatoriosUsuario();
 
 
     cardStatsAdminPuedeMover =
